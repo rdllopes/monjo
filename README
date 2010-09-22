@@ -1,0 +1,2 @@
+A type-safe Java library that helps your code to interact with MongoDB documents and convert them to/from Java objects.
+This library is currently at a very early development stage.

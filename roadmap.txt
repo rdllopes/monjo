@@ -1,0 +1,7 @@
+Roadmap:
+--
+* Basic Document to POJO conversion
+* Basic POJO to Document conversion
+* Special handling for ObjectIds
+* Simple Query API
+* Handle atomic operations ($set, $inc, etc)
