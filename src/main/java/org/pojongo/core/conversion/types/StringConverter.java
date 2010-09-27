@@ -8,9 +8,6 @@ package org.pojongo.core.conversion.types;
  */
 public class StringConverter implements TypeConverter<String> {
 
-	/**
-	 * @see org.pojongo.core.conversion.types.TypeConverter#fromObject(java.lang.Object)
-	 */
 	@Override
 	public String fromObject(Object object) {
 		if (object == null) {
