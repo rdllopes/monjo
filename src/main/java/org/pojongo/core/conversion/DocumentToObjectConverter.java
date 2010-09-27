@@ -9,30 +9,40 @@ import com.mongodb.DBObject;
 
 public class DocumentToObjectConverter {
 
+	private final Mirror mirror;
 	private DBObject document;
-	private Mirror mirror;
 	
 	public DocumentToObjectConverter() {
 		this.mirror = new Mirror();
 	}
 	
-	public DocumentToObjectConverter from(DBObject document) {
+	public DocumentToObjectConverter from(final DBObject document) {
+		if (document == null) {
+			throw new IllegalArgumentException("cannot convert a null document");
+		}
 		this.document = document;
 		return this;
 	}
 	
-	public <T extends Object> T to(Class<T> objectType) {
+	public <T extends Object> T to(final Class<T> objectType) {
 		T instance = instanceFor(objectType);
-		List<Field> fields = mirror.on(objectType).reflectAll().fields();
+		List<Field> fields = getFieldsFor(objectType);
 		
 		for (Field field : fields) {
-			mirror.on(instance).set().field(field).withValue(document.get(field.getName()));
+			String fieldName = field.getName();
+			if (document.containsField(fieldName)) {
+				mirror.on(instance).set().field(field).withValue(document.get(fieldName));
+			}
 		}
 		
 		return instance;
 	}
 
-	private <T> T instanceFor(Class<T> objectType) {
+	private <T> List<Field> getFieldsFor(final Class<T> objectType) {
+		return mirror.on(objectType).reflectAll().fields();
+	}
+
+	private <T> T instanceFor(final Class<T> objectType) {
 		return mirror.on(objectType).invoke().constructor().withoutArgs();
 	}
 
