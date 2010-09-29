@@ -15,13 +15,13 @@ import org.pojongo.test.util.MongoDBTest;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class DocumentToObjectConverterTest extends MongoDBTest {
+public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	
-	private DocumentToObjectConverter converter;
+	private DefaultDocumentToObjectConverter converter;
 
 	@Before
 	public void setUp() throws Exception {
-		converter = new DocumentToObjectConverter();
+		converter = new DefaultDocumentToObjectConverter();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

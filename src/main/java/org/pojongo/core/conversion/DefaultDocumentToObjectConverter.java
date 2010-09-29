@@ -13,7 +13,7 @@ import com.mongodb.DBObject;
  * 
  * @author Caio Filipini
  */
-public class DocumentToObjectConverter {
+public class DefaultDocumentToObjectConverter {
 
 	private final Mirror mirror;
 	private DBObject document;
@@ -21,7 +21,7 @@ public class DocumentToObjectConverter {
 	/**
 	 * Default constructor.
 	 */
-	public DocumentToObjectConverter() {
+	public DefaultDocumentToObjectConverter() {
 		this.mirror = new Mirror();
 	}
 	
@@ -32,7 +32,7 @@ public class DocumentToObjectConverter {
 	 * @return the converter.
 	 * @throws IllegalArgumentException if <code>document</code> is null.
 	 */
-	public DocumentToObjectConverter from(final DBObject document) {
+	public DefaultDocumentToObjectConverter from(final DBObject document) {
 		if (document == null) {
 			throw new IllegalArgumentException("cannot convert a null document");
 		}
