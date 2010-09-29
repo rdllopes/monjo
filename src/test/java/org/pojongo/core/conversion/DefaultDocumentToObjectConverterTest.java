@@ -17,7 +17,7 @@ import com.mongodb.DBObject;
 
 public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	
-	private DefaultDocumentToObjectConverter converter;
+	private DocumentToObjectConverter converter;
 
 	@Before
 	public void setUp() throws Exception {

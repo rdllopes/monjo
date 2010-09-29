@@ -8,12 +8,12 @@ import net.vidageek.mirror.dsl.Mirror;
 import com.mongodb.DBObject;
 
 /**
- * Class responsible for converting <code>DBObject</code> instances<br>
- * to a given Java Object based on the matching fields.
+ * Default implementation of <code>DocumentToObjectConverter</code>.
  * 
  * @author Caio Filipini
+ * @see org.pojongo.core.conversion.DocumentToObjectConverter
  */
-public class DefaultDocumentToObjectConverter {
+public class DefaultDocumentToObjectConverter implements DocumentToObjectConverter {
 
 	private final Mirror mirror;
 	private DBObject document;
@@ -26,12 +26,9 @@ public class DefaultDocumentToObjectConverter {
 	}
 	
 	/**
-	 * Builder method used to configure which <code>DBObject</code> should be converted.
-	 * 
-	 * @param document the <code>DBObject</code> to be converted to Java object.
-	 * @return the converter.
-	 * @throws IllegalArgumentException if <code>document</code> is null.
+	 * @see org.pojongo.core.conversion.DocumentToObjectConverter#from(com.mongodb.DBObject)
 	 */
+	@Override
 	public DefaultDocumentToObjectConverter from(final DBObject document) {
 		if (document == null) {
 			throw new IllegalArgumentException("cannot convert a null document");
@@ -40,18 +37,10 @@ public class DefaultDocumentToObjectConverter {
 		return this;
 	}
 	
-	/**
-	 * Converts the previously configured <code>DBObject</code> to a corresponding instance<br />
-	 * of the specified Java class <code>objectType</code>.<br /><br/>
-	 * 
-	 * The conversion is done by reflecting <code>objectType</code>'s attributes and finding<br />
-	 * corresponding fields in <code>DBObject<code>. If a matching field is found, its value is<br />
-	 * set on the target object, preserving the data type returned by MongoDB's driver.
-	 * 
-	 * @param <T> the generic type for objectType.
-	 * @param objectType the type to be converted to.
-	 * @return an instance of <code>objectType</code> populated with corresponding values from MongoDB's document.
+	/* (non-Javadoc)
+	 * @see org.pojongo.core.conversion.DocumentToObjectConverter#to(java.lang.Class)
 	 */
+	@Override
 	public <T extends Object> T to(final Class<T> objectType) {
 		T instance = instanceFor(objectType);
 		List<Field> fields = getFieldsFor(objectType);
