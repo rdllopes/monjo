@@ -89,4 +89,20 @@ public class DocumentToObjectConverterTest extends MongoDBTest {
 		assertThat(convertedObject.getId(), is(equalTo(documentId)));
 	}
 	
+	@Test
+	@SuppressWarnings("rawtypes")
+	public void shouldPopulateStringId() {
+		DBObject document = new BasicDBObject();
+		document.put("_id", "abcd1234");
+		saveToMongo(document);
+		
+		Object documentId = document.get("_id");
+		DBObject docFromMongo = getFromMongo(documentId);
+		
+		SimplePOJOWithStringId convertedObject = converter.from(docFromMongo).to(SimplePOJOWithStringId.class);
+		Class idClass = convertedObject.getId().getClass();
+		assertThat(idClass, is(equalTo(String.class)));
+		assertThat(convertedObject.getId(), is(equalTo(documentId)));
+	}
+	
 }
