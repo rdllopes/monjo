@@ -4,26 +4,26 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pojongo.test.util.MongoDBTest;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class DocumentToObjectConverterTest {
+public class DocumentToObjectConverterTest extends MongoDBTest {
 	
 	private DocumentToObjectConverter converter;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		converter = new DocumentToObjectConverter();
 	}
-
+	
 	@Test(expected=IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionIfDocumentIsNull() {
 		converter.from(null);
@@ -31,28 +31,50 @@ public class DocumentToObjectConverterTest {
 	
 	@Test
 	public void shouldConvertASimpleDocumentWithStringFieldsToAJavaObject() {
-		DBObject document = mock(DBObject.class);
-		when(document.containsField(anyString())).thenReturn(true);
-		when(document.get("aField")).thenReturn("aFieldValue");
-		when(document.get("anotherField")).thenReturn("anotherFieldValue");
+		DBObject document = new BasicDBObject();
+		document.put("aField", "aFieldValue");
+		document.put("anotherField", "anotherFieldValue");
+		saveToMongo(document);
 		
-		SimplePOJO convertedObject = converter.from(document).to(SimplePOJO.class);
+		DBObject docFromMongo = getFromMongo(document.get("_id"));
+		
+		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
 		assertThat(convertedObject.getAField(), is(equalTo("aFieldValue")));
 		assertThat(convertedObject.getAnotherField(), is(equalTo("anotherFieldValue")));
 	}
 	
 	@Test
 	public void shouldOnlyConvertFieldIfTheDocumentContainsAMatchingField() {
-		DBObject document = mock(DBObject.class);
-		when(document.containsField("aField")).thenReturn(true);
-		when(document.get("aField")).thenReturn("aFieldValue");
-		when(document.containsField("anotherField")).thenReturn(false);
+		DBObject document = new BasicDBObject();
+		document.put("aField", "aFieldValue");
+		saveToMongo(document);
 		
-		SimplePOJO convertedObject = converter.from(document).to(SimplePOJO.class);
+		DBObject doc = spy(document);
+		
+		DBObject docFromMongo = getFromMongo(document.get("_id"));
+		
+		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
 		assertThat(convertedObject.getAField(), is(equalTo("aFieldValue")));
 		assertThat(convertedObject.getAnotherField(), is(nullValue()));
 		
-		verify(document, never()).get("anotherField");
+		verify(doc, never()).get("anotherField");
+	}
+	
+	@Test
+	public void shouldConvertNumericValues() {
+		DBObject document = new BasicDBObject();
+		document.put("anIntegerField", 42);
+		document.put("aLongField", 43L);
+		document.put("aDoubleField", 44.0);
+		document.put("aFloatField", 45.0f);
+		saveToMongo(document);
+		
+		DBObject docFromMongo = getFromMongo(document.get("_id"));
+		
+		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
+		assertThat(convertedObject.getAnIntegerField(), is(equalTo(42)));
+		assertThat(convertedObject.getALongField(), is(equalTo(43L)));
+		assertThat(convertedObject.getADoubleField(), is(equalTo(44.0)));
 	}
 	
 }
