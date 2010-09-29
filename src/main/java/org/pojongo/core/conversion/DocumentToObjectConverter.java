@@ -30,6 +30,10 @@ public class DocumentToObjectConverter {
 		
 		for (Field field : fields) {
 			String fieldName = field.getName();
+			if ("id".equals(fieldName)) {
+				mirror.on(instance).set().field(field).withValue(document.get("_id"));
+				continue;
+			}
 			if (document.containsField(fieldName)) {
 				mirror.on(instance).set().field(field).withValue(document.get(fieldName));
 			}

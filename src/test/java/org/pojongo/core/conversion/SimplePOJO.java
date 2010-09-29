@@ -1,7 +1,11 @@
 package org.pojongo.core.conversion;
 
-public class SimplePOJO {
+import org.bson.types.ObjectId;
+import org.pojongo.document.IdentifiableDocument;
+
+public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	
+	private ObjectId id;
 	private String aField;
 	private String anotherField;
 	private Integer anIntegerField;
@@ -29,6 +33,11 @@ public class SimplePOJO {
 	
 	public Long getALongField() {
 		return aLongField;
+	}
+
+	@Override
+	public ObjectId getId() {
+		return id;
 	}
 	
 }

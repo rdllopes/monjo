@@ -76,5 +76,17 @@ public class DocumentToObjectConverterTest extends MongoDBTest {
 		assertThat(convertedObject.getALongField(), is(equalTo(43L)));
 		assertThat(convertedObject.getADoubleField(), is(equalTo(44.0)));
 	}
+
+	@Test
+	public void shouldPopulateIdWithMongosGeneratedIdValue() {
+		DBObject document = new BasicDBObject();
+		saveToMongo(document);
+		
+		Object documentId = document.get("_id");
+		DBObject docFromMongo = getFromMongo(documentId);
+		
+		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
+		assertThat(convertedObject.getId(), is(equalTo(documentId)));
+	}
 	
 }
