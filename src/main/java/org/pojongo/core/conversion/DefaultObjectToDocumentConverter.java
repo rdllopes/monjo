@@ -8,11 +8,20 @@ import net.vidageek.mirror.dsl.Mirror;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
+/**
+ * Default implementation of <code>ObjectToDocumentConverter</code>.
+ * 
+ * @author Caio Filipini
+ * @see org.pojongo.core.conversion.ObjectToDocumentConverter
+ */
 public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
 
 	private final Mirror mirror;
 	private Object javaObject;
 	
+	/**
+	 * Default constructor.
+	 */
 	public DefaultObjectToDocumentConverter() {
 		this.mirror = new Mirror();
 	}

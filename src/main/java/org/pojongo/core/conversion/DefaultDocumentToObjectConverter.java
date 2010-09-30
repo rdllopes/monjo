@@ -25,9 +25,6 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		this.mirror = new Mirror();
 	}
 	
-	/**
-	 * @see org.pojongo.core.conversion.DocumentToObjectConverter#from(com.mongodb.DBObject)
-	 */
 	@Override
 	public DefaultDocumentToObjectConverter from(final DBObject document) {
 		if (document == null) {
@@ -38,7 +35,8 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 	}
 	
 	@Override
-	public <T extends Object> T to(final Class<T> objectType) throws IllegalStateException {
+	public <T extends Object> T to(final Class<T> objectType)
+			throws IllegalStateException, IllegalArgumentException {
 		if (document == null) {
 			throw new IllegalStateException("cannot convert a null document, please call from(DBObject) first!");
 		}
