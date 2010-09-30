@@ -48,9 +48,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 			String fieldName = field.getName();
 			if ("id".equals(fieldName)) {
 				mirror.on(instance).set().field(field).withValue(document.get("_id"));
-				continue;
-			}
-			if (document.containsField(fieldName)) {
+			} else if (document.containsField(fieldName)) {
 				mirror.on(instance).set().field(field).withValue(document.get(fieldName));
 			}
 		}
