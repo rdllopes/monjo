@@ -11,6 +11,7 @@ import org.pojongo.core.conversion.ObjectToDocumentConverter;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class ConversionExample {
@@ -30,7 +31,8 @@ public class ConversionExample {
 		DBCursor cursor = examples.find();
 		
 		while (cursor.hasNext()) {
-			exampleList.add(converter.from(cursor.next()).to(Example.class));
+			DBObject document = cursor.next();
+			exampleList.add(converter.from(document).to(Example.class));
 		}
 		
 		for (Example example : exampleList) {
