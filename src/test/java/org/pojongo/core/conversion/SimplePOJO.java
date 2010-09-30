@@ -14,25 +14,45 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	
 	public SimplePOJO() {
 	}
-
+	
 	public String getAField() {
 		return aField;
+	}
+	
+	public void setAField(String aField) {
+		this.aField = aField;
 	}
 
 	public String getAnotherField() {
 		return anotherField;
 	}
 	
+	public void setAnotherField(String anotherField) {
+		this.anotherField = anotherField;
+	}
+	
 	public Integer getAnIntegerField() {
 		return anIntegerField;
+	}
+	
+	public void setAnIntegerField(Integer anIntegerField) {
+		this.anIntegerField = anIntegerField;
 	}
 	
 	public Double getADoubleField() {
 		return aDoubleField;
 	}	
 	
+	public void setADoubleField(Double aDoubleField) {
+		this.aDoubleField = aDoubleField;
+	}
+	
 	public Long getALongField() {
 		return aLongField;
+	}
+	
+	public void setALongField(Long aLongField) {
+		this.aLongField = aLongField;
 	}
 
 	@Override
@@ -40,4 +60,10 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		return id;
 	}
 	
+	public void generateId() {
+		if (this.id == null) {
+			this.id = new ObjectId();
+		}
+	}
+
 }

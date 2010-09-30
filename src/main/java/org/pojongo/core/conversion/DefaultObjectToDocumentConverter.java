@@ -1,0 +1,54 @@
+package org.pojongo.core.conversion;
+
+import java.lang.reflect.Field;
+import java.util.List;
+
+import net.vidageek.mirror.dsl.Mirror;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
+
+	private final Mirror mirror;
+	private Object javaObject;
+	
+	public DefaultObjectToDocumentConverter() {
+		this.mirror = new Mirror();
+	}
+
+	@Override
+	public ObjectToDocumentConverter from(final Object javaObject) {
+		if (javaObject == null) {
+			throw new IllegalArgumentException("cannot convert a null object");
+		}
+		this.javaObject = javaObject;
+		return this;
+	}
+	
+	@Override
+	public DBObject toDocument() {
+		List<Field> fields = getFieldsFor(javaObject.getClass());
+		DBObject document = new BasicDBObject();
+		
+		for (Field field : fields) {
+			String fieldName = field.getName();
+			Object fieldValue = mirror.on(javaObject).get().field(field);
+			
+			if (fieldValue != null) {
+				String documentFieldName = fieldName;
+				if ("id".equals(fieldName)) {
+					documentFieldName = "_id";
+				}
+				document.put(documentFieldName, fieldValue);
+			}
+		}
+		
+		return document;
+	}
+	
+	private <T> List<Field> getFieldsFor(final Class<T> objectType) {
+		return mirror.on(objectType).reflectAll().fields();
+	}
+
+}
