@@ -45,11 +45,13 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		List<Field> fields = getFieldsFor(objectType);
 		
 		for (Field field : fields) {
-			String fieldName = field.getName();
-			if ("id".equals(fieldName)) {
-				mirror.on(instance).set().field(field).withValue(document.get("_id"));
-			} else if (document.containsField(fieldName)) {
-				mirror.on(instance).set().field(field).withValue(document.get(fieldName));
+			if (!field.isAnnotationPresent(Transient.class)) {
+				String fieldName = field.getName();
+				if ("id".equals(fieldName)) {
+					mirror.on(instance).set().field(field).withValue(document.get("_id"));
+				} else if (document.containsField(fieldName)) {
+					mirror.on(instance).set().field(field).withValue(document.get(fieldName));
+				}
 			}
 		}
 		

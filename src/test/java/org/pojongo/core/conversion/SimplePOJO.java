@@ -10,7 +10,10 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	private String anotherField;
 	private Integer anIntegerField;
 	private Double aDoubleField;
-	private Long aLongField; // that's poetic :)
+	private Long aLongField;
+	
+	@Transient
+	private String aTransientField;
 	
 	public SimplePOJO() {
 	}
@@ -64,6 +67,14 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		if (this.id == null) {
 			this.id = new ObjectId();
 		}
+	}
+	
+	public String getATransientField() {
+		return aTransientField;
+	}
+	
+	public void setATransientField(String aTransientField) {
+		this.aTransientField = aTransientField;
 	}
 
 }

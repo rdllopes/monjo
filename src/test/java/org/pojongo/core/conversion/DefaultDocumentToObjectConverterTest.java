@@ -114,5 +114,17 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		assertThat(idClass, is(equalTo(String.class)));
 		assertThat(convertedObject.getId(), is(equalTo(documentId)));
 	}
+
+	@Test
+	public void shouldNotPopulateTransientFields() {
+		DBObject document = new BasicDBObject();
+		document.put("aTransientField", "transient");
+		saveToMongo(document);
+		
+		DBObject docFromMongo = getFromMongo(document.get("_id"));
+		
+		SimplePOJO simplePOJO = converter.from(docFromMongo).to(SimplePOJO.class);
+		assertThat(simplePOJO.getATransientField(), is(nullValue()));
+	}
 	
 }

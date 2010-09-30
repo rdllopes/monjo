@@ -45,15 +45,17 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 		DBObject document = new BasicDBObject();
 		
 		for (Field field : fields) {
-			String fieldName = field.getName();
-			Object fieldValue = mirror.on(javaObject).get().field(field);
-			
-			if (fieldValue != null) {
-				String documentFieldName = fieldName;
-				if ("id".equals(fieldName)) {
-					documentFieldName = "_id";
+			if (!field.isAnnotationPresent(Transient.class)) {
+				String fieldName = field.getName();
+				Object fieldValue = mirror.on(javaObject).get().field(field);
+				
+				if (fieldValue != null) {
+					String documentFieldName = fieldName;
+					if ("id".equals(fieldName)) {
+						documentFieldName = "_id";
+					}
+					document.put(documentFieldName, fieldValue);
 				}
-				document.put(documentFieldName, fieldValue);
 			}
 		}
 		
