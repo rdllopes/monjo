@@ -13,7 +13,7 @@ import com.mongodb.DBObject;
 
 public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	
-	private ObjectToDocumentConverter converter;
+	private DefaultObjectToDocumentConverter converter;
 
 	@Before
 	public void setUp() throws Exception {
@@ -23,6 +23,11 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionIfTheObjectToBeConvertedIsNull() {
 		converter.from(null);
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void shouldThrowIllegalStateExceptionIfToDocumentMethodIsCalledWithouthCallingFromMethodFirst() {
+		converter.toDocument();
 	}
 	
 	@Test

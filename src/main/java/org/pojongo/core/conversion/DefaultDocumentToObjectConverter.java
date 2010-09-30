@@ -37,11 +37,12 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		return this;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.pojongo.core.conversion.DocumentToObjectConverter#to(java.lang.Class)
-	 */
 	@Override
-	public <T extends Object> T to(final Class<T> objectType) {
+	public <T extends Object> T to(final Class<T> objectType) throws IllegalStateException {
+		if (document == null) {
+			throw new IllegalStateException("cannot convert a null document, please call from(DBObject) first!");
+		}
+		
 		T instance = instanceFor(objectType);
 		List<Field> fields = getFieldsFor(objectType);
 		

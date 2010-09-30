@@ -33,7 +33,10 @@ public interface DocumentToObjectConverter {
 	 * @param <T> the generic type for objectType.
 	 * @param objectType the type to be converted to.
 	 * @return an instance of <code>objectType</code> populated with corresponding values from MongoDB's document.
+	 * 
+	 * @throws IllegalStateException if <code>to(Class)</code> is called without calling <code>from(DBObject)</code> first.
 	 */
-	<T extends Object> T to(final Class<T> objectType);
+	<T extends Object> T to(final Class<T> objectType)
+			throws IllegalStateException;
 
 }

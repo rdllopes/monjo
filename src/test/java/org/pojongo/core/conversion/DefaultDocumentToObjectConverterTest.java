@@ -29,6 +29,16 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		converter.from(null);
 	}
 	
+	@Test(expected=IllegalArgumentException.class)
+	public void shouldThrowIllegalArgumentExceptionIfObjectTypeIsNull() {
+		converter.from(new BasicDBObject()).to(null);
+	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void shouldThrowIllegalStateExceptionIfToMethodIsCalledWithouthCallingFromMethodFirst() {
+		converter.to(SimplePOJO.class);
+	}
+	
 	@Test
 	public void shouldConvertASimpleDocumentWithStringFieldsToAJavaObject() {
 		DBObject document = new BasicDBObject();

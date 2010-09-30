@@ -28,6 +28,10 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 	
 	@Override
 	public DBObject toDocument() {
+		if (javaObject == null) {
+			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
+		}
+		
 		List<Field> fields = getFieldsFor(javaObject.getClass());
 		DBObject document = new BasicDBObject();
 		
