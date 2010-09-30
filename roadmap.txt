@@ -1,7 +1,8 @@
 Roadmap:
 --
-* Basic Document to POJO conversion
-* Basic POJO to Document conversion
-* Special handling for ObjectIds
+OK * Basic Document to POJO conversion
+OK * Basic POJO to Document conversion
+OK * Special handling for ObjectIds
+* Do not persist transient fields
 * Simple Query API
 * Handle atomic operations ($set, $inc, etc)
