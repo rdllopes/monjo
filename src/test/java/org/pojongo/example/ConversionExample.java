@@ -7,6 +7,7 @@ import org.pojongo.core.conversion.DefaultDocumentToObjectConverter;
 import org.pojongo.core.conversion.DefaultObjectToDocumentConverter;
 import org.pojongo.core.conversion.DocumentToObjectConverter;
 import org.pojongo.core.conversion.ObjectToDocumentConverter;
+import org.pojongo.core.conversion.ObjectToDocumentConverterFactory;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -41,7 +42,7 @@ public class ConversionExample {
 	}
 
 	private static void saveNewExamples(DBCollection examples) {
-		ObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter();
+		ObjectToDocumentConverter converter = new ObjectToDocumentConverterFactory().getDefaultDocumentConverter();
 		
 		Example oneExample = new Example("first example", 1);
 		examples.save(converter.from(oneExample).toDocument());
