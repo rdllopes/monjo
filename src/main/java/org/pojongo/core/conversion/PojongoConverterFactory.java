@@ -61,5 +61,9 @@ public class PojongoConverterFactory {
 		
 	}
 	
+	public NamingStrategy getNamingStrategy() {
+		return namingStrategy;
+	}
+	
 }
 

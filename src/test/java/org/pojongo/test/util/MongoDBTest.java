@@ -15,15 +15,20 @@ public class MongoDBTest {
 
 	private static DBCollection pojongoCollection;
 	private static Mongo mongo;
+	private static DB pojongoDB;
 
 	@BeforeClass
 	public static void connectToMongo() throws Exception {
 		mongo = new Mongo();
 		
-		DB pojongoDB = mongo.getDB("pojongoTest");
-		pojongoCollection = pojongoDB.getCollection("Pojongo");
+		pojongoDB = mongo.getDB("pojongoTest");
+		pojongoCollection = pojongoDB.getCollection("SimplePOJO");
 	}
 
+	
+	public static DB getMongoDB() {
+		return pojongoDB;
+	}
 	@AfterClass
 	public static void dispose() {
 		mongo.close();

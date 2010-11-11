@@ -30,8 +30,8 @@ public class PojongoTest extends MongoDBTest{
 		pojo.setALongField(43L);
 		pojo.setADoubleField(44.0);
 		
-		Pojongo<ObjectId> pojongo = new Pojongo<ObjectId>();
-		ObjectId objectId = pojongo.save(getPojongoCollection(), pojo);
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = pojongo.save(pojo);
 		
 		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));
 		
@@ -55,14 +55,14 @@ public class PojongoTest extends MongoDBTest{
 		pojo.setALongField(43L);
 		pojo.setADoubleField(44.0);
 		
-		Pojongo<ObjectId> pojongo = new Pojongo<ObjectId>();
-		ObjectId objectId = pojongo.save(getPojongoCollection(), pojo);
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = pojongo.save(pojo);
 
 		pojo = new SimplePOJO();
 		pojo.setADoubleField(45.0);
 		pojo.setId(objectId);
 		
-		pojongo.save(getPojongoCollection(), pojo);
+		pojongo.save(pojo);
 		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));		
 
 		assertNull (document.get("anIntegerField"));
@@ -81,10 +81,10 @@ public class PojongoTest extends MongoDBTest{
 		pojo.setALongField(43L);
 		pojo.setADoubleField(44.0);
 
-		Pojongo<ObjectId> pojongo = new Pojongo<ObjectId>();
-		ObjectId objectId = pojongo.insert(getPojongoCollection(), pojo);
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = pojongo.insert(pojo);
 		
-		SimplePOJO simplePOJO = pojongo.findOne(getPojongoCollection(), new SimplePOJO(objectId));
+		SimplePOJO simplePOJO = pojongo.findOne(new SimplePOJO(objectId));
 		assertThat(pojo.getAnIntegerField(), is(simplePOJO.getAnIntegerField()));
 		assertThat(pojo.getALongField(), is(simplePOJO.getALongField()));
 		assertThat(pojo.getADoubleField(), is(simplePOJO.getADoubleField()));

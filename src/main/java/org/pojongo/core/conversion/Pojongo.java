@@ -1,11 +1,10 @@
 package org.pojongo.core.conversion;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.hibernate.cfg.NamingStrategy;
 import org.pojongo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -18,8 +17,21 @@ import com.mongodb.DBObject;
  * @author Rodrigo di Lorenzo Lopes
  * 
  */
-public class Pojongo<T> {
-	private PojongoConverter converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
+public class Pojongo<T, C extends IdentifiableDocument<T>> {
+	
+	private Class<C> clasz;
+	private DBCollection collection;
+
+	public Pojongo(DB mongoDb, Class<C> clasz) {
+		PojongoConverterFactory factory = PojongoConverterFactory.getInstance();
+		NamingStrategy namingStrategy = factory.getNamingStrategy();
+		String collectionName = namingStrategy.classToTableName(clasz.getName());
+		collection = mongoDb.getCollection(collectionName);
+		converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
+		this.clasz = clasz;
+	}
+	
+	private PojongoConverter converter;
 
 	/**
 	 * 
@@ -40,8 +52,7 @@ public class Pojongo<T> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public T save(DBCollection collection,
-			IdentifiableDocument<T> identifiableDocument) {
+	public T save(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
 		collection.save(dbObject);
 		return (T) dbObject.get("_id");
@@ -55,7 +66,7 @@ public class Pojongo<T> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public T insert(DBCollection collection, IdentifiableDocument<T> identifiableDocument) {
+	public T insert(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
 		collection.insert(dbObject);
 		return (T) dbObject.get("_id");
@@ -70,7 +81,7 @@ public class Pojongo<T> {
 	 * @param clasz
 	 * @return
 	 */
-	public <C> C findOne(DBCollection collection, T id, Class<C> clasz){
+	public C findOne(T id){
 		DBObject dbObject = collection.findOne(new BasicDBObject("_id", id));
 		return converter.from(dbObject).to(clasz);
 	}
@@ -83,20 +94,20 @@ public class Pojongo<T> {
 	 * @param c Object example used to get id and class to target document 
 	 * @return document converted to object from collection that matches _id == c.getId()  
 	 */
-	@SuppressWarnings("unchecked")
-	public <C extends IdentifiableDocument<T>> C findOne(DBCollection collection, C c){
-		return (C) findOne(collection, c.getId(), c.getClass());
+	public C findOne(C c){
+		return findOne(c.getId());
 	}
 
-	public <C> List<C> createListUsing(DBCursor cursor, Class<C> clasz) {
-		DBObject document;
-		List<C> list = new ArrayList<C>();
-		while (cursor.hasNext()) {
-			document = cursor.next();
-			C object  = converter.from(document).to(clasz);
-			list.add(object);
-		}
-		return list;
+
+	public PojongoCursor<C> findBy(DBObject criteria){
+		DBCursor cursor = collection.find(criteria);
+		return new PojongoCursor<C>(cursor, converter, clasz);
 	}
+
+	public PojongoCursor<C> findBy(){
+		DBCursor cursor = collection.find();
+		return new PojongoCursor<C>(cursor, converter, clasz);
+	}
+
 
 }
