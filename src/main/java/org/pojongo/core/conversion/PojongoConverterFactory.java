@@ -32,7 +32,7 @@ public class PojongoConverterFactory {
 		this.namingStrategy = defaultNamingStrategy;
 	}
 	
-	public ObjectToDocumentConverter getDefaultDocumentConverter(){
+	public ObjectToDocumentConverter getDefaultObjectConverter(){
 		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter();
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	
@@ -40,7 +40,7 @@ public class PojongoConverterFactory {
 		return converter;
 	}
 	
-	public DocumentToObjectConverter getDefaultObjectConverter(){
+	public DocumentToObjectConverter getDefaultDocumentConverter(){
 		DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter();
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	

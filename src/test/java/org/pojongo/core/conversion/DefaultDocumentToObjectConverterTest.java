@@ -21,7 +21,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 
 	@Before
 	public void setUp() throws Exception {
-		converter = new DefaultDocumentToObjectConverter();
+		converter = PojongoConverterFactory.getInstance().getDefaultDocumentConverter();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

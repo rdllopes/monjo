@@ -3,7 +3,6 @@ package org.pojongo.example;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pojongo.core.conversion.DefaultDocumentToObjectConverter;
 import org.pojongo.core.conversion.DocumentToObjectConverter;
 import org.pojongo.core.conversion.ObjectToDocumentConverter;
 import org.pojongo.core.conversion.PojongoConverterFactory;
@@ -26,7 +25,7 @@ public class ConversionExample {
 	}
 
 	private static void listExistingExamples(DBCollection examples) {
-		DocumentToObjectConverter converter = new DefaultDocumentToObjectConverter();
+		DocumentToObjectConverter converter = PojongoConverterFactory.getInstance().getDefaultDocumentConverter();;
 		List<Example> exampleList = new ArrayList<Example>();
 		DBCursor cursor = examples.find();
 		
@@ -43,7 +42,7 @@ public class ConversionExample {
 	private static void saveNewExamples(DBCollection examples) {
 		ObjectToDocumentConverter converter = PojongoConverterFactory
 			.getInstance()
-			.getDefaultDocumentConverter();
+			.getDefaultObjectConverter();
 		
 		Example oneExample = new Example("first example", 1);
 		examples.save(converter.from(oneExample).toDocument());

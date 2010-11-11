@@ -24,7 +24,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 	/**
 	 * Default constructor.
 	 */
-	public DefaultDocumentToObjectConverter() {
+	DefaultDocumentToObjectConverter() {
 		this.mirror = new Mirror();
 	}
 	
