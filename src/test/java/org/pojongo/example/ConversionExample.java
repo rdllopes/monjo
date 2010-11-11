@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pojongo.core.conversion.DefaultDocumentToObjectConverter;
-import org.pojongo.core.conversion.DefaultObjectToDocumentConverter;
 import org.pojongo.core.conversion.DocumentToObjectConverter;
 import org.pojongo.core.conversion.ObjectToDocumentConverter;
 import org.pojongo.core.conversion.ObjectToDocumentConverterFactory;
