@@ -18,5 +18,11 @@ public interface IdentifiableDocument<T> {
 	 * @return the document id.
 	 */
 	public T getId();
+	
+	/**
+	 * Modifier for property id
+	 * @param id
+	 */
+	public void setId(T id);
 
 }

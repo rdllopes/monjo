@@ -28,6 +28,11 @@ public class Example implements IdentifiableDocument<ObjectId> {
 		return id;
 	}
 	
+	@Override
+	public void setId(ObjectId id) {
+		this.id = id;
+		
+	}
 	public String getName() {
 		return name;
 	}

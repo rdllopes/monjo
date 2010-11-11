@@ -55,6 +55,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public T save(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
 		collection.save(dbObject);
+		identifiableDocument.setId((T) dbObject.get("_id"));
 		return (T) dbObject.get("_id");
 	}
 	/**
@@ -69,6 +70,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public T insert(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
 		collection.insert(dbObject);
+		identifiableDocument.setId((T) dbObject.get("_id"));
 		return (T) dbObject.get("_id");
 	}
 
@@ -98,13 +100,21 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 		return findOne(c.getId());
 	}
 
-
+	/**
+	 * Search object in mongo collection respecting a specified criteria
+	 * @param criteria to be used in query
+	 * @return a cursor to query result 
+	 */
 	public PojongoCursor<C> findBy(DBObject criteria){
 		DBCursor cursor = collection.find(criteria);
 		return new PojongoCursor<C>(cursor, converter, clasz);
 	}
 
-	public PojongoCursor<C> findBy(){
+	/**
+	 * Search all objects in mongo collection 
+	 * @return a cursor to query result
+	 */
+	public PojongoCursor<C> find(){
 		DBCursor cursor = collection.find();
 		return new PojongoCursor<C>(cursor, converter, clasz);
 	}
