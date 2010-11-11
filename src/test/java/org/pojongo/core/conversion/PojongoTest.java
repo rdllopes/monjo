@@ -67,13 +67,8 @@ public class PojongoTest extends MongoDBTest{
 		pojongo.save(getPojongoCollection(), pojo);
 		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));		
 
-		Class anIntegerFieldClass = document.get("anIntegerField").getClass();
-		assertThat(anIntegerFieldClass, is(equalTo(Integer.class)));
-		assertThat((Integer) document.get("anIntegerField"), is(equalTo(42)));
-
-		Class aLongFieldClass = document.get("aLongField").getClass();
-		assertThat(aLongFieldClass, is(equalTo(Long.class)));
-		assertThat((Long) document.get("aLongField"), is(equalTo(43L)));
+		assertNull (document.get("anIntegerField"));
+		assertNull (document.get("aLongField"));
 
 		Class aDoubleFieldClass = document.get("aDoubleField").getClass();
 		assertThat(aDoubleFieldClass, is(equalTo(Double.class)));
