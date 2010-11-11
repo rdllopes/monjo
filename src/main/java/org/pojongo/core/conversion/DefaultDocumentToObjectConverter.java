@@ -3,6 +3,8 @@ package org.pojongo.core.conversion;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import org.hibernate.cfg.NamingStrategy;
+
 import net.vidageek.mirror.dsl.Mirror;
 
 import com.mongodb.DBObject;
@@ -17,6 +19,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 
 	private final Mirror mirror;
 	private DBObject document;
+	private NamingStrategy namingStrategy;
 	
 	/**
 	 * Default constructor.
@@ -50,7 +53,8 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 				if ("id".equals(fieldName)) {
 					mirror.on(instance).set().field(field).withValue(document.get("_id"));
 				} else if (document.containsField(fieldName)) {
-					mirror.on(instance).set().field(field).withValue(document.get(fieldName));
+					mirror.on(instance).set().field(field).withValue(							
+							document.get(namingStrategy.propertyToColumnName(fieldName)));
 				}
 			}
 		}
@@ -66,4 +70,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		return mirror.on(objectType).invoke().constructor().withoutArgs();
 	}
 
+	public void setNamingStrategy(NamingStrategy namingStrategy) {
+		this.namingStrategy = namingStrategy;
+	}
 }
