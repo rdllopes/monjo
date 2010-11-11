@@ -17,7 +17,7 @@ public class ImprovedNamingObjectToDocumentConverterTest extends MongoDBTest {
 
 	@Before
 	public void setUp() throws Exception {
-		converter = new ObjectToDocumentConverterFactory(new ImprovedNamingStrategy()).getDefaultDocumentConverter();
+		converter = ObjectToDocumentConverterFactory.getInstance().configure(new ImprovedNamingStrategy()).getDefaultDocumentConverter();
 	}
 	
 	@Test

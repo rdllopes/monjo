@@ -41,7 +41,9 @@ public class ConversionExample {
 	}
 
 	private static void saveNewExamples(DBCollection examples) {
-		ObjectToDocumentConverter converter = new ObjectToDocumentConverterFactory().getDefaultDocumentConverter();
+		ObjectToDocumentConverter converter = ObjectToDocumentConverterFactory
+			.getInstance()
+			.getDefaultDocumentConverter();
 		
 		Example oneExample = new Example("first example", 1);
 		examples.save(converter.from(oneExample).toDocument());

@@ -7,11 +7,27 @@ public class ObjectToDocumentConverterFactory {
 	
 	private NamingStrategy namingStrategy;
 
-	public ObjectToDocumentConverterFactory(){
+	private static ObjectToDocumentConverterFactory converterFactory 
+		= new ObjectToDocumentConverterFactory();
+	
+	/**
+	 * Singleton
+	 * @return
+	 */
+	public static ObjectToDocumentConverterFactory getInstance(){
+		return converterFactory;
+	}
+
+	public ObjectToDocumentConverterFactory configure(NamingStrategy namingStrategy) {
+		this.namingStrategy = namingStrategy;
+		return this;
+	}
+
+	private ObjectToDocumentConverterFactory(){
 		this(new DefaultNamingStrategy());
 	}
 
-	public ObjectToDocumentConverterFactory(
+	private ObjectToDocumentConverterFactory(
 			NamingStrategy defaultNamingStrategy) {
 		this.namingStrategy = defaultNamingStrategy;
 	}
