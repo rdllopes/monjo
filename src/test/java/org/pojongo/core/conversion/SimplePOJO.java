@@ -18,6 +18,10 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	public SimplePOJO() {
 	}
 	
+	public SimplePOJO(ObjectId objectId) {
+		this.id = objectId;
+	}
+
 	public String getAField() {
 		return aField;
 	}

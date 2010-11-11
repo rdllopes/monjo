@@ -16,11 +16,9 @@ import com.mongodb.DBObject;
 
 public class PojongoTest extends MongoDBTest{
 
-	private ObjectToDocumentConverter converter;
-
 	@Before
 	public void setUp() throws Exception {
-		converter = PojongoConverterFactory.getInstance()
+		PojongoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
 				.getDefaultObjectConverter();
 	}
@@ -73,6 +71,23 @@ public class PojongoTest extends MongoDBTest{
 		Class aDoubleFieldClass = document.get("aDoubleField").getClass();
 		assertThat(aDoubleFieldClass, is(equalTo(Double.class)));
 		assertThat((Double) document.get("aDoubleField"), is(equalTo(45.0)));
+
+	}
+
+	@Test
+	public void deveriaEncontrarDocumentoInserido(){
+		SimplePOJO pojo = new SimplePOJO();
+		pojo.setAnIntegerField(42);
+		pojo.setALongField(43L);
+		pojo.setADoubleField(44.0);
+
+		Pojongo<ObjectId> pojongo = new Pojongo<ObjectId>();
+		ObjectId objectId = pojongo.insert(getPojongoCollection(), pojo);
+		
+		SimplePOJO simplePOJO = pojongo.findOne(getPojongoCollection(), new SimplePOJO(objectId));
+		assertThat(pojo.getAnIntegerField(), is(simplePOJO.getAnIntegerField()));
+		assertThat(pojo.getALongField(), is(simplePOJO.getALongField()));
+		assertThat(pojo.getADoubleField(), is(simplePOJO.getADoubleField()));
 
 	}
 	

@@ -11,13 +11,17 @@ public class PojongoConverterFactory {
 		= new PojongoConverterFactory();
 	
 	/**
-	 * Singleton
-	 * @return
+	 * @return the singleton instance of PojongoConverterFactory
 	 */
 	public static PojongoConverterFactory getInstance(){
 		return converterFactory;
 	}
-
+	
+	/**
+	 * Set NamingStrategy to this Factory
+	 * @param namingStrategy
+	 * @return
+	 */
 	public PojongoConverterFactory configure(NamingStrategy namingStrategy) {
 		this.namingStrategy = namingStrategy;
 		return this;

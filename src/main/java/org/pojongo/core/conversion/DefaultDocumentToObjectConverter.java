@@ -50,6 +50,8 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		for (Field field : fields) {
 			if (!field.isAnnotationPresent(Transient.class)) {
 				String fieldName = field.getName();
+				// TODO in fact, every final field should be skipped
+				if (fieldName.equals("serialVersionUID")) continue;
 				if ("id".equals(fieldName)) {
 					mirror.on(instance).set().field(field).withValue(document.get("_id"));
 				} else if (document.containsField(fieldName)) {

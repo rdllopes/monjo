@@ -54,6 +54,9 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 				
 				if (fieldValue != null) {
 					String documentFieldName = fieldName;
+					if (fieldName.indexOf("$") >= 0){
+						continue;
+					}
 					if ("id".equals(fieldName)) {
 						documentFieldName = "_id";
 					} else {
