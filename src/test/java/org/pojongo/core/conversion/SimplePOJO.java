@@ -63,6 +63,10 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		return id;
 	}
 	
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+	
 	public void generateId() {
 		if (this.id == null) {
 			this.id = new ObjectId();
