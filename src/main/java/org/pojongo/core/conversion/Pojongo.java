@@ -1,7 +1,5 @@
 package org.pojongo.core.conversion;
 
-import java.util.Set;
-
 import org.pojongo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
@@ -68,7 +66,7 @@ public class Pojongo<T> {
 	 * @param clasz
 	 * @return
 	 */
-	public <C extends IdentifiableDocument<T>> C findOne(DBCollection collection, T id, Class<C> clasz){
+	public <C> C findOne(DBCollection collection, T id, Class<C> clasz){
 		DBObject dbObject = collection.findOne(new BasicDBObject("_id", id));
 		return converter.from(dbObject).to(clasz);
 	}
