@@ -37,6 +37,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		return this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Object> T to(final Class<T> objectType)
 			throws IllegalStateException, IllegalArgumentException {
@@ -50,14 +51,25 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		for (Field field : fields) {
 			if (!field.isAnnotationPresent(Transient.class)) {
 				String fieldName = field.getName();
+				Class classField = field.getType();
+				
 				// TODO in fact, every final field should be skipped
 				if (fieldName.equals("serialVersionUID")) continue;
+				Object fieldValue = null;
 				if ("id".equals(fieldName)) {
-					mirror.on(instance).set().field(field).withValue(document.get("_id"));
-				} else if (document.containsField(fieldName)) {
-					mirror.on(instance).set().field(field).withValue(							
-							document.get(namingStrategy.propertyToColumnName(fieldName)));
+					fieldValue = document.get("_id");
+				} else {
+					fieldName = namingStrategy.propertyToColumnName(fieldName);
+					if (document.containsField(fieldName)) {
+						fieldValue = document.get(namingStrategy.propertyToColumnName(fieldName));
+						if (classField.isEnum()){
+							fieldValue = Enum.valueOf(classField, (String) fieldValue);
+							
+						}						
+					}
 				}
+				
+				mirror.on(instance).set().field(field).withValue(fieldValue);
 			}
 		}
 		

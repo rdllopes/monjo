@@ -4,7 +4,21 @@ import org.bson.types.ObjectId;
 import org.pojongo.document.IdentifiableDocument;
 
 public class SimplePOJO implements IdentifiableDocument<ObjectId> {
+	public enum Status{
+		NEW,
+		EDITED, LOCK;
+	}
 	
+	private Status status;
+	
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
 	private ObjectId id;
 	private String aField;
 	private String anotherField;

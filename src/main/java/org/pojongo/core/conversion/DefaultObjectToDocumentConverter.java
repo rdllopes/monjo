@@ -1,22 +1,25 @@
 package org.pojongo.core.conversion;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
-
-import org.hibernate.cfg.NamingStrategy;
+import java.util.Set;
 
 import net.vidageek.mirror.dsl.Mirror;
+
+import org.hibernate.cfg.NamingStrategy;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
- * Default implementation of <code>ObjectToDocumentConverter</code>.
+ * Default implementation of <code>ObjectToDocumentConverter</codse>.
  * 
  * @author Caio Filipini
  * @see org.pojongo.core.conversion.ObjectToDocumentConverter
  */
 public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
+	private Set<Class<?>> allowClasses = new HashSet<Class<?>>(20);
 
 	private final Mirror mirror;
 	private Object javaObject;
@@ -51,8 +54,10 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 			if (!field.isAnnotationPresent(Transient.class)) {
 				String fieldName = field.getName();
 				Object fieldValue =  mirror.on(javaObject).get().field(field);
-				
-				if (fieldValue != null) {
+				if (fieldValue == null) continue;
+				if (fieldValue.getClass().isEnum()){
+					fieldValue = fieldValue.toString();
+				}
 					String documentFieldName = fieldName;
 					if (fieldName.indexOf("$") >= 0){
 						continue;
@@ -64,7 +69,6 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 					}
 					document.put(documentFieldName, fieldValue);					
 				}
-			}
 		}
 		
 		return document;
