@@ -1,9 +1,13 @@
 package org.pojongo.core.conversion;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pojongo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 /**
@@ -82,6 +86,17 @@ public class Pojongo<T> {
 	@SuppressWarnings("unchecked")
 	public <C extends IdentifiableDocument<T>> C findOne(DBCollection collection, C c){
 		return (C) findOne(collection, c.getId(), c.getClass());
+	}
+
+	public <C> List<C> createListUsing(DBCursor cursor, Class<C> clasz) {
+		DBObject document;
+		List<C> list = new ArrayList<C>();
+		while (cursor.hasNext()) {
+			document = cursor.next();
+			C object  = converter.from(document).to(clasz);
+			list.add(object);
+		}
+		return list;
 	}
 
 }
