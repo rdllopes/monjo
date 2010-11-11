@@ -18,7 +18,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 	@Before
 	public void setUp() throws Exception {
-		converter = ObjectToDocumentConverterFactory.getInstance()
+		converter = PojongoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
 				.getDefaultDocumentConverter();
 	}
