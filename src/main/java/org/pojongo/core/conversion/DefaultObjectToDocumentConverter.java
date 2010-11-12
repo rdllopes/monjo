@@ -1,9 +1,7 @@
 package org.pojongo.core.conversion;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import net.vidageek.mirror.dsl.Mirror;
 
@@ -19,8 +17,6 @@ import com.mongodb.DBObject;
  * @see org.pojongo.core.conversion.ObjectToDocumentConverter
  */
 public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
-	private Set<Class<?>> allowClasses = new HashSet<Class<?>>(20);
-
 	private final Mirror mirror;
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
