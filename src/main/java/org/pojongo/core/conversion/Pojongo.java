@@ -21,11 +21,19 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	
 	private Class<C> clasz;
 	private DBCollection collection;
+	
+	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName) {
+		initialize(mongoDb, clasz, collectionName);
+	}
 
 	public Pojongo(DB mongoDb, Class<C> clasz) {
 		PojongoConverterFactory factory = PojongoConverterFactory.getInstance();
 		NamingStrategy namingStrategy = factory.getNamingStrategy();
-		String collectionName = namingStrategy.classToTableName(clasz.getName());
+		String collectionName = namingStrategy.classToTableName(clasz.getName());				
+		initialize(mongoDb, clasz, collectionName);
+	}
+
+	private void initialize(DB mongoDb, Class<C> clasz, String collectionName) {
 		collection = mongoDb.getCollection(collectionName);
 		converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
 		this.clasz = clasz;
