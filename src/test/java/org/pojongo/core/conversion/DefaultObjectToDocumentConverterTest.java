@@ -37,7 +37,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	@SuppressWarnings("rawtypes")
 	public void shouldConvertASimpleDocumentWithStringFieldsToAJavaObject() {
 		SimplePOJO pojo = new SimplePOJO();
-		pojo.setAField("foo");
+		pojo.setaField("foo");
 		pojo.setAnotherField("bar");
 
 		DBObject document = converter.from(pojo).toDocument();
@@ -58,8 +58,8 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	public void shouldConvertNumericValues() {
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setAnIntegerField(42);
-		pojo.setALongField(43L);
-		pojo.setADoubleField(44.0);
+		pojo.setaLongField(43L);
+		pojo.setaDoubleField(44.0);
 
 		DBObject document = converter.from(pojo).toDocument();
 
@@ -169,7 +169,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	@Test
 	public void shouldNotPopulateTransientFields() {
 		SimplePOJO pojoWithTransientField = new SimplePOJO();
-		pojoWithTransientField.setATransientField("do not use");
+		pojoWithTransientField.setaTransientField("do not use");
 
 		DBObject document = converter.from(pojoWithTransientField).toDocument();
 

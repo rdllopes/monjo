@@ -9,8 +9,7 @@ public class Example implements IdentifiableDocument<ObjectId> {
 	private ObjectId id;
 	private String name;
 	private Integer number;
-	
-	@Transient
+		
 	private Long someValue;
 	
 	public Example() {
@@ -41,6 +40,7 @@ public class Example implements IdentifiableDocument<ObjectId> {
 		return number;
 	}
 	
+	@Transient
 	public Long getSomeValue() {
 		return someValue;
 	}

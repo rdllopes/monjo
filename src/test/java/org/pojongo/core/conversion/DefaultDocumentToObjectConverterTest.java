@@ -49,7 +49,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
 		
 		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
-		assertThat(convertedObject.getAField(), is(equalTo("aFieldValue")));
+		assertThat(convertedObject.getaField(), is(equalTo("aFieldValue")));
 		assertThat(convertedObject.getAnotherField(), is(equalTo("anotherFieldValue")));
 	}
 	
@@ -64,7 +64,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
 		
 		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
-		assertThat(convertedObject.getAField(), is(equalTo("aFieldValue")));
+		assertThat(convertedObject.getaField(), is(equalTo("aFieldValue")));
 		assertThat(convertedObject.getAnotherField(), is(nullValue()));
 		
 		verify(doc, never()).get("anotherField");
@@ -83,8 +83,8 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		
 		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
 		assertThat(convertedObject.getAnIntegerField(), is(equalTo(42)));
-		assertThat(convertedObject.getALongField(), is(equalTo(43L)));
-		assertThat(convertedObject.getADoubleField(), is(equalTo(44.0)));
+		assertThat(convertedObject.getaLongField(), is(equalTo(43L)));
+		assertThat(convertedObject.getaDoubleField(), is(equalTo(44.0)));
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
 		
 		SimplePOJO simplePOJO = converter.from(docFromMongo).to(SimplePOJO.class);
-		assertThat(simplePOJO.getATransientField(), is(nullValue()));
+		assertThat(simplePOJO.getaTransientField(), is(nullValue()));
 	}
 	
 }

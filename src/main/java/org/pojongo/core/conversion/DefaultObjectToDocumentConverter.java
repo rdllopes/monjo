@@ -1,10 +1,9 @@
 package org.pojongo.core.conversion;
 
-import java.lang.reflect.Field;
-import java.util.List;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 
-import net.vidageek.mirror.dsl.Mirror;
-
+import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 
 import com.mongodb.BasicDBObject;
@@ -16,16 +15,15 @@ import com.mongodb.DBObject;
  * @author Caio Filipini
  * @see org.pojongo.core.conversion.ObjectToDocumentConverter
  */
-public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
-	private final Mirror mirror;
+public class DefaultObjectToDocumentConverter implements
+		ObjectToDocumentConverter {
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
-	
+
 	/**
 	 * Default constructor.
 	 */
 	DefaultObjectToDocumentConverter() {
-		this.mirror = new Mirror();
 	}
 
 	@Override
@@ -36,42 +34,50 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 		this.javaObject = javaObject;
 		return this;
 	}
-	
+
 	@Override
 	public DBObject toDocument() {
 		if (javaObject == null) {
-			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
+			throw new IllegalStateException(
+					"cannot convert a null object, please call from(Object) first!");
 		}
-		
-		List<Field> fields = getFieldsFor(javaObject.getClass());
+
+		PropertyDescriptor[] descriptors = PropertyUtils
+				.getPropertyDescriptors(javaObject.getClass());
 		DBObject document = new BasicDBObject();
-		
-		for (Field field : fields) {
-			if (!field.isAnnotationPresent(Transient.class)) {
-				String fieldName = field.getName();
-				Object fieldValue =  mirror.on(javaObject).get().field(field);
-				if (fieldValue == null) continue;
-				if (fieldValue.getClass().isEnum()){
-					fieldValue = fieldValue.toString();
-				}
-					String documentFieldName = fieldName;
-					if (fieldName.indexOf("$") >= 0){
-						continue;
-					}
-					if ("id".equals(fieldName)) {
-						documentFieldName = "_id";
-					} else {
-						documentFieldName = namingStrategy.propertyToColumnName(fieldName);
-					}
-					document.put(documentFieldName, fieldValue);					
-				}
+
+		for (PropertyDescriptor descriptor : descriptors) {
+			Method readMethod = descriptor.getReadMethod();
+			if (readMethod.isAnnotationPresent(Transient.class)) {
+				continue;
+			}
+			String fieldName = descriptor.getName();
+			if ("class".equals(fieldName)) continue;
+			Object fieldValue;
+			try {
+				fieldValue = readMethod.invoke(javaObject);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			if (fieldValue == null)
+				continue;
+			if (fieldValue.getClass().isEnum()) {
+				fieldValue = fieldValue.toString();
+			}
+			String documentFieldName = fieldName;
+			if (fieldName.indexOf("$") >= 0) {
+				continue;
+			}
+			if ("id".equals(fieldName)) {
+				documentFieldName = "_id";
+			} else {
+				documentFieldName = namingStrategy
+						.propertyToColumnName(fieldName);
+			}
+			document.put(documentFieldName, fieldValue);
 		}
-		
+
 		return document;
-	}
-	
-	private <T> List<Field> getFieldsFor(final Class<T> objectType) {
-		return mirror.on(objectType).reflectAll().fields();
 	}
 
 	public void setNamingStrategy(NamingStrategy namingStrategy) {

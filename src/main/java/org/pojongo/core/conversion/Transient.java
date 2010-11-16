@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * 
  * @author Caio Filipini
  */
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Transient {
 }
