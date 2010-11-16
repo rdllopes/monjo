@@ -4,10 +4,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
+import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.pojongo.core.conversion.SimplePOJO.Status;
+import org.pojongo.example.StatusConverter;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBObject;
@@ -90,5 +93,19 @@ public class PojongoTest extends MongoDBTest{
 		assertThat(pojo.getaDoubleField(), is(simplePOJO.getaDoubleField()));
 
 	}
+
+	@Test
+	public void testEnumTypes() throws Exception {
+		SimplePOJO simplePOJO = new SimplePOJO();
+		simplePOJO.setStatus(Status.NEW);
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		pojongo.insert(simplePOJO);
+		ConvertUtils.register(new StatusConverter(), Status.class);
+		SimplePOJO simplePOJO2 = pojongo.findOne(simplePOJO.getId());
+		assertEquals(simplePOJO.getStatus(),simplePOJO2.getStatus());
+		
+	}
+	
+
 	
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pojongo.core.conversion.SimplePOJO.Status;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBObject;

@@ -22,6 +22,18 @@ public class Example implements IdentifiableDocument<ObjectId> {
 		someValue = 3l;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+
+	public void setSomeValue(Long someValue) {
+		this.someValue = someValue;
+	}
+
 	@Override
 	public ObjectId getId() {
 		return id;
