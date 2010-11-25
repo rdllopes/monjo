@@ -1,7 +1,6 @@
 package org.pojongo.core.conversion;
 
 import org.hibernate.cfg.NamingStrategy;
-import org.mockito.internal.util.RemoveFirstLine;
 import org.pojongo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
@@ -9,7 +8,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
 
 /**
  * This is a main class of Pojongo. It should be used to everyday works such as 
@@ -131,6 +129,10 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	
 	public void removeBy(T id){
 		collection.remove(new BasicDBObject("_id", id));
+	}
+	
+	public void removeAll(){
+		collection.drop();
 	}
 
 
