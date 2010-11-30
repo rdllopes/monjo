@@ -62,7 +62,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 		pojo.setaDoubleField(44.0);
 
 		DBObject document = converter.from(pojo).toDocument();
-
+		
 		Class anIntegerFieldClass = document.get("anIntegerField").getClass();
 		assertThat(anIntegerFieldClass, is(equalTo(Integer.class)));
 		assertThat((Integer) document.get("anIntegerField"), is(equalTo(42)));
