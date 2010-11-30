@@ -2,6 +2,8 @@ package org.pojongo.core.conversion;
 
 import org.hibernate.cfg.NamingStrategy;
 import org.pojongo.document.IdentifiableDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -19,6 +21,7 @@ import com.mongodb.DBObject;
  */
 public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	
+	private static final Logger logger = LoggerFactory.getLogger(Pojongo.class);
 	private Class<C> clasz;
 	private DBCollection collection;
 	
@@ -62,6 +65,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	@SuppressWarnings("unchecked")
 	public T save(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
+		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());		
 		collection.save(dbObject);
 		identifiableDocument.setId((T) dbObject.get("_id"));
 		return (T) dbObject.get("_id");
@@ -77,6 +81,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	@SuppressWarnings("unchecked")
 	public T insert(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
+		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.insert(dbObject);
 		identifiableDocument.setId((T) dbObject.get("_id"));
 		return (T) dbObject.get("_id");
@@ -92,7 +97,9 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * @return
 	 */
 	public C findOne(T id){
-		DBObject dbObject = collection.findOne(new BasicDBObject("_id", id));
+		BasicDBObject criteria = new BasicDBObject("_id", id);
+		logger.debug("finding an item from collection:{} by criteria:{}", collection.getName(), criteria);
+		DBObject dbObject = collection.findOne(criteria);
 		return converter.from(dbObject).to(clasz);
 	}
 
@@ -114,6 +121,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * @return a cursor to query result 
 	 */
 	public PojongoCursor<C> findBy(DBObject criteria){
+		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBCursor cursor = collection.find(criteria);
 		return new PojongoCursor<C>(cursor, converter, clasz);
 	}
@@ -123,15 +131,26 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * @return a cursor to query result
 	 */
 	public PojongoCursor<C> find(){
+		logger.debug("finding all items from collection:{}", collection.getName());
 		DBCursor cursor = collection.find();
 		return new PojongoCursor<C>(cursor, converter, clasz);
 	}
-	
+
+	/**
+	 * Remove an item with specific id
+	 * @param id
+	 */
 	public void removeBy(T id){
-		collection.remove(new BasicDBObject("_id", id));
+		BasicDBObject basicObject = new BasicDBObject("_id", id);
+		logger.debug("removing item:{} from collection:{}", basicObject, collection.getName());
+		collection.remove(basicObject);
 	}
 	
+	/**
+	 * Remove all items from collection
+	 */
 	public void removeAll(){
+		logger.debug("dropping collection {}", collection.getName());
 		collection.drop();
 	}
 
