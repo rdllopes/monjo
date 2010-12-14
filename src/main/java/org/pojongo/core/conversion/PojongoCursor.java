@@ -32,6 +32,10 @@ public class PojongoCursor<C> {
 		return this;
 	}
 	
+	public int count(){
+		return cursor.count();
+	}
+	
 	public List<C> toList() {
 		DBObject document;
 		List<C> list = new ArrayList<C>();
