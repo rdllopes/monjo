@@ -153,6 +153,12 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 		logger.debug("dropping collection {}", collection.getName());
 		collection.drop();
 	}
-
-
+	
+	/**
+	 * Return the count of documents in the collectino
+	 * @return long
+	 */
+	public long getCount(){
+		return collection.getCount();
+	}
 }

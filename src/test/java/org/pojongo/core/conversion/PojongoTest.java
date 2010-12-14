@@ -135,6 +135,22 @@ public class PojongoTest extends MongoDBTest{
 	}
 	
 	@Test
+	public void deveriaContarDocumentosColecao(){
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		for(int i = 0; i < 30; i++){
+			SimplePOJO pojo = new SimplePOJO();
+			pojo.setAnIntegerField(i);
+			pojo.setaLongField(43L);
+			pojo.setaDoubleField(44.0);
+			
+			pojongo.insert(pojo);
+		}
+			
+		assertEquals(30, pojongo.getCount());
+	}
+	
+	@Test
 	public void deveriaFiltrarUsandoIn(){
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
