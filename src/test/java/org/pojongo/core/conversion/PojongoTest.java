@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
@@ -92,6 +94,43 @@ public class PojongoTest extends MongoDBTest{
 		assertThat(pojo.getaLongField(), is(simplePOJO.getaLongField()));
 		assertThat(pojo.getaDoubleField(), is(simplePOJO.getaDoubleField()));
 
+	}
+	
+	@Test
+	public void deveriaLimitarResultados(){
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		for(int i = 0; i < 30; i++){
+			SimplePOJO pojo = new SimplePOJO();
+			pojo.setAnIntegerField(i);
+			pojo.setaLongField(43L);
+			pojo.setaDoubleField(44.0);
+			
+			pojongo.insert(pojo);
+		}
+		
+		List<SimplePOJO> list = pojongo.find().limit(5).toList();
+		
+		assertEquals(5, list.size());
+	}
+	
+	@Test
+	public void deveriaComecarNoQuintoResultado(){
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		for(int i = 0; i < 30; i++){
+			SimplePOJO pojo = new SimplePOJO();
+			pojo.setAnIntegerField(i);
+			pojo.setaLongField(43L);
+			pojo.setaDoubleField(44.0);
+			
+			pojongo.insert(pojo);
+		}
+		
+		List<SimplePOJO> list = pojongo.find().limit(5).toList();
+		List<SimplePOJO> list2 = pojongo.find().skip(4).limit(1).toList();
+			
+		assertEquals(list.get(4), list2.get(0));
 	}
 
 	@Test

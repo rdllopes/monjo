@@ -22,6 +22,16 @@ public class PojongoCursor<C> {
 		return this;
 	}
 	
+	public PojongoCursor<C> limit(int n){
+		cursor.limit(n);
+		return this;
+	}
+	
+	public PojongoCursor<C> skip(int n){
+		cursor.skip(n);
+		return this;
+	}
+	
 	public List<C> toList() {
 		DBObject document;
 		List<C> list = new ArrayList<C>();
