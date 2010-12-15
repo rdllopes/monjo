@@ -44,8 +44,7 @@ public class DefaultDocumentToObjectConverter implements
 	}
 
 	@Override
-	public <T extends Object> T to(final Class<T> objectType)
-			throws Exception {
+	public <T extends Object> T to(final Class<T> objectType){
 		if (document == null) {
 			throw new IllegalStateException(
 					"cannot convert a null document, please call from(DBObject) first!");
@@ -71,7 +70,12 @@ public class DefaultDocumentToObjectConverter implements
 					fieldValue = document.get(field);
 					if (fieldValue instanceof BasicDBObject){
 						BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-						Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("$ref"));
+						Class<?> innerEntityClass;
+						try {
+							innerEntityClass = Class.forName((String) basicDBObject.get("$ref"));
+						} catch (ClassNotFoundException e) {
+							throw new RuntimeException(e);
+						}
 						DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
 						fieldValue = converter.from(basicDBObject).to(innerEntityClass);
 					}

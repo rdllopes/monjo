@@ -12,7 +12,7 @@ public class DefaultPojongoConverter implements PojongoConverter{
 	public DefaultDocumentToObjectConverter from(DBObject document) {
 		return defaultDocumentToObjectConverter.from(document);
 	}
-	public <T> T to(Class<T> objectType) throws Exception {
+	public <T> T to(Class<T> objectType){
 		return defaultDocumentToObjectConverter.to(objectType);
 	}
 	public ObjectToDocumentConverter from(Object javaObject) {

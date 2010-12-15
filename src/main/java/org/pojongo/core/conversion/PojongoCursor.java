@@ -36,7 +36,7 @@ public class PojongoCursor<C> {
 		return cursor.count();
 	}
 	
-	public List<C> toList() throws Exception {
+	public List<C> toList(){
 		DBObject document;
 		List<C> list = new ArrayList<C>();
 		while (cursor.hasNext()) {

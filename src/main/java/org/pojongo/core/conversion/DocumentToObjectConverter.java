@@ -41,7 +41,6 @@ public interface DocumentToObjectConverter {
 	 * @throws IllegalStateException if <code>to(Class)</code> is called without calling <code>from(DBObject)</code> first.
 	 * @throws IllegalArgumentException if <code>objectType</code> is <code>null</code>.
 	 */
-	<T extends Object> T to(final Class<T> objectType)
-			throws Exception;
+	<T extends Object> T to(final Class<T> objectType);
 
 }
