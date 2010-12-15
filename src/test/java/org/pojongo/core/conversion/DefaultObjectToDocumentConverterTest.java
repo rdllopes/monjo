@@ -8,6 +8,8 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.pojongo.example.SimplePOJO;
+import org.pojongo.example.SimplePOJOWithStringId;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.DBObject;

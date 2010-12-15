@@ -95,12 +95,17 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * @param id of document to be found (if that exists)
 	 * @param clasz
 	 * @return
+	 * @throws Exception 
 	 */
 	public C findOne(T id){
 		BasicDBObject criteria = new BasicDBObject("_id", id);
 		logger.debug("finding an item from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBObject dbObject = collection.findOne(criteria);
-		return converter.from(dbObject).to(clasz);
+		try {
+			return converter.from(dbObject).to(clasz);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -110,8 +115,9 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * @param collection that contains the document to be found
 	 * @param c Object example used to get id and class to target document 
 	 * @return document converted to object from collection that matches _id == c.getId()  
+	 * @throws Exception 
 	 */
-	public C findOne(C c){
+	public C findOne(C c) {
 		return findOne(c.getId());
 	}
 

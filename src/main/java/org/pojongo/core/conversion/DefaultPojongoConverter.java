@@ -12,8 +12,7 @@ public class DefaultPojongoConverter implements PojongoConverter{
 	public DefaultDocumentToObjectConverter from(DBObject document) {
 		return defaultDocumentToObjectConverter.from(document);
 	}
-	public <T> T to(Class<T> objectType) throws IllegalStateException,
-			IllegalArgumentException {
+	public <T> T to(Class<T> objectType) throws Exception {
 		return defaultDocumentToObjectConverter.to(objectType);
 	}
 	public ObjectToDocumentConverter from(Object javaObject) {

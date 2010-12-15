@@ -42,6 +42,6 @@ public interface DocumentToObjectConverter {
 	 * @throws IllegalArgumentException if <code>objectType</code> is <code>null</code>.
 	 */
 	<T extends Object> T to(final Class<T> objectType)
-			throws IllegalStateException, IllegalArgumentException;
+			throws Exception;
 
 }

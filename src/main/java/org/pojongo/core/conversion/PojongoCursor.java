@@ -32,7 +32,7 @@ public class PojongoCursor<C> {
 		return this;
 	}
 	
-	public List<C> toList() {
+	public List<C> toList() throws Exception {
 		DBObject document;
 		List<C> list = new ArrayList<C>();
 		while (cursor.hasNext()) {

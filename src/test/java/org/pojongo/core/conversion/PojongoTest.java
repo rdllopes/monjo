@@ -2,7 +2,9 @@ package org.pojongo.core.conversion;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -11,7 +13,10 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
-import org.pojongo.core.conversion.SimplePOJO.Status;
+import org.pojongo.example.Category;
+import org.pojongo.example.ComplexPojo;
+import org.pojongo.example.SimplePOJO;
+import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.example.StatusConverter;
 import org.pojongo.test.util.MongoDBTest;
 
@@ -97,7 +102,7 @@ public class PojongoTest extends MongoDBTest{
 	}
 	
 	@Test
-	public void deveriaLimitarResultados(){
+	public void deveriaLimitarResultados() throws Exception{
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		for(int i = 0; i < 30; i++){
@@ -115,7 +120,7 @@ public class PojongoTest extends MongoDBTest{
 	}
 	
 	@Test
-	public void deveriaComecarNoQuintoResultado(){
+	public void deveriaComecarNoQuintoResultado() throws Exception{
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		for(int i = 0; i < 30; i++){
@@ -145,6 +150,29 @@ public class PojongoTest extends MongoDBTest{
 		
 	}
 	
+	
+	@Test
+	public void shouldUseRef() throws Exception{
+		
+		Category category = new Category();
+		category.setName("NewCategory");
+		Pojongo<ObjectId, Category> pojongoCategory = new Pojongo<ObjectId, Category>(getMongoDB(), Category.class);
+		pojongoCategory.insert(category);
+
+		ComplexPojo complexPojo = new ComplexPojo();
+		complexPojo.setCategory(category);
+		complexPojo.setDescription("pojo complexo");
+		Pojongo<ObjectId, ComplexPojo> pojongoComplex = new Pojongo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
+
+		pojongoComplex.removeAll();
+		pojongoCategory.removeAll();
+
+		pojongoComplex.insert(complexPojo);
+		
+		PojongoCursor<ComplexPojo> pojongoCursor = pojongoComplex.find();
+		assertEquals(category.getId(), pojongoCursor.toList().get(0).getCategory().getId());
+		
+	}
 
 	
 }

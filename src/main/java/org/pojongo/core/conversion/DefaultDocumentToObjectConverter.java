@@ -7,6 +7,7 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
@@ -29,6 +30,10 @@ public class DefaultDocumentToObjectConverter implements
 		// this.mirror = new Mirror();
 	}
 
+	DefaultDocumentToObjectConverter(NamingStrategy namingStrategy) {
+		this.namingStrategy = namingStrategy;
+	}
+
 	@Override
 	public DefaultDocumentToObjectConverter from(final DBObject document) {
 		if (document == null) {
@@ -40,7 +45,7 @@ public class DefaultDocumentToObjectConverter implements
 
 	@Override
 	public <T extends Object> T to(final Class<T> objectType)
-			throws IllegalStateException, IllegalArgumentException {
+			throws Exception {
 		if (document == null) {
 			throw new IllegalStateException(
 					"cannot convert a null document, please call from(DBObject) first!");
@@ -63,8 +68,15 @@ public class DefaultDocumentToObjectConverter implements
 				}
 				field = namingStrategy.propertyToColumnName(field);
 				if (document.containsField(field)) {
-					fieldValue = document.get(namingStrategy
-							.propertyToColumnName(field));
+					fieldValue = document.get(field);
+					if (fieldValue instanceof BasicDBObject){
+						BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
+						Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("$ref"));
+						DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
+						fieldValue = converter.from(basicDBObject).to(innerEntityClass);
+					}
+					
+					
 				}
 			}
 			// BeanUtilsBean.getInstance().setProperty(instance, field,

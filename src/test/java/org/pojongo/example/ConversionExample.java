@@ -24,7 +24,7 @@ public class ConversionExample {
 		listExistingExamples(examples);
 	}
 
-	private static void listExistingExamples(DBCollection examples) {
+	private static void listExistingExamples(DBCollection examples) throws IllegalArgumentException, Exception {
 		DocumentToObjectConverter converter = PojongoConverterFactory.getInstance().getDefaultDocumentConverter();;
 		List<Example> exampleList = new ArrayList<Example>();
 		DBCursor cursor = examples.find();

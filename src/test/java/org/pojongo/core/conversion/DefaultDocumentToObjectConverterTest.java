@@ -10,7 +10,9 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pojongo.core.conversion.SimplePOJO.Status;
+import org.pojongo.example.SimplePOJO;
+import org.pojongo.example.SimplePOJOWithStringId;
+import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBObject;
@@ -31,17 +33,17 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void shouldThrowIllegalArgumentExceptionIfObjectTypeIsNull() {
+	public void shouldThrowIllegalArgumentExceptionIfObjectTypeIsNull() throws IllegalArgumentException, Exception {
 		converter.from(new BasicDBObject()).to(null);
 	}
 	
 	@Test(expected=IllegalStateException.class)
-	public void shouldThrowIllegalStateExceptionIfToMethodIsCalledWithouthCallingFromMethodFirst() {
+	public void shouldThrowIllegalStateExceptionIfToMethodIsCalledWithouthCallingFromMethodFirst() throws Exception {		
 		converter.to(SimplePOJO.class);
 	}
 	
 	@Test
-	public void shouldConvertASimpleDocumentWithStringFieldsToAJavaObject() {
+	public void shouldConvertASimpleDocumentWithStringFieldsToAJavaObject() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		document.put("aField", "aFieldValue");
 		document.put("anotherField", "anotherFieldValue");
@@ -55,7 +57,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	}
 	
 	@Test
-	public void shouldOnlyConvertFieldIfTheDocumentContainsAMatchingField() {
+	public void shouldOnlyConvertFieldIfTheDocumentContainsAMatchingField() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		document.put("aField", "aFieldValue");
 		saveToMongo(document);
@@ -72,7 +74,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	}
 	
 	@Test
-	public void shouldConvertNumericValues() {
+	public void shouldConvertNumericValues() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		document.put("anIntegerField", 42);
 		document.put("aLongField", 43L);
@@ -89,7 +91,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	}
 
 	@Test
-	public void shouldPopulateIdWithMongosGeneratedIdValue() {
+	public void shouldPopulateIdWithMongosGeneratedIdValue() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		saveToMongo(document);
 		
@@ -102,7 +104,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void shouldPopulateStringId() {
+	public void shouldPopulateStringId() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		document.put("_id", "abcd1234");
 		saveToMongo(document);
@@ -117,7 +119,7 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	}
 
 	@Test
-	public void shouldNotPopulateTransientFields() {
+	public void shouldNotPopulateTransientFields() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		document.put("aTransientField", "transient");
 		saveToMongo(document);

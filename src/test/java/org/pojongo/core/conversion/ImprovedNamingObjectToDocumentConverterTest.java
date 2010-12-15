@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.pojongo.example.SimplePOJO;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.DBObject;

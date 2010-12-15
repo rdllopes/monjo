@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.pojongo.example;
 
 import org.pojongo.document.IdentifiableDocument;
 

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
+import org.pojongo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -61,8 +62,15 @@ public class DefaultObjectToDocumentConverter implements
 			}
 			if (fieldValue == null)
 				continue;
-			if (fieldValue.getClass().isEnum()) {
+			Class<? extends Object> clasz = fieldValue.getClass();
+			if (clasz.isEnum()) {
 				fieldValue = fieldValue.toString();
+			}
+			else if (fieldValue instanceof IdentifiableDocument){
+				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue; 
+				BasicDBObject object = new BasicDBObject("$ref", clasz.getCanonicalName());
+				object.put("_id", identifiableDocument.getId());
+				fieldValue = object; 
 			}
 			String documentFieldName = fieldName;
 			if (fieldName.indexOf("$") >= 0) {
@@ -74,6 +82,7 @@ public class DefaultObjectToDocumentConverter implements
 				documentFieldName = namingStrategy
 						.propertyToColumnName(fieldName);
 			}
+		
 			document.put(documentFieldName, fieldValue);
 		}
 

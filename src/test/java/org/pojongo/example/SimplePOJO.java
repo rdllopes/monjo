@@ -1,6 +1,7 @@
-package org.pojongo.core.conversion;
+package org.pojongo.example;
 
 import org.bson.types.ObjectId;
+import org.pojongo.core.conversion.Transient;
 import org.pojongo.document.IdentifiableDocument;
 
 public class SimplePOJO implements IdentifiableDocument<ObjectId> {
