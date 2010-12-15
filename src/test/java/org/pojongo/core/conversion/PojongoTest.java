@@ -156,7 +156,7 @@ public class PojongoTest extends MongoDBTest{
 	}
 	
 	@Test
-	public void deveriaFiltrarUsandoIn(){
+	public void deveriaFiltrarUsandoIn() throws Exception{
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		SimplePOJO pojo = new SimplePOJO();
