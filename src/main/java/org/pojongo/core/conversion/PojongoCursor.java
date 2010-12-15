@@ -31,6 +31,10 @@ public class PojongoCursor<C> {
 		cursor.skip(n);
 		return this;
 	}
+
+	public int count(){
+		return cursor.count();
+	}
 	
 	public List<C> toList() throws Exception {
 		DBObject document;

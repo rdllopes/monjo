@@ -20,6 +20,7 @@ import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.example.StatusConverter;
 import org.pojongo.test.util.MongoDBTest;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -136,6 +137,56 @@ public class PojongoTest extends MongoDBTest{
 		List<SimplePOJO> list2 = pojongo.find().skip(4).limit(1).toList();
 			
 		assertEquals(list.get(4), list2.get(0));
+	}
+	
+	@Test
+	public void deveriaContarDocumentosColecao(){
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		for(int i = 0; i < 30; i++){
+			SimplePOJO pojo = new SimplePOJO();
+			pojo.setAnIntegerField(i);
+			pojo.setaLongField(43L);
+			pojo.setaDoubleField(44.0);
+			
+			pojongo.insert(pojo);
+		}
+			
+		assertEquals(30, pojongo.getCount());
+	}
+	
+	@Test
+	public void deveriaFiltrarUsandoIn(){
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		SimplePOJO pojo = new SimplePOJO();
+		pojo.setAnIntegerField(1);
+		pojo.setaLongField(43L);
+		pojo.setaDoubleField(44.0);
+		
+		SimplePOJO pojo2 = new SimplePOJO();
+		pojo2.setAnIntegerField(2);
+		pojo2.setaLongField(43L);
+		pojo2.setaDoubleField(44.0);
+		
+		SimplePOJO pojo3 = new SimplePOJO();
+		pojo3.setAnIntegerField(3);
+		pojo3.setaLongField(43L);
+		pojo3.setaDoubleField(44.0);
+		
+		pojongo.insert(pojo);
+		pojongo.insert(pojo2);
+		pojongo.insert(pojo3);
+		
+		BasicDBList inValues = new BasicDBList();
+		inValues.add(1);
+		inValues.add(2);
+		
+		BasicDBObject criteria = new BasicDBObject("anIntegerField", new BasicDBObject("$in", inValues));
+
+		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
+ 		
+		assertEquals(2, list.size());
 	}
 
 	@Test
