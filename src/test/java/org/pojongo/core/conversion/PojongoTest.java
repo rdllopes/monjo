@@ -183,6 +183,28 @@ public class PojongoTest extends MongoDBTest{
  		
 		assertEquals(2, list.size());
 	}
+	
+	@Test
+	public void deveriaRemover(){
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		SimplePOJO pojo = new SimplePOJO();
+		pojo.setAnIntegerField(123);
+		pojo.setaLongField(43L);
+		pojo.setaDoubleField(44.0);
+		
+		pojongo.insert(pojo);
+		
+		BasicDBObject criteria = new BasicDBObject("anIntegerField", 123);
+		
+		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
+		
+		pojongo.removeByCriteria(criteria);
+		
+		List<SimplePOJO> list2 = pojongo.findBy(criteria).toList();
+		
+		assertArrayEquals(new Integer[]{1,0}, new Integer[]{list.size(), list2.size()});
+	}
 
 	@Test
 	public void testEnumTypes() throws Exception {
