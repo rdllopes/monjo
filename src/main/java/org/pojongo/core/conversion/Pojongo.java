@@ -143,6 +143,15 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 		DBCursor cursor = collection.find();
 		return new PojongoCursor<C>(cursor, converter, clasz, command);
 	}
+	
+	/**
+	 * Remove one or more items based on the criteria
+	 * @param criteria
+	 */
+	public void removeByCriteria(DBObject criteria){
+		logger.debug("removing item(s):{} from collection:{}", criteria, collection.getName());
+		collection.remove(criteria);
+	}
 
 	/**
 	 * Remove an item with specific id
@@ -151,7 +160,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public void removeBy(T id){
 		BasicDBObject basicObject = new BasicDBObject("_id", id);
 		logger.debug("removing item:{} from collection:{}", basicObject, collection.getName());
-		collection.remove(basicObject);
+		removeByCriteria(basicObject);
 	}
 	
 	/**
@@ -163,7 +172,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	}
 	
 	/**
-	 * Return the count of documents in the collectino
+	 * Return the count of documents in the collection
 	 * @return long
 	 */
 	public long getCount(){
