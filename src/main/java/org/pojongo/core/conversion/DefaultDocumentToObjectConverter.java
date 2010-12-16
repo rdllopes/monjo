@@ -2,11 +2,14 @@ package org.pojongo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -44,7 +47,7 @@ public class DefaultDocumentToObjectConverter implements
 	}
 
 	@Override
-	public <T extends Object> T to(final Class<T> objectType){
+	public <T extends Object> T to(final Class<T> objectType) {
 		if (document == null) {
 			throw new IllegalStateException(
 					"cannot convert a null document, please call from(DBObject) first!");
@@ -68,19 +71,26 @@ public class DefaultDocumentToObjectConverter implements
 				field = namingStrategy.propertyToColumnName(field);
 				if (document.containsField(field)) {
 					fieldValue = document.get(field);
-					if (fieldValue instanceof BasicDBObject){
+					if (fieldValue instanceof BasicDBObject) {
 						BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-						Class<?> innerEntityClass;
-						try {
-							innerEntityClass = Class.forName((String) basicDBObject.get("$ref"));
-						} catch (ClassNotFoundException e) {
-							throw new RuntimeException(e);
+						String typeName = (String) basicDBObject.get("$type");
+						if (typeName == null || "reference".equals(typeName)) {
+
+							Class<?> innerEntityClass;
+							try {
+								innerEntityClass = Class
+										.forName((String) basicDBObject
+												.get("$ref"));
+							} catch (ClassNotFoundException e) {
+								throw new RuntimeException(e);
+							}
+							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(
+									namingStrategy);
+							fieldValue = converter.from(basicDBObject).to(
+									innerEntityClass);
 						}
-						DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
-						fieldValue = converter.from(basicDBObject).to(innerEntityClass);
 					}
-					
-					
+
 				}
 			}
 			// BeanUtilsBean.getInstance().setProperty(instance, field,
@@ -88,7 +98,7 @@ public class DefaultDocumentToObjectConverter implements
 			if (!property.getPropertyType().isInstance(fieldValue)) {
 				fieldValue = ConvertUtils.convert(fieldValue,
 						property.getPropertyType());
-			} 
+			}
 			Method writeMethod = property.getWriteMethod();
 			if (writeMethod == null) {
 				throw new RuntimeException(

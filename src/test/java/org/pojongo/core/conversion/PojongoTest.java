@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
@@ -211,8 +212,11 @@ public class PojongoTest extends MongoDBTest{
 		pojongoCategory.insert(category);
 
 		ComplexPojo complexPojo = new ComplexPojo();
+		LinkedList<Category> categories = new LinkedList<Category>();
+		categories.add(category);
 		complexPojo.setCategory(category);
 		complexPojo.setDescription("pojo complexo");
+//		complexPojo.setCategories(categories);
 		Pojongo<ObjectId, ComplexPojo> pojongoComplex = new Pojongo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
 
 		pojongoComplex.removeAll();
@@ -221,7 +225,9 @@ public class PojongoTest extends MongoDBTest{
 		pojongoComplex.insert(complexPojo);
 		
 		PojongoCursor<ComplexPojo> pojongoCursor = pojongoComplex.find();
-		assertEquals(category.getId(), pojongoCursor.toList().get(0).getCategory().getId());
+		ComplexPojo complex = pojongoCursor.toList().get(0);
+		assertEquals(category.getId(), complex.getCategory().getId());
+	//	assertEquals(category.getId(), complex.getCategories().get(0).getId());
 		
 	}
 

@@ -2,11 +2,13 @@ package org.pojongo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 import org.pojongo.document.IdentifiableDocument;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -66,9 +68,27 @@ public class DefaultObjectToDocumentConverter implements
 			if (clasz.isEnum()) {
 				fieldValue = fieldValue.toString();
 			}
+			else if (fieldValue instanceof List){
+				List list = (List) fieldValue;
+				if (list.size() == 0) continue;
+				Object firstElement = list.get(0);
+				if (firstElement instanceof IdentifiableDocument){
+					BasicDBObject basicDBObject = new BasicDBObject("$type", "list");
+					BasicDBList dbList = new BasicDBList();
+					for (Object object : list) {
+						IdentifiableDocument<?> document2 = (IdentifiableDocument<?>) object;
+						basicDBObject.put("_id", document2.getId());
+						basicDBObject.put("$ref", document2.getClass().getCanonicalName());
+						dbList.add(basicDBObject);
+					}
+					basicDBObject.put("$list", dbList);
+					fieldValue = dbList;
+				}
+			}
 			else if (fieldValue instanceof IdentifiableDocument){
-				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue; 
-				BasicDBObject object = new BasicDBObject("$ref", clasz.getCanonicalName());
+				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue;
+				BasicDBObject object = new BasicDBObject("$type", "reference");				
+				object.put("$ref", clasz.getCanonicalName());
 				object.put("_id", identifiableDocument.getId());
 				fieldValue = object; 
 			}
@@ -79,8 +99,7 @@ public class DefaultObjectToDocumentConverter implements
 			if ("id".equals(fieldName)) {
 				documentFieldName = "_id";
 			} else {
-				documentFieldName = namingStrategy
-						.propertyToColumnName(fieldName);
+				documentFieldName = namingStrategy.propertyToColumnName(fieldName);
 			}
 		
 			document.put(documentFieldName, fieldValue);

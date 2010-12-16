@@ -10,13 +10,21 @@ public class PojongoCursor<C> {
 	private DBCursor cursor;
 	private Class<C> clasz;
 	private PojongoConverter converter;
+	private Command<C> command;
 
-	public PojongoCursor(DBCursor dbCursor, PojongoConverter converter, Class<C> clasz) {
+	// public PojongoCursor(DBCursor dbCursor, PojongoConverter converter, Class<C> clasz) {}
+	
+	public PojongoCursor(DBCursor dbCursor, PojongoConverter converter,
+			Class<C> clasz, Command<C> command) {
 		this.cursor = dbCursor;
 		this.clasz = clasz;
 		this.converter = converter;
+		if (command == null){
+			command = new NullCommand<C>();
+		}
+		this.command = command;
 	}
-	
+
 	public PojongoCursor<C> sort(DBObject orderBy){
 		cursor.sort(orderBy);
 		return this;
@@ -41,9 +49,9 @@ public class PojongoCursor<C> {
 		List<C> list = new ArrayList<C>();
 		while (cursor.hasNext()) {
 			document = cursor.next();
-			C object  = converter.from(document).to(clasz);
+			C object  = converter.from(document).to(clasz);			
 			list.add(object);
-		}
-		return list;
+		}		
+		return command.execute(list);
 	}
 }

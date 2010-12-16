@@ -25,24 +25,26 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	private Class<C> clasz;
 	private DBCollection collection;
 	
-	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName) {
-		initialize(mongoDb, clasz, collectionName);
+	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
+		initialize(mongoDb, clasz, collectionName, command);
 	}
 
 	public Pojongo(DB mongoDb, Class<C> clasz) {
 		PojongoConverterFactory factory = PojongoConverterFactory.getInstance();
 		NamingStrategy namingStrategy = factory.getNamingStrategy();
 		String collectionName = namingStrategy.classToTableName(clasz.getName());				
-		initialize(mongoDb, clasz, collectionName);
+		initialize(mongoDb, clasz, collectionName, new NullCommand<C>());
 	}
 
-	private void initialize(DB mongoDb, Class<C> clasz, String collectionName) {
+	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
 		collection = mongoDb.getCollection(collectionName);
 		converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
 		this.clasz = clasz;
+		this.command = command2;
 	}
 	
 	private PojongoConverter converter;
+	private Command<C> command;
 
 	/**
 	 * 
@@ -102,7 +104,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 		logger.debug("finding an item from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBObject dbObject = collection.findOne(criteria);
 		try {
-			return converter.from(dbObject).to(clasz);
+			return command.execute(converter.from(dbObject).to(clasz));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -129,7 +131,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public PojongoCursor<C> findBy(DBObject criteria){
 		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBCursor cursor = collection.find(criteria);
-		return new PojongoCursor<C>(cursor, converter, clasz);
+		return new PojongoCursor<C>(cursor, converter, clasz, command);
 	}
 
 	/**
@@ -139,7 +141,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public PojongoCursor<C> find(){
 		logger.debug("finding all items from collection:{}", collection.getName());
 		DBCursor cursor = collection.find();
-		return new PojongoCursor<C>(cursor, converter, clasz);
+		return new PojongoCursor<C>(cursor, converter, clasz, command);
 	}
 
 	/**
@@ -167,4 +169,5 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public long getCount(){
 		return collection.getCount();
 	}
+	
 }
