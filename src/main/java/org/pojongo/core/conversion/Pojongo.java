@@ -28,12 +28,17 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
-
-	public Pojongo(DB mongoDb, Class<C> clasz) {
+	
+	public Pojongo(DB mongoDb, Class<C> clasz, Command<C> command) {
 		PojongoConverterFactory factory = PojongoConverterFactory.getInstance();
 		NamingStrategy namingStrategy = factory.getNamingStrategy();
 		String collectionName = namingStrategy.classToTableName(clasz.getName());				
-		initialize(mongoDb, clasz, collectionName, new NullCommand<C>());
+		initialize(mongoDb, clasz, collectionName, command);
+		
+	}
+
+	public Pojongo(DB mongoDb, Class<C> clasz) {
+		this(mongoDb, clasz, new NullCommand<C>());
 	}
 
 	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
