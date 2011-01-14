@@ -18,15 +18,16 @@ import com.mongodb.DBObject;
  * @author Caio Filipini
  * @see org.pojongo.core.conversion.ObjectToDocumentConverter
  */
-public class DefaultObjectToDocumentConverter implements
-		ObjectToDocumentConverter {
+public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
+	private boolean update;
 
 	/**
 	 * Default constructor.
 	 */
 	DefaultObjectToDocumentConverter() {
+		update = false;
 	}
 
 	@Override
@@ -41,12 +42,9 @@ public class DefaultObjectToDocumentConverter implements
 	@Override
 	public DBObject toDocument() {
 		if (javaObject == null) {
-			throw new IllegalStateException(
-					"cannot convert a null object, please call from(Object) first!");
+			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
 		}
-
-		PropertyDescriptor[] descriptors = PropertyUtils
-				.getPropertyDescriptors(javaObject.getClass());
+		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(javaObject.getClass());
 		DBObject document = new BasicDBObject();
 
 		for (PropertyDescriptor descriptor : descriptors) {
@@ -55,7 +53,8 @@ public class DefaultObjectToDocumentConverter implements
 				continue;
 			}
 			String fieldName = descriptor.getName();
-			if ("class".equals(fieldName)) continue;
+			if ("class".equals(fieldName))
+				continue;
 			Object fieldValue;
 			try {
 				fieldValue = readMethod.invoke(javaObject);
@@ -67,12 +66,12 @@ public class DefaultObjectToDocumentConverter implements
 			Class<? extends Object> clasz = fieldValue.getClass();
 			if (clasz.isEnum()) {
 				fieldValue = fieldValue.toString();
-			}
-			else if (fieldValue instanceof List){
+			} else if (fieldValue instanceof List) {
 				List list = (List) fieldValue;
-				if (list.size() == 0) continue;
+				if (list.size() == 0)
+					continue;
 				Object firstElement = list.get(0);
-				if (firstElement instanceof IdentifiableDocument){
+				if (firstElement instanceof IdentifiableDocument) {
 					BasicDBObject basicDBObject = new BasicDBObject("$type", "list");
 					BasicDBList dbList = new BasicDBList();
 					for (Object object : list) {
@@ -84,32 +83,49 @@ public class DefaultObjectToDocumentConverter implements
 					basicDBObject.put("$list", dbList);
 					fieldValue = dbList;
 				}
-			}
-			else if (fieldValue instanceof IdentifiableDocument){
+			} else if (fieldValue instanceof IdentifiableDocument) {
 				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue;
-				BasicDBObject object = new BasicDBObject("$type", "reference");				
+				BasicDBObject object = new BasicDBObject("$type", "reference");
 				object.put("$ref", clasz.getCanonicalName());
 				object.put("_id", identifiableDocument.getId());
-				fieldValue = object; 
+				fieldValue = object;
 			}
 			String documentFieldName = fieldName;
 			if (fieldName.indexOf("$") >= 0) {
 				continue;
 			}
 			if ("id".equals(fieldName)) {
+				if (update) {
+					continue;
+				}
 				documentFieldName = "_id";
 			} else {
 				documentFieldName = namingStrategy.propertyToColumnName(fieldName);
 			}
-		
+
 			document.put(documentFieldName, fieldValue);
+		}
+		if (update) {
+			document = createSetUpdate(document);
 		}
 
 		return document;
 	}
 
+	private DBObject createSetUpdate(DBObject document) {
+		DBObject dbObject = new BasicDBObject();
+		dbObject.put("$set", document);
+		return dbObject;
+	}
+
 	public void setNamingStrategy(NamingStrategy namingStrategy) {
 		this.namingStrategy = namingStrategy;
+	}
+
+	@Override
+	public ObjectToDocumentConverter enableUpdate() {
+		this.update = true;
+		return this;
 	}
 
 }

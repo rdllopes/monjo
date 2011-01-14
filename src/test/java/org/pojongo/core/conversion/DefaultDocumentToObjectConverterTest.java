@@ -130,4 +130,5 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		assertThat(simplePOJO.getaTransientField(), is(nullValue()));
 	}
 	
+		
 }

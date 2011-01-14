@@ -42,4 +42,6 @@ public interface ObjectToDocumentConverter {
 	 */
 	DBObject toDocument();
 
+	ObjectToDocumentConverter enableUpdate();
+
 }
