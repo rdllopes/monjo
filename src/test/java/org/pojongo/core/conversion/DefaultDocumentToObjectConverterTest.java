@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pojongo.example.SimplePOJO;
 import org.pojongo.example.SimplePOJOWithStringId;
-import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBObject;
