@@ -20,6 +20,7 @@ import org.pojongo.example.ComplexPojo;
 import org.pojongo.example.SimplePOJO;
 import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.example.StatusConverter;
+import org.pojongo.example.SubClassPojo;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBList;
@@ -34,14 +35,12 @@ public class PojongoTest extends MongoDBTest{
 		PojongoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
 				.getDefaultObjectConverter();
+		ConvertUtils.register(new StatusConverter(), Status.class);				
 	}
 	
 	@Test
 	public void deveriaGravarElemento(){
-		SimplePOJO pojo = new SimplePOJO();
-		pojo.setAnIntegerField(42);
-		pojo.setaLongField(43L);
-		pojo.setaDoubleField(44.0);
+		SimplePOJO pojo = createSimplePojo();
 		
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		ObjectId objectId = pojongo.save(pojo);
@@ -61,12 +60,17 @@ public class PojongoTest extends MongoDBTest{
 		assertThat((Double) document.get("aDoubleField"), is(equalTo(44.0)));
 	}
 
-	@Test
-	public void deveriaAtualizarElemento(){
+	private SimplePOJO createSimplePojo() {
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setAnIntegerField(42);
 		pojo.setaLongField(43L);
 		pojo.setaDoubleField(44.0);
+		return pojo;
+	}
+
+	@Test
+	public void deveriaAtualizarElemento(){
+		SimplePOJO pojo = createSimplePojo();
 		
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		ObjectId objectId = pojongo.save(pojo);
@@ -89,10 +93,7 @@ public class PojongoTest extends MongoDBTest{
 
 	@Test
 	public void deveriaEncontrarDocumentoInserido(){
-		SimplePOJO pojo = new SimplePOJO();
-		pojo.setAnIntegerField(42);
-		pojo.setaLongField(43L);
-		pojo.setaDoubleField(44.0);
+		SimplePOJO pojo = createSimplePojo();
 
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		ObjectId objectId = pojongo.insert(pojo);
@@ -108,6 +109,14 @@ public class PojongoTest extends MongoDBTest{
 	public void deveriaLimitarResultados() throws Exception{
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
+		insertPojoCollection(pojongo);
+		
+		List<SimplePOJO> list = pojongo.find().limit(5).toList();
+		
+		assertEquals(5, list.size());
+	}
+
+	private void insertPojoCollection(Pojongo<ObjectId, SimplePOJO> pojongo) {
 		for(int i = 0; i < 30; i++){
 			SimplePOJO pojo = new SimplePOJO();
 			pojo.setAnIntegerField(i);
@@ -116,24 +125,13 @@ public class PojongoTest extends MongoDBTest{
 			
 			pojongo.insert(pojo);
 		}
-		
-		List<SimplePOJO> list = pojongo.find().limit(5).toList();
-		
-		assertEquals(5, list.size());
 	}
 	
 	@Test
 	public void deveriaComecarNoQuintoResultado() throws Exception{
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
-		for(int i = 0; i < 30; i++){
-			SimplePOJO pojo = new SimplePOJO();
-			pojo.setAnIntegerField(i);
-			pojo.setaLongField(43L);
-			pojo.setaDoubleField(44.0);
-			
-			pojongo.insert(pojo);
-		}
+		insertPojoCollection(pojongo);
 		
 		List<SimplePOJO> list = pojongo.find().limit(5).toList();
 		List<SimplePOJO> list2 = pojongo.find().skip(4).limit(1).toList();
@@ -145,14 +143,7 @@ public class PojongoTest extends MongoDBTest{
 	public void deveriaContarDocumentosColecao(){
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
-		for(int i = 0; i < 30; i++){
-			SimplePOJO pojo = new SimplePOJO();
-			pojo.setAnIntegerField(i);
-			pojo.setaLongField(43L);
-			pojo.setaDoubleField(44.0);
-			
-			pojongo.insert(pojo);
-		}
+		insertPojoCollection(pojongo);
 			
 		assertEquals(30, pojongo.getCount());
 	}
@@ -219,7 +210,6 @@ public class PojongoTest extends MongoDBTest{
 		simplePOJO.setStatus(Status.NEW);
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		pojongo.insert(simplePOJO);
-		ConvertUtils.register(new StatusConverter(), Status.class);
 		SimplePOJO simplePOJO2 = pojongo.findOne(simplePOJO.getId());
 		assertEquals(simplePOJO.getStatus(),simplePOJO2.getStatus());
 		
@@ -254,5 +244,42 @@ public class PojongoTest extends MongoDBTest{
 		
 	}
 
+	
+	@Test
+	public void shouldUpdateObject(){
+		SubClassPojo pojo = new SubClassPojo();
+		pojo.setAnIntegerField(44);
+		pojo.setaLongField(44L);
+		pojo.setaDoubleField(44.0);
+		pojo.setStatus(Status.NEW);
+		String extraInfo = "this extra info";
+		pojo.setExtraProperty(extraInfo);
+		
+		Pojongo<ObjectId, SubClassPojo> pojongo = new Pojongo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
+		pojongo.removeAll();
+		ObjectId objectId = pojongo.insert(pojo);
+		
+		SimplePOJO simplePOJO = createSimplePojo();
+		simplePOJO.setId(objectId);
+		
+		Pojongo<ObjectId, SimplePOJO> pojongo2 = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
+		pojongo2.update(simplePOJO);
+
+		SimplePOJO fixture = createSimplePojo();
+		simplePOJO = pojongo.findOne(objectId);		
+		assertTrue(fixture.getaDoubleField().equals(simplePOJO.getaDoubleField()));
+		assertTrue(fixture.getAnIntegerField().equals(simplePOJO.getAnIntegerField()));
+		assertTrue(fixture.getaLongField().equals(simplePOJO.getaLongField()));
+		assertTrue(Status.NEW.equals(simplePOJO.getStatus()));
+		
+		
+		
+		SubClassPojo classPojo = pojongo.findOne(objectId);
+		assertTrue(fixture.getaDoubleField().equals(classPojo.getaDoubleField()));
+		assertTrue(fixture.getAnIntegerField().equals(classPojo.getAnIntegerField()));
+		assertTrue(fixture.getaLongField().equals(classPojo.getaLongField()));
+		assertTrue(Status.NEW.equals(classPojo.getStatus()));
+		assertTrue(extraInfo.equals(classPojo.getExtraProperty()));
+	}
 	
 }

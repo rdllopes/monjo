@@ -7,6 +7,7 @@ public class StatusConverter implements Converter{
 
 	@Override
 	public Object convert(Class type, Object value) {
+		if (value == null) return null;
 		if (value instanceof String) {
 			String string = (String) value;
 			return convert(string, type);

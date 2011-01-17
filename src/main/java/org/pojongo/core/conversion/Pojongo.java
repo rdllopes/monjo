@@ -81,9 +81,10 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	
 	@SuppressWarnings("unchecked")
 	public T update(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).toDocument();
-		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());		
-		collection.update(converter.getIdDocument(identifiableDocument), converter.from(identifiableDocument).enableUpdate().toDocument(), true, false);
+		DBObject dbObject = converter.from(identifiableDocument).enableUpdate().toDocument();
+		DBObject dbObject2 = converter.getIdDocument(identifiableDocument);
+		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
+		collection.update(dbObject2, dbObject, true, false);
 		identifiableDocument.setId((T) dbObject.get("_id"));
 		return (T) dbObject.get("_id");
 	}
@@ -120,8 +121,10 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 		logger.debug("finding an item from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBObject dbObject = collection.findOne(criteria);
 		try {
+			logger.debug("item found:{}", dbObject);
 			return command.execute(converter.from(dbObject).to(clasz));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

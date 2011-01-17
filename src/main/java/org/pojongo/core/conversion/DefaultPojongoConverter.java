@@ -43,7 +43,7 @@ public class DefaultPojongoConverter implements PojongoConverter{
 	}
 	@Override
 	public ObjectToDocumentConverter enableUpdate() {
-		return defaultObjectToDocumentConverter;
+		return defaultObjectToDocumentConverter.enableUpdate();
 	}
 
 	
