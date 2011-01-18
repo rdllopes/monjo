@@ -1,11 +1,13 @@
 package org.pojongo.core.conversion;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -47,16 +49,16 @@ public class PojongoTest extends MongoDBTest{
 		
 		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));
 		
-		Class anIntegerFieldClass = document.get("anIntegerField").getClass();
-		assertThat(anIntegerFieldClass, is(equalTo(Integer.class)));
+		Class<?> anIntegerFieldClass = document.get("anIntegerField").getClass();
+		assertThat(anIntegerFieldClass, classEqualTo(Integer.class));
 		assertThat((Integer) document.get("anIntegerField"), is(equalTo(42)));
 
-		Class aLongFieldClass = document.get("aLongField").getClass();
-		assertThat(aLongFieldClass, is(equalTo(Long.class)));
+		Class<?> aLongFieldClass = document.get("aLongField").getClass();
+		assertThat(aLongFieldClass, classEqualTo(Long.class));
 		assertThat((Long) document.get("aLongField"), is(equalTo(43L)));
 
-		Class aDoubleFieldClass = document.get("aDoubleField").getClass();
-		assertThat(aDoubleFieldClass, is(equalTo(Double.class)));
+		Class<?> aDoubleFieldClass = document.get("aDoubleField").getClass();
+		assertThat(aDoubleFieldClass, classEqualTo(Double.class));
 		assertThat((Double) document.get("aDoubleField"), is(equalTo(44.0)));
 	}
 
@@ -85,8 +87,9 @@ public class PojongoTest extends MongoDBTest{
 		assertNull (document.get("anIntegerField"));
 		assertNull (document.get("aLongField"));
 
-		Class aDoubleFieldClass = document.get("aDoubleField").getClass();
-		assertThat(aDoubleFieldClass, is(equalTo(Double.class)));
+		Class<?> aDoubleFieldClass = document.get("aDoubleField").getClass();
+		Class<Double> doubleClass = Double.class;
+		assertThat(aDoubleFieldClass, classEqualTo(doubleClass));
 		assertThat((Double) document.get("aDoubleField"), is(equalTo(45.0)));
 
 	}

@@ -1,8 +1,9 @@
 package org.pojongo.core.conversion;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
 
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.junit.Before;
@@ -32,12 +33,12 @@ public class ImprovedNamingObjectToDocumentConverterTest extends MongoDBTest {
 		
 		assertThat(document.containsField("a_field"), is(true));
 		Class a_fieldClass = document.get("a_field").getClass();
-		assertThat(a_fieldClass, is(equalTo(String.class)));
+		assertThat(a_fieldClass, classEqualTo(String.class));
 		assertThat((String) document.get("a_field"), is(equalTo("foo")));
 		
 		assertThat(document.containsField("another_field"), is(true));
 		Class anotherFieldClass = document.get("another_field").getClass();
-		assertThat(anotherFieldClass, is(equalTo(String.class)));
+		assertThat(anotherFieldClass, classEqualTo(String.class));
 		assertThat((String) document.get("another_field"), is(equalTo("bar")));
 	}
 	
@@ -51,20 +52,20 @@ public class ImprovedNamingObjectToDocumentConverterTest extends MongoDBTest {
 		
 		DBObject document = converter.from(pojo).toDocument();
 		
-		Class anIntegerFieldClass = document.get("an_integer_field").getClass();
-		assertThat(anIntegerFieldClass, is(equalTo(Integer.class)));
+		Class<?> anIntegerFieldClass = document.get("an_integer_field").getClass();
+		assertThat(anIntegerFieldClass, classEqualTo(Integer.class));
+		
 		assertThat((Integer) document.get("an_integer_field"), is(equalTo(42)));
 		
 		Class a_long_fieldClass = document.get("a_long_field").getClass();
-		assertThat(a_long_fieldClass, is(equalTo(Long.class)));
+		assertThat(a_long_fieldClass, classEqualTo(Long.class));
 		assertThat((Long) document.get("a_long_field"), is(equalTo(43L)));
 		
 		Class a_double_fieldClass = document.get("a_double_field").getClass();
-		assertThat(a_double_fieldClass, is(equalTo(Double.class)));
+		assertThat(a_double_fieldClass, classEqualTo(Double.class));
 		assertThat((Double) document.get("a_double_field"), is(equalTo(44.0)));
 	}
 
-	
 	@Test
 	public void shouldOnlyPopulateFieldsThatAreNotNull() {
 		SimplePOJO pojo = new SimplePOJO();

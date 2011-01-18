@@ -3,6 +3,7 @@ package org.pojongo.core.conversion;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
 
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
@@ -36,7 +37,6 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
 	public void shouldConvertASimpleDocumentWithStringFieldsToAJavaObject() {
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setaField("foo");
@@ -45,18 +45,17 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 		DBObject document = converter.from(pojo).toDocument();
 
 		assertThat(document.containsField("aField"), is(true));
-		Class aFieldClass = document.get("aField").getClass();
-		assertThat(aFieldClass, is(equalTo(String.class)));
+		Class<?> aFieldClass = document.get("aField").getClass();
+		assertThat(aFieldClass, classEqualTo(String.class));
 		assertThat((String) document.get("aField"), is(equalTo("foo")));
 
 		assertThat(document.containsField("anotherField"), is(true));
-		Class anotherFieldClass = document.get("anotherField").getClass();
-		assertThat(anotherFieldClass, is(equalTo(String.class)));
+		Class<?> anotherFieldClass = document.get("anotherField").getClass();
+		assertThat(anotherFieldClass, classEqualTo(String.class));
 		assertThat((String) document.get("anotherField"), is(equalTo("bar")));
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
 	public void shouldConvertNumericValues() {
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setAnIntegerField(42);
@@ -65,16 +64,16 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 		DBObject document = converter.from(pojo).toDocument();
 		
-		Class anIntegerFieldClass = document.get("anIntegerField").getClass();
-		assertThat(anIntegerFieldClass, is(equalTo(Integer.class)));
+		Class<?> anIntegerFieldClass = document.get("anIntegerField").getClass();
+		assertThat(anIntegerFieldClass, classEqualTo(Integer.class));
 		assertThat((Integer) document.get("anIntegerField"), is(equalTo(42)));
 
-		Class aLongFieldClass = document.get("aLongField").getClass();
-		assertThat(aLongFieldClass, is(equalTo(Long.class)));
+		Class<?> aLongFieldClass = document.get("aLongField").getClass();
+		assertThat(aLongFieldClass, classEqualTo(Long.class));
 		assertThat((Long) document.get("aLongField"), is(equalTo(43L)));
 
-		Class aDoubleFieldClass = document.get("aDoubleField").getClass();
-		assertThat(aDoubleFieldClass, is(equalTo(Double.class)));
+		Class<?> aDoubleFieldClass = document.get("aDoubleField").getClass();
+		assertThat(aDoubleFieldClass, classEqualTo(Double.class));
 		assertThat((Double) document.get("aDoubleField"), is(equalTo(44.0)));
 	}
 
@@ -89,7 +88,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 		assertThat(document.containsField("_id"), is(true));
 		Class idFieldClass = document.get("_id").getClass();
-		assertThat(idFieldClass, is(equalTo(ObjectId.class)));
+		assertThat(idFieldClass, classEqualTo(ObjectId.class));
 		assertThat((ObjectId) document.get("_id"), is(equalTo(id)));
 	}
 
@@ -118,7 +117,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 		assertThat(document.containsField("_id"), is(true));
 		Class idClass = document.get("_id").getClass();
-		assertThat(idClass, is(equalTo(String.class)));
+		assertThat(idClass, classEqualTo(String.class));
 		assertThat((String) document.get("_id"), is(equalTo("abcd1234")));
 	}
 
@@ -140,7 +139,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 		DBObject docFromMongo = getFromMongo(id);
 		Class idClass = docFromMongo.get("_id").getClass();
-		assertThat(idClass, is(equalTo(ObjectId.class)));
+		assertThat(idClass, classEqualTo(ObjectId.class));
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -152,7 +151,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
 		Class idClass = docFromMongo.get("_id").getClass();
-		assertThat(idClass, is(equalTo(ObjectId.class)));
+		assertThat(idClass, classEqualTo(ObjectId.class));
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -165,7 +164,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
 		DBObject docFromMongo = getFromMongo("abcd1234");
 		Class idClass = docFromMongo.get("_id").getClass();
-		assertThat(idClass, is(equalTo(String.class)));
+		assertThat(idClass, classEqualTo(String.class));
 	}
 
 	@Test

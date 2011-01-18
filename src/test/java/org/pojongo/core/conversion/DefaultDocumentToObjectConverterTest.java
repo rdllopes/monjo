@@ -4,10 +4,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.pojongo.example.SimplePOJO;
@@ -102,7 +104,6 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	}
 	
 	@Test
-	@SuppressWarnings("rawtypes")
 	public void shouldPopulateStringId() throws IllegalArgumentException, Exception {
 		DBObject document = new BasicDBObject();
 		document.put("_id", "abcd1234");
@@ -112,8 +113,8 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		DBObject docFromMongo = getFromMongo(documentId);
 		
 		SimplePOJOWithStringId convertedObject = converter.from(docFromMongo).to(SimplePOJOWithStringId.class);
-		Class idClass = convertedObject.getId().getClass();
-		assertThat(idClass, is(equalTo(String.class)));
+		Class<?> idClass = convertedObject.getId().getClass();
+		assertThat(idClass, classEqualTo(String.class));
 		assertThat(convertedObject.getId(), is(equalTo(documentId)));
 	}
 

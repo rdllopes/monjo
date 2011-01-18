@@ -7,7 +7,7 @@
                    
      rlopes                                                                
      ====================================================================== -->
-<project name="Pojongo" default="jar">
+<project name="pojongo" default="jar">
 	<property file="build.properties" />
     <description>
             Mongo Object Converter
@@ -25,26 +25,54 @@
 			<include name="*.jar"/>
 		</fileset>
 	</path>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: clean                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="clean">
+           <delete includeemptydirs="true" dir="${build.dir}"/>	
+    </target>
+
 
     <!-- ================================= 
           target: jar              
          ================================= -->
     <target name="jar" depends="test" description="Mongo Object Converter">
-        
+    	<mkdir dir="${artifacts.dir}"/>
+		<jar destfile="${artifacts.dir}/${ant.project.name}.jar">
+			<fileset dir="${build.dir}/classes" />
+		</jar>
     </target>
 
     <!-- - - - - - - - - - - - - - - - - - 
           target: test                      
          - - - - - - - - - - - - - - - - - -->
     <target name="test" depends="compile, compile.test">
+    	<mkdir dir="${test.reports.dir}"/>
+		<junit fork="no" printsummary="yes" failureproperty="test.failed">
+			<classpath >
+				<path refid="test.path" />
+				<pathelement location="${build.dir}/classes"/>
+				<pathelement location="${test.dir}"/>
+			</classpath>
+
+			<sysproperty key="file.prop" value="${file.prop}" />
+
+			<formatter type="xml" />
+			<batchtest todir="${test.reports.dir}">
+				<fileset dir="${test.dir}">
+					<include name="**/*Test*.java" />
+				</fileset>
+			</batchtest>
+		</junit>    	
     </target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="compile">
+    <target name="compile" depends="clean">
     	<mkdir dir="${build.dir}/classes"/>
-        <javac debug="true" classpathref="java.path"  destdir="${build.dir}/classes" target="1.6" encoding="UTF-8">
+        <javac debug="true" source="1.6" classpathref="java.path" destdir="${build.dir}/classes" target="1.6" encoding="UTF-8">
         	<src path="${src.dir}"/>
         	<src path="${others.dir}"/>
         </javac>
@@ -55,7 +83,7 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="compile.test">
 		<mkdir dir="${build.dir}/test"/>
-        <javac debug="true" destdir="${build.dir}/test"  target="1.6" encoding="UTF-8">
+        <javac debug="true" destdir="${build.dir}/test" source="1.6" target="1.6" encoding="UTF-8">
         	<src path="${test.dir}"/>
         	<classpath>
         		<path refid="test.path"/>
