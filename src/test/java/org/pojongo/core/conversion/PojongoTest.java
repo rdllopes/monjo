@@ -102,10 +102,14 @@ public class PojongoTest extends MongoDBTest{
 		ObjectId objectId = pojongo.insert(pojo);
 		
 		SimplePOJO simplePOJO = pojongo.findOne(new SimplePOJO(objectId));
+		compareTwoSimplePojos(pojo, simplePOJO);
+
+	}
+
+	private void compareTwoSimplePojos(SimplePOJO pojo, SimplePOJO simplePOJO) {
 		assertThat(pojo.getAnIntegerField(), is(simplePOJO.getAnIntegerField()));
 		assertThat(pojo.getaLongField(), is(simplePOJO.getaLongField()));
 		assertThat(pojo.getaDoubleField(), is(simplePOJO.getaDoubleField()));
-
 	}
 	
 	@Test
@@ -249,7 +253,7 @@ public class PojongoTest extends MongoDBTest{
 
 	
 	@Test
-	public void shouldUpdateObject(){
+	public void shouldUpdateSimpleObject(){
 		SubClassPojo pojo = new SubClassPojo();
 		pojo.setAnIntegerField(44);
 		pojo.setaLongField(44L);
@@ -284,5 +288,18 @@ public class PojongoTest extends MongoDBTest{
 		assertTrue(Status.NEW.equals(classPojo.getStatus()));
 		assertTrue(extraInfo.equals(classPojo.getExtraProperty()));
 	}
-	
+
+	@Test
+	public void shouldUpdateComplexObject(){
+		SimplePOJO fixture = createSimplePojo();
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
+		pojongo.removeAll();
+		ObjectId objectId = pojongo.insert(fixture);
+
+		Pojongo<ObjectId, SubClassPojo> pojongo2 = new Pojongo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
+		SubClassPojo classPojo = pojongo2.findOne(objectId);
+		compareTwoSimplePojos(fixture, classPojo);
+	}
+
+		
 }

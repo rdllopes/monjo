@@ -82,14 +82,13 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 								fieldValue = converter.from(basicDBObject).to(innerEntityClass);
 							}
 						}
-
+						if (fieldValue != null && !property.getPropertyType().isInstance(fieldValue)) {
+							fieldValue = ConvertUtils.convert(fieldValue, property.getPropertyType());
+						}						
 					}
 				}
 				// BeanUtilsBean.getInstance().setProperty(instance, field,
 				// fieldValue);
-				if (!property.getPropertyType().isInstance(fieldValue)) {
-					fieldValue = ConvertUtils.convert(fieldValue, property.getPropertyType());
-				}
 				Method writeMethod = property.getWriteMethod();
 				if (writeMethod == null) {
 					throw new RuntimeException("Tentativa de acessar propriedade somente para leitura");
