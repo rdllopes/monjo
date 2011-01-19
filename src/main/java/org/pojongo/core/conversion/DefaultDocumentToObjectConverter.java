@@ -94,7 +94,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 					throw new RuntimeException("Tentativa de acessar propriedade somente para leitura");
 				}
 				writeMethod.invoke(instance, fieldValue);
-			} catch (IllegalArgumentException e) {
+			} catch (RuntimeException e) {
 				logger.error("fail in {} using {}.", field, document);
 				throw e;
 			} catch (Exception e) {

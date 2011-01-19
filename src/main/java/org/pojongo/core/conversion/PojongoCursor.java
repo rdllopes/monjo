@@ -3,10 +3,16 @@ package org.pojongo.core.conversion;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 public class PojongoCursor<C> {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PojongoCursor.class);
+	
 	private DBCursor cursor;
 	private Class<C> clasz;
 	private PojongoConverter converter;
@@ -49,6 +55,7 @@ public class PojongoCursor<C> {
 		List<C> list = new ArrayList<C>();
 		while (cursor.hasNext()) {
 			document = cursor.next();
+			logger.debug("document found:{}", document);
 			C object  = converter.from(document).to(clasz);			
 			list.add(object);
 		}		
