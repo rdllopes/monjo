@@ -1,5 +1,7 @@
 package org.pojongo.example;
 
+import org.pojongo.core.conversion.Reference;
+
 
 
 public class ComplexPojo extends AbstractObject {
@@ -16,6 +18,7 @@ public class ComplexPojo extends AbstractObject {
 
 	private String description;
 
+	@Reference
 	public Category getCategory() {
 		return category;
 	}

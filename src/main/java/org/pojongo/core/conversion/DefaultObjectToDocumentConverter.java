@@ -21,13 +21,16 @@ import com.mongodb.DBObject;
 public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
-	private boolean update;
+	private boolean update = false;
 
 	/**
 	 * Default constructor.
 	 */
 	DefaultObjectToDocumentConverter() {
-		update = false;
+	}
+
+	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy) {
+		this.namingStrategy = namingStrategy;
 	}
 
 	@Override
@@ -70,23 +73,15 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 				List list = (List) fieldValue;
 				if (list.size() == 0)
 					continue;
-				Object firstElement = list.get(0);
-				if (firstElement instanceof IdentifiableDocument) {
-					BasicDBObject basicDBObject = new BasicDBObject("$type", "list");
-					BasicDBList dbList = new BasicDBList();
-					for (Object object : list) {
-						IdentifiableDocument<?> document2 = (IdentifiableDocument<?>) object;
-						basicDBObject.put("_id", document2.getId());
-						basicDBObject.put("$ref", document2.getClass().getCanonicalName());
-						dbList.add(basicDBObject);
-					}
-					basicDBObject.put("$list", dbList);
-					fieldValue = dbList;
+				BasicDBList dbList = new BasicDBList();
+				for (Object object : list) {
+					dbList.add(getFieldValue(readMethod, object));
 				}
+				fieldValue = dbList;				
 			} else if (fieldValue instanceof IdentifiableDocument) {
 				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue;
-				BasicDBObject object = new BasicDBObject("$type", "reference");
-				object.put("$ref", clasz.getCanonicalName());
+				BasicDBObject object = new BasicDBObject("_type", "reference");
+				object.put("_ref", clasz.getCanonicalName());
 				object.put("_id", identifiableDocument.getId());
 				fieldValue = object;
 			}
@@ -110,6 +105,26 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 		}
 
 		return document;
+	}
+
+	private Object getFieldValue(Method readMethod, Object element) {
+		Object value;
+		if (element instanceof IdentifiableDocument) {
+			DBObject innerBasicDBObject;
+			if (readMethod.isAnnotationPresent(Reference.class)) {
+				IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
+				innerBasicDBObject = new BasicDBObject();
+				innerBasicDBObject.put("_id", identifiable.getId());
+			} else {
+				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
+				innerBasicDBObject = converter.from(element).toDocument();
+			}
+			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
+			value = innerBasicDBObject; 			
+		} else {
+			value = element;
+		}
+		return value;
 	}
 
 	private DBObject createSetUpdate(DBObject document) {

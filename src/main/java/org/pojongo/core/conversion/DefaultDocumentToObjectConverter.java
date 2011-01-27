@@ -2,10 +2,13 @@ package org.pojongo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
+import org.pojongo.document.IdentifiableDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,37 +61,15 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 		String field = null;
 		for (PropertyDescriptor property : desc) {
 			try {
-				Object fieldValue = null;
 				field = property.getName();
-				if ("class".equals(field))
+				if ("class".equals(field)) {
 					continue;
-				if ("id".equals(field)) {
-					fieldValue = document.get("_id");
-				} else {
-					if (property.getReadMethod().isAnnotationPresent(Transient.class)) {
-						continue;
-					}
-					field = namingStrategy.propertyToColumnName(field);
-					if (document.containsField(field)) {
-						fieldValue = document.get(field);
-						if (fieldValue instanceof BasicDBObject) {
-							BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-							String typeName = (String) basicDBObject.get("$type");
-							if (typeName == null || "reference".equals(typeName)) {
-
-								Class<?> innerEntityClass;
-								innerEntityClass = Class.forName((String) basicDBObject.get("$ref"));
-								DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
-								fieldValue = converter.from(basicDBObject).to(innerEntityClass);
-							}
-						}
-						if (fieldValue != null && !property.getPropertyType().isInstance(fieldValue)) {
-							fieldValue = ConvertUtils.convert(fieldValue, property.getPropertyType());
-						}						
-					}
 				}
-				// BeanUtilsBean.getInstance().setProperty(instance, field,
-				// fieldValue);
+				if (property.getReadMethod().isAnnotationPresent(Transient.class)) {
+					continue;
+				}
+				field = namingStrategy.propertyToColumnName(field);
+				Object fieldValue = getFieldValue(field, property);
 				Method writeMethod = property.getWriteMethod();
 				if (writeMethod == null) {
 					throw new RuntimeException("Tentativa de acessar propriedade somente para leitura");
@@ -103,6 +84,47 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 			}
 		}
 		return instance;
+	}
+
+	private Object getFieldValue(String field, PropertyDescriptor property) throws ClassNotFoundException {
+		Object fieldValue = null;				
+		if ("id".equals(field)) {
+			fieldValue = document.get("_id");
+		} else {
+			if (document.containsField(field)) {
+				fieldValue = document.get(field);
+				if (fieldValue instanceof BasicDBObject) {
+					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
+					String typeName = (String) basicDBObject.get("_type");
+					if ("reference".equals(typeName)) {
+						Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
+						DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
+						fieldValue = converter.from(basicDBObject).to(innerEntityClass);
+					}
+				}
+				if (fieldValue instanceof List) {
+					// Covariant problem 
+					List newList = new ArrayList();
+					List<?> list = (List<?>) fieldValue;
+					for (Object object : list) {
+						if (object instanceof DBObject) {
+							DBObject dbObject = (DBObject) object;
+							Class<?> innerEntityClass = Class.forName((String) dbObject.get("_ref"));
+							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
+							newList.add(converter.from(dbObject).to(innerEntityClass));
+						} else {
+							newList.add(object);
+						}
+					}
+					fieldValue = newList;
+					
+				}
+				if (fieldValue != null && !property.getPropertyType().isInstance(fieldValue)) {
+					fieldValue = ConvertUtils.convert(fieldValue, property.getPropertyType());
+				}						
+			}
+		}
+		return fieldValue;
 	}
 
 	private <T> PropertyDescriptor[] getFieldsFor(final Class<T> objectType) {

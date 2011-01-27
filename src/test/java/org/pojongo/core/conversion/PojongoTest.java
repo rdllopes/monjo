@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pojongo.example.Category;
 import org.pojongo.example.ComplexPojo;
+import org.pojongo.example.PojoWithListInnerObject;
 import org.pojongo.example.SimplePOJO;
 import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.example.StatusConverter;
@@ -249,6 +250,30 @@ public class PojongoTest extends MongoDBTest{
 		assertEquals(category.getId(), complex.getCategory().getId());
 	//	assertEquals(category.getId(), complex.getCategories().get(0).getId());
 		
+	}
+
+	
+	@Test
+	public void shouldNotUseRef() throws Exception{
+		Category category = new Category();
+		category.setName("NewCategory");
+		Pojongo<ObjectId, Category> pojongoCategory = new Pojongo<ObjectId, Category>(getMongoDB(), Category.class);
+		pojongoCategory.insert(category);
+
+		PojoWithListInnerObject pojo = new PojoWithListInnerObject();
+		LinkedList<Category> categories = new LinkedList<Category>();
+		categories.add(category);
+		pojo.setCategories(categories);
+		Pojongo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+
+		pojongoComplex.removeAll();
+		pojongoCategory.removeAll();
+
+		pojongoComplex.insert(pojo);
+		
+		PojongoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
+		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
+		assertEquals(category.getId(), complex.getCategories().get(0).getId());
 	}
 
 	
