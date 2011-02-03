@@ -257,8 +257,6 @@ public class PojongoTest extends MongoDBTest{
 	public void shouldNotUseRef() throws Exception{
 		Category category = new Category();
 		category.setName("NewCategory");
-		Pojongo<ObjectId, Category> pojongoCategory = new Pojongo<ObjectId, Category>(getMongoDB(), Category.class);
-		pojongoCategory.insert(category);
 
 		PojoWithListInnerObject pojo = new PojoWithListInnerObject();
 		LinkedList<Category> categories = new LinkedList<Category>();
@@ -267,7 +265,6 @@ public class PojongoTest extends MongoDBTest{
 		Pojongo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 
 		pojongoComplex.removeAll();
-		pojongoCategory.removeAll();
 
 		pojongoComplex.insert(pojo);
 		
