@@ -271,8 +271,7 @@ public class PojongoTest extends MongoDBTest{
 		
 		PojongoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
 		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
-		assertEquals(category.getId(), complex.getCategories().get(0).getId());
-		assertNotNull(category.getId());
+		assertNotNull(complex.getCategories().get(0).getId());
 	}
 
 	

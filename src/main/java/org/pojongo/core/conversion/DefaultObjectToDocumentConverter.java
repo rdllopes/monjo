@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.bson.types.ObjectId;
 import org.hibernate.cfg.NamingStrategy;
 import org.pojongo.document.IdentifiableDocument;
 
@@ -64,8 +65,14 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			if (fieldValue == null)
-				continue;
+			if (fieldValue == null) {
+				if ("id".equals(fieldName)) {
+					fieldValue = new ObjectId();
+				} else {
+					continue;
+				}
+			}
+				
 			Class<? extends Object> clasz = fieldValue.getClass();
 			if (clasz.isEnum()) {
 				fieldValue = fieldValue.toString();
