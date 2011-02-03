@@ -23,6 +23,7 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
 	private boolean update = false;
+	private boolean search;
 
 	/**
 	 * Default constructor.
@@ -66,8 +67,13 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 				throw new RuntimeException(e);
 			}
 			if (fieldValue == null) {
-				if ("id".equals(fieldName)) {
-					fieldValue = new ObjectId();
+				if ("id".equals(fieldName) && !(search || update)) {
+					ObjectId objectId = new ObjectId();
+					if (javaObject instanceof IdentifiableDocument) {
+						IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
+						identifiableDocument.setId(objectId);
+					}
+					fieldValue = objectId;
 				} else {
 					continue;
 				}
@@ -80,11 +86,16 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 				List list = (List) fieldValue;
 				if (list.size() == 0)
 					continue;
+				
 				BasicDBList dbList = new BasicDBList();
 				for (Object object : list) {
 					dbList.add(getFieldValue(readMethod, object));
 				}
-				fieldValue = dbList;				
+				if (search) {
+					fieldValue = new BasicDBObject("$in", dbList);
+				} else {
+					fieldValue = dbList;									
+				}
 			} else if (fieldValue instanceof IdentifiableDocument) {
 				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue;
 				BasicDBObject object = new BasicDBObject("_type", "reference");
@@ -147,6 +158,12 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 	@Override
 	public ObjectToDocumentConverter enableUpdate() {
 		this.update = true;
+		return this;
+	}
+	
+	@Override
+	public ObjectToDocumentConverter enableSearch() {
+		this.search = true;
 		return this;
 	}
 

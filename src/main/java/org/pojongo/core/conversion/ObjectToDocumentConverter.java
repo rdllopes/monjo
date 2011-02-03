@@ -44,4 +44,6 @@ public interface ObjectToDocumentConverter {
 
 	ObjectToDocumentConverter enableUpdate();
 
+	ObjectToDocumentConverter enableSearch();
+
 }

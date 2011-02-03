@@ -1,7 +1,10 @@
 package org.pojongo.core.conversion;
 
+import java.util.List;
+
 import org.hibernate.cfg.NamingStrategy;
 import org.pojongo.document.IdentifiableDocument;
+import org.pojongo.example.PojoWithListInnerObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,6 +199,13 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 */
 	public long getCount(){
 		return collection.getCount();
+	}
+
+	public PojongoCursor<C> findByExample(C example) {
+		DBObject dbObject = converter.from(example).enableSearch().toDocument();
+		logger.debug("finding all items from collection:{} by example:{}", collection.getName(), dbObject);
+		DBCursor cursor = collection.find(dbObject);
+		return new PojongoCursor<C>(cursor, converter, clasz, command);
 	}
 	
 }

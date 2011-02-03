@@ -41,9 +41,15 @@ public class DefaultPojongoConverter implements PojongoConverter{
 		return null;
 		
 	}
+	
 	@Override
 	public ObjectToDocumentConverter enableUpdate() {
 		return defaultObjectToDocumentConverter.enableUpdate();
+	}
+
+	@Override
+	public ObjectToDocumentConverter enableSearch() {
+		return defaultObjectToDocumentConverter.enableSearch();
 	}
 
 	

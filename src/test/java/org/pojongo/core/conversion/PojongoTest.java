@@ -233,11 +233,7 @@ public class PojongoTest extends MongoDBTest{
 		Pojongo<ObjectId, Category> pojongoCategory = new Pojongo<ObjectId, Category>(getMongoDB(), Category.class);
 		pojongoCategory.insert(category);
 
-		ComplexPojo complexPojo = new ComplexPojo();
-		LinkedList<Category> categories = new LinkedList<Category>();
-		categories.add(category);
-		complexPojo.setCategory(category);
-		complexPojo.setDescription("pojo complexo");
+		ComplexPojo complexPojo = createComplexPojo(category);
 //		complexPojo.setCategories(categories);
 		Pojongo<ObjectId, ComplexPojo> pojongoComplex = new Pojongo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
 
@@ -253,16 +249,19 @@ public class PojongoTest extends MongoDBTest{
 		
 	}
 
+	private ComplexPojo createComplexPojo(Category category) {
+		ComplexPojo complexPojo = new ComplexPojo();
+		LinkedList<Category> categories = new LinkedList<Category>();
+		categories.add(category);
+		complexPojo.setCategory(category);
+		complexPojo.setDescription("pojo complexo");
+		return complexPojo;
+	}
+
 	
 	@Test
 	public void shouldNotUseRef() throws Exception{
-		Category category = new Category();
-		category.setName("NewCategory");
-
-		PojoWithListInnerObject pojo = new PojoWithListInnerObject();
-		LinkedList<Category> categories = new LinkedList<Category>();
-		categories.add(category);
-		pojo.setCategories(categories);
+		PojoWithListInnerObject pojo = createMegaZordePojo();
 		Pojongo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 
 		pojongoComplex.removeAll();
@@ -272,6 +271,17 @@ public class PojongoTest extends MongoDBTest{
 		PojongoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
 		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
 		assertNotNull(complex.getCategories().get(0).getId());
+	}
+
+	private PojoWithListInnerObject createMegaZordePojo() {
+		Category category = new Category();
+		category.setName("NewCategory");
+
+		PojoWithListInnerObject pojo = new PojoWithListInnerObject();
+		LinkedList<Category> categories = new LinkedList<Category>();
+		categories.add(category);
+		pojo.setCategories(categories);
+		return pojo;
 	}
 
 	
@@ -322,6 +332,41 @@ public class PojongoTest extends MongoDBTest{
 		Pojongo<ObjectId, SubClassPojo> pojongo2 = new Pojongo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
 		SubClassPojo classPojo = pojongo2.findOne(objectId);
 		compareTwoSimplePojos(fixture, classPojo);
+	}
+
+	@Test
+	public void shouldFindByExample() {
+		PojoWithListInnerObject createMegaZordePojo = createMegaZordePojo();
+		Pojongo<ObjectId, PojoWithListInnerObject> pojongo = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		pojongo.removeAll();
+		pojongo.insert(createMegaZordePojo);
+		createMegaZordePojo.setId(null);
+		PojoWithListInnerObject result = pojongo.findByExample(createMegaZordePojo).toList().get(0);
+		assertNotNull(result.getCategories().get(0).getId());		
+	}
+
+	@Test
+	public void shouldFindByExampleSoSo() {
+		PojoWithListInnerObject createMegaZordePojo = createMegaZordePojo();
+		Pojongo<ObjectId, PojoWithListInnerObject> pojongo = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		pojongo.removeAll();
+		pojongo.insert(createMegaZordePojo);
+		createMegaZordePojo.setId(null);
+		List<Category> categories = createMegaZordePojo.getCategories();
+		Category category = categories.remove(0);
+		category.setName(null);
+		PojoWithListInnerObject result = pojongo.findByExample(createMegaZordePojo).toList().get(0);
+		assertNotNull(result.getCategories().get(0).getId());		
+	}
+	
+	@Test
+	public void shouldFindBySimpleExample() {
+		SimplePOJO simplePOJO = createSimplePojo();
+		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		pojongo.removeAll();
+		pojongo.insert(simplePOJO);
+		SimplePOJO result = pojongo.findByExample(simplePOJO).toList().get(0);
+		assertNotNull(result.getId());		
 	}
 
 		
