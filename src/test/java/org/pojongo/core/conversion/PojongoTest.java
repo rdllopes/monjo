@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
@@ -271,6 +272,7 @@ public class PojongoTest extends MongoDBTest{
 		PojongoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
 		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
 		assertEquals(category.getId(), complex.getCategories().get(0).getId());
+		assertNotNull(category.getId());
 	}
 
 	
