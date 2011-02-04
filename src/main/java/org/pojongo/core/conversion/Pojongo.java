@@ -1,10 +1,7 @@
 package org.pojongo.core.conversion;
 
-import java.util.List;
-
 import org.hibernate.cfg.NamingStrategy;
 import org.pojongo.document.IdentifiableDocument;
-import org.pojongo.example.PojoWithListInnerObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
