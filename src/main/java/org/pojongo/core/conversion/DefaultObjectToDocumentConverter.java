@@ -71,6 +71,7 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 					ObjectId objectId = new ObjectId();
 					if (javaObject instanceof IdentifiableDocument) {
 						IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
+						// TODO retirar essa bomba relogio daqui (veja literatura sobre type erasure)
 						identifiableDocument.setId(objectId);
 					}
 					fieldValue = objectId;
