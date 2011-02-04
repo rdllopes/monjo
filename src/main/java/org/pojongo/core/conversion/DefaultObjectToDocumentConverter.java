@@ -1,6 +1,7 @@
 package org.pojongo.core.conversion;
 
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -103,6 +104,12 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 				object.put("_ref", clasz.getCanonicalName());
 				object.put("_id", identifiableDocument.getId());
 				fieldValue = object;
+			} else if (!(fieldValue instanceof Serializable)) {
+				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
+				DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
+				innerBasicDBObject.put("_ref", clasz.getCanonicalName());
+				fieldValue = innerBasicDBObject;
+				
 			}
 			String documentFieldName = fieldName;
 			if (fieldName.indexOf("$") >= 0) {

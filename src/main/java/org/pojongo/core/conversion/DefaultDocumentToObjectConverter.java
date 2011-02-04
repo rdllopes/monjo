@@ -95,12 +95,9 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 				fieldValue = document.get(field);
 				if (fieldValue instanceof BasicDBObject) {
 					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-					String typeName = (String) basicDBObject.get("_type");
-					if ("reference".equals(typeName)) {
-						Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
-						DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
-						fieldValue = converter.from(basicDBObject).to(innerEntityClass);
-					}
+					Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
+					DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
+					fieldValue = converter.from(basicDBObject).to(innerEntityClass);
 				}
 				if (fieldValue instanceof List) {
 					// Covariant problem 

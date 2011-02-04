@@ -18,6 +18,7 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.pojongo.example.AnotherPojo;
 import org.pojongo.example.Category;
 import org.pojongo.example.ComplexPojo;
 import org.pojongo.example.PojoWithListInnerObject;
@@ -25,6 +26,7 @@ import org.pojongo.example.SimplePOJO;
 import org.pojongo.example.SimplePOJO.Status;
 import org.pojongo.example.StatusConverter;
 import org.pojongo.example.SubClassPojo;
+import org.pojongo.example.User;
 import org.pojongo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBList;
@@ -226,6 +228,26 @@ public class PojongoTest extends MongoDBTest{
 	
 	
 	@Test
+	public void shouldNotUseRef2() throws Exception{
+		User user = new User();
+		user.setName("NewCategory");
+
+		AnotherPojo anotherPojo = createAnotherPojo(user);
+		
+		Pojongo<ObjectId, AnotherPojo> pojongoComplex = new Pojongo<ObjectId, AnotherPojo>(getMongoDB(), AnotherPojo.class);
+
+		pojongoComplex.removeAll();
+
+		pojongoComplex.insert(anotherPojo);
+		
+		PojongoCursor<AnotherPojo> pojongoCursor = pojongoComplex.find();
+		AnotherPojo anotherPojo2 = pojongoCursor.toList().get(0);
+		assertEquals("NewCategory", anotherPojo2.getUser().getName());
+	}
+	
+	
+	
+	@Test
 	public void shouldUseRef() throws Exception{
 		
 		Category category = new Category();
@@ -256,6 +278,14 @@ public class PojongoTest extends MongoDBTest{
 		complexPojo.setCategory(category);
 		complexPojo.setDescription("pojo complexo");
 		return complexPojo;
+	}
+
+
+	private AnotherPojo createAnotherPojo(User category) {
+		AnotherPojo another = new AnotherPojo();
+		another.setUser(category);
+		another.setDescription("pojo complexo");
+		return another;
 	}
 
 	
