@@ -25,10 +25,14 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	private Class<C> clasz;
 	private DBCollection collection;
 	
-	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
-		initialize(mongoDb, clasz, collectionName, command);
-	}
+	private Command<C> command;
 	
+	private PojongoConverter converter;
+
+	public Pojongo(DB mongoDb, Class<C> clasz) {
+		this(mongoDb, clasz, new NullCommand<C>());
+	}
+
 	public Pojongo(DB mongoDb, Class<C> clasz, Command<C> command) {
 		PojongoConverterFactory factory = PojongoConverterFactory.getInstance();
 		NamingStrategy namingStrategy = factory.getNamingStrategy();
@@ -36,74 +40,51 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 		initialize(mongoDb, clasz, collectionName, command);
 		
 	}
-
-	public Pojongo(DB mongoDb, Class<C> clasz) {
-		this(mongoDb, clasz, new NullCommand<C>());
-	}
-
-	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
-		collection = mongoDb.getCollection(collectionName);
-		converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
-		this.clasz = clasz;
-		this.command = command2;
-	}
 	
-	private PojongoConverter converter;
-	private Command<C> command;
+	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
+		initialize(mongoDb, clasz, collectionName, command);
+	}
+	public DBObject createCriteriaByExample(C example) {
+		return converter.from(example).enableSearch().toDocument();
+	}
 
 	/**
-	 * 
-	 The save() command in the mongo shell provides a shorthand syntax to
-	 * perform a single object update with upsert:
-	 * 
-	 * <pre>
-	 * // x is some JSON style object
-	 * db.mycollection.save(x); // updates if exists; inserts if new
-	 * </pre>
-	 * 
-	 * save() does an upsert if x has an _id field and an insert if it does not.
-	 * Thus, normally, you will not need to explicitly request upserts, just use
-	 * save().
-	 * 
-	 * @param collection
-	 * @param identifiableDocument
-	 * @return
+	 * Search all objects in mongo collection 
+	 * @return a cursor to query result
 	 */
-	@SuppressWarnings("unchecked")
-	public T save(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).toDocument();
-		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());		
-		collection.save(dbObject);
-		identifiableDocument.setId((T) dbObject.get("_id"));
-		return (T) dbObject.get("_id");
+	public PojongoCursor<C> find(){
+		logger.debug("finding all items from collection:{}", collection.getName());
+		DBCursor cursor = collection.find();
+		return new PojongoCursor<C>(cursor, converter, clasz, command);
 	}
 	
-	
-	@SuppressWarnings("unchecked")
-	public T update(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).enableUpdate().toDocument();
-		DBObject dbObject2 = converter.getIdDocument(identifiableDocument);
-		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
-		collection.update(dbObject2, dbObject, true, false);
-		identifiableDocument.setId((T) dbObject.get("_id"));
-		return (T) dbObject.get("_id");
-	}
 	
 	/**
-	 *
-	 * Insert object without lookup verification
-	 *   
-	 * @param collection
-	 * @param identifiableDocument
-	 * @return
+	 * Search object in mongo collection respecting a specified criteria
+	 * @param criteria to be used in query
+	 * @return a cursor to query result 
 	 */
-	@SuppressWarnings("unchecked")
-	public T insert(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).toDocument();
-		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
-		collection.insert(dbObject);
-		identifiableDocument.setId((T) dbObject.get("_id"));
-		return (T) dbObject.get("_id");
+	public PojongoCursor<C> findBy(DBObject criteria){
+		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
+		DBCursor cursor = collection.find(criteria);
+		return new PojongoCursor<C>(cursor, converter, clasz, command);
+	}
+	
+	public PojongoCursor<C> findByExample(C example) {
+		return findBy(createCriteriaByExample(example));
+	}
+
+	/**
+	 * Find Object by Id. Its presume that id field is filled.
+	 * 
+	 * @param <C> an IdentifiableDocument type
+	 * @param collection that contains the document to be found
+	 * @param c Object example used to get id and class to target document 
+	 * @return document converted to object from collection that matches _id == c.getId()  
+	 * @throws Exception 
+	 */
+	public C findOne(C c) {
+		return findOne(c.getId());
 	}
 
 	/**
@@ -130,48 +111,45 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	}
 
 	/**
-	 * Find Object by Id. Its presume that id field is filled.
-	 * 
-	 * @param <C> an IdentifiableDocument type
-	 * @param collection that contains the document to be found
-	 * @param c Object example used to get id and class to target document 
-	 * @return document converted to object from collection that matches _id == c.getId()  
-	 * @throws Exception 
+	 * Return the count of documents in the collection
+	 * @return long
 	 */
-	public C findOne(C c) {
-		return findOne(c.getId());
+	public long getCount(){
+		return collection.getCount();
 	}
 
-	/**
-	 * Search object in mongo collection respecting a specified criteria
-	 * @param criteria to be used in query
-	 * @return a cursor to query result 
-	 */
-	public PojongoCursor<C> findBy(DBObject criteria){
-		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
-		DBCursor cursor = collection.find(criteria);
-		return new PojongoCursor<C>(cursor, converter, clasz, command);
-	}
-
-	/**
-	 * Search all objects in mongo collection 
-	 * @return a cursor to query result
-	 */
-	public PojongoCursor<C> find(){
-		logger.debug("finding all items from collection:{}", collection.getName());
-		DBCursor cursor = collection.find();
-		return new PojongoCursor<C>(cursor, converter, clasz, command);
+	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
+		collection = mongoDb.getCollection(collectionName);
+		converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
+		this.clasz = clasz;
+		this.command = command2;
 	}
 	
 	/**
-	 * Remove one or more items based on the criteria
-	 * @param criteria
+	 *
+	 * Insert object without lookup verification
+	 *   
+	 * @param collection
+	 * @param identifiableDocument
+	 * @return
 	 */
-	public void removeByCriteria(DBObject criteria){
-		logger.debug("removing item(s):{} from collection:{}", criteria, collection.getName());
-		collection.remove(criteria);
+	@SuppressWarnings("unchecked")
+	public T insert(C identifiableDocument) {
+		DBObject dbObject = converter.from(identifiableDocument).toDocument();
+		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
+		collection.insert(dbObject);
+		identifiableDocument.setId((T) dbObject.get("_id"));
+		return (T) dbObject.get("_id");
 	}
 
+	/**
+	 * Remove all items from collection
+	 */
+	public void removeAll(){
+		logger.debug("dropping collection {}", collection.getName());
+		collection.drop();
+	}
+	
 	/**
 	 * Remove an item with specific id
 	 * @param id
@@ -183,26 +161,49 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	}
 	
 	/**
-	 * Remove all items from collection
+	 * Remove one or more items based on the criteria
+	 * @param criteria
 	 */
-	public void removeAll(){
-		logger.debug("dropping collection {}", collection.getName());
-		collection.drop();
+	public void removeByCriteria(DBObject criteria){
+		logger.debug("removing item(s):{} from collection:{}", criteria, collection.getName());
+		collection.remove(criteria);
 	}
 	
 	/**
-	 * Return the count of documents in the collection
-	 * @return long
+	 * 
+	 The save() command in the mongo shell provides a shorthand syntax to
+	 * perform a single object update with upsert:
+	 * 
+	 * <pre>
+	 * // x is some JSON style object
+	 * db.mycollection.save(x); // updates if exists; inserts if new
+	 * </pre>
+	 * 
+	 * save() does an upsert if x has an _id field and an insert if it does not.
+	 * Thus, normally, you will not need to explicitly request upserts, just use
+	 * save().
+	 * 
+	 * @param collection
+	 * @param identifiableDocument
+	 * @return
 	 */
-	public long getCount(){
-		return collection.getCount();
+	@SuppressWarnings("unchecked")
+	public T save(C identifiableDocument) {
+		DBObject dbObject = converter.from(identifiableDocument).toDocument();
+		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());		
+		collection.save(dbObject);
+		identifiableDocument.setId((T) dbObject.get("_id"));
+		return (T) dbObject.get("_id");
 	}
 
-	public PojongoCursor<C> findByExample(C example) {
-		DBObject dbObject = converter.from(example).enableSearch().toDocument();
-		logger.debug("finding all items from collection:{} by example:{}", collection.getName(), dbObject);
-		DBCursor cursor = collection.find(dbObject);
-		return new PojongoCursor<C>(cursor, converter, clasz, command);
+	@SuppressWarnings("unchecked")
+	public T update(C identifiableDocument) {
+		DBObject dbObject = converter.from(identifiableDocument).enableUpdate().toDocument();
+		DBObject dbObject2 = converter.getIdDocument(identifiableDocument);
+		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
+		collection.update(dbObject2, dbObject, true, false);
+		identifiableDocument.setId((T) dbObject.get("_id"));
+		return (T) dbObject.get("_id");
 	}
 	
 }
