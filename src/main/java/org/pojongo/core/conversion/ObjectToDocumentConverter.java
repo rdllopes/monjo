@@ -1,5 +1,6 @@
 package org.pojongo.core.conversion;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
@@ -45,5 +46,9 @@ public interface ObjectToDocumentConverter {
 	ObjectToDocumentConverter enableUpdate();
 
 	ObjectToDocumentConverter enableSearch();
+
+	ObjectToDocumentConverter setPrefix(String string);
+
+	DBObject toDocument(BasicDBObject document);
 
 }

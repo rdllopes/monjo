@@ -18,6 +18,7 @@ import com.mongodb.DBObject;
  * Default implementation of <code>ObjectToDocumentConverter</codse>.
  * 
  * @author Caio Filipini
+ * @author Rodrigo di Lorenzo Lopes
  * @see org.pojongo.core.conversion.ObjectToDocumentConverter
  */
 public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
@@ -25,7 +26,9 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 	private NamingStrategy namingStrategy;
 	private boolean update = false;
 	private boolean search;
+	private String prefix;
 
+	
 	/**
 	 * Default constructor.
 	 */
@@ -47,11 +50,15 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 
 	@Override
 	public DBObject toDocument() {
+		return toDocument(new BasicDBObject());
+	}
+
+	@Override
+	public DBObject toDocument(BasicDBObject document) {
 		if (javaObject == null) {
 			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
 		}
 		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(javaObject.getClass());
-		DBObject document = new BasicDBObject();
 
 		for (PropertyDescriptor descriptor : descriptors) {
 			Method readMethod = descriptor.getReadMethod();
@@ -72,44 +79,14 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 					ObjectId objectId = new ObjectId();
 					if (javaObject instanceof IdentifiableDocument) {
 						IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
-						// TODO retirar essa bomba relogio daqui (veja literatura sobre type erasure)
+						// TODO retirar essa bomba relogio daqui (veja
+						// literatura sobre type erasure)
 						identifiableDocument.setId(objectId);
 					}
 					fieldValue = objectId;
 				} else {
 					continue;
 				}
-			}
-				
-			Class<? extends Object> clasz = fieldValue.getClass();
-			if (clasz.isEnum()) {
-				fieldValue = fieldValue.toString();
-			} else if (fieldValue instanceof List) {
-				List list = (List) fieldValue;
-				if (list.size() == 0)
-					continue;
-				
-				BasicDBList dbList = new BasicDBList();
-				for (Object object : list) {
-					dbList.add(getFieldValue(readMethod, object));
-				}
-				if (search) {
-					fieldValue = new BasicDBObject("$in", dbList);
-				} else {
-					fieldValue = dbList;									
-				}
-			} else if (fieldValue instanceof IdentifiableDocument) {
-				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) fieldValue;
-				BasicDBObject object = new BasicDBObject("_type", "reference");
-				object.put("_ref", clasz.getCanonicalName());
-				object.put("_id", identifiableDocument.getId());
-				fieldValue = object;
-			} else if (!(fieldValue instanceof Serializable)) {
-				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
-				DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
-				innerBasicDBObject.put("_ref", clasz.getCanonicalName());
-				fieldValue = innerBasicDBObject;
-				
 			}
 			String documentFieldName = fieldName;
 			if (fieldName.indexOf("$") >= 0) {
@@ -123,38 +100,78 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 			} else {
 				documentFieldName = namingStrategy.propertyToColumnName(fieldName);
 			}
-
-			document.put(documentFieldName, fieldValue);
+			if (prefix != null) {
+				documentFieldName = prefix + documentFieldName; 				
+			}
+						
+			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);
+			if (fieldValue != null)
+				document.put(documentFieldName, fieldValue);
 		}
 		if (update) {
 			document = createSetUpdate(document);
 		}
-
 		return document;
 	}
 
-	private Object getFieldValue(Method readMethod, Object element) {
-		Object value;
-		if (element instanceof IdentifiableDocument) {
-			DBObject innerBasicDBObject;
-			if (readMethod.isAnnotationPresent(Reference.class)) {
-				IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
-				innerBasicDBObject = new BasicDBObject();
-				innerBasicDBObject.put("_id", identifiable.getId());
+	private Object getFieldValue(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
+		Class<? extends Object> clasz = fieldValue.getClass();
+		if (clasz.isEnum()) {
+			fieldValue = fieldValue.toString();
+		} else if (fieldValue instanceof List) {
+			List list = (List) fieldValue;
+			if (list.size() == 0)
+				return null;
+			if (search) {
+				if (list.size() > 1)
+					fieldValue = new BasicDBObject("$or", getDbList(document, readMethod, fieldName, list));
+				else 
+					fieldValue = getFieldValue(document, readMethod, list.get(0), fieldName);
 			} else {
-				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
-				innerBasicDBObject = converter.from(element).toDocument();
+				fieldValue = getDbList(document, readMethod, fieldName, list);
 			}
-			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
-			value = innerBasicDBObject; 			
-		} else {
-			value = element;
+		} else if (fieldValue instanceof IdentifiableDocument) {
+			fieldValue = getFieldValueIdentifiable(document, readMethod, fieldValue, fieldName);
+		} else if (!(fieldValue instanceof Serializable)) {
+			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
+			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
+			innerBasicDBObject.put("_ref", clasz.getCanonicalName());
+			fieldValue = innerBasicDBObject;
 		}
+		return fieldValue;
+	}
+
+	private BasicDBList getDbList(BasicDBObject document, Method readMethod, String fieldName, List list) {
+		BasicDBList dbList = new BasicDBList();
+		for (Object object : list) {
+			dbList.add(getFieldValue(document, readMethod, object, fieldName));
+		}
+		return dbList;
+	}
+
+	private Object getFieldValueIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
+		Object value;
+		DBObject innerBasicDBObject;
+		if (readMethod.isAnnotationPresent(Reference.class)) {
+			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
+			innerBasicDBObject = new BasicDBObject();
+			innerBasicDBObject.put("_id", identifiable.getId());
+		} else {
+			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
+			if (search) {
+				converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "."  : fieldName + "." ).toDocument(document);
+				return null;
+			}
+			else 
+				innerBasicDBObject = converter.from(element).toDocument();
+		}
+		innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
+		value = innerBasicDBObject;
 		return value;
 	}
 
-	private DBObject createSetUpdate(DBObject document) {
-		DBObject dbObject = new BasicDBObject();
+	private BasicDBObject createSetUpdate(DBObject document) {
+		BasicDBObject dbObject = new BasicDBObject();
 		dbObject.put("$set", document);
 		return dbObject;
 	}
@@ -168,11 +185,18 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 		this.update = true;
 		return this;
 	}
-	
+
 	@Override
 	public ObjectToDocumentConverter enableSearch() {
 		this.search = true;
 		return this;
 	}
+
+	@Override
+	public ObjectToDocumentConverter setPrefix(String string) {
+		this.prefix = string;
+		return this;
+	}
+
 
 }

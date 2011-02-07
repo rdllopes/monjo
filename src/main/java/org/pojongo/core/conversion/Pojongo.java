@@ -190,7 +190,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	@SuppressWarnings("unchecked")
 	public T save(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).toDocument();
-		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());		
+		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.save(dbObject);
 		identifiableDocument.setId((T) dbObject.get("_id"));
 		return (T) dbObject.get("_id");

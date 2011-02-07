@@ -52,5 +52,13 @@ public class DefaultPojongoConverter implements PojongoConverter{
 		return defaultObjectToDocumentConverter.enableSearch();
 	}
 
+	@Override
+	public ObjectToDocumentConverter setPrefix(String string) {
+		return defaultObjectToDocumentConverter.setPrefix(string);
+	}
+	@Override
+	public DBObject toDocument(BasicDBObject document) {
+		return defaultObjectToDocumentConverter.toDocument(document);
+	}
 	
 }
