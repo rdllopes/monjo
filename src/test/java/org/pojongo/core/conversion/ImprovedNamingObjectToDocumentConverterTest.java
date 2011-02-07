@@ -74,7 +74,7 @@ public class ImprovedNamingObjectToDocumentConverterTest extends MongoDBTest {
 		DBObject document = converter.from(pojo).toDocument();
 		
 		assertThat(document.containsField("an_integer_field"), is(true));
-		assertThat(document.containsField("_id"), is(false));
+		assertThat(document.containsField("_id"), is(true));
 		assertThat(document.containsField("a_field"), is(false));
 		assertThat(document.containsField("another_field"), is(false));
 		assertThat(document.containsField("a_long_field"), is(false));

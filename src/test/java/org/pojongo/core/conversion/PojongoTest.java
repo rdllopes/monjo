@@ -76,9 +76,9 @@ public class PojongoTest extends MongoDBTest{
 
 	@Test
 	public void deveriaAtualizarElemento(){
-		SimplePOJO pojo = createSimplePojo();
-		
+		SimplePOJO pojo = createSimplePojo();		
 		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		pojongo.removeAll();
 		ObjectId objectId = pojongo.save(pojo);
 
 		pojo = new SimplePOJO();
@@ -86,8 +86,9 @@ public class PojongoTest extends MongoDBTest{
 		pojo.setId(objectId);
 		
 		pojongo.save(pojo);
-		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));		
+		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));
 
+		// yes, yes. If you have used save all data will be erased!  
 		assertNull (document.get("anIntegerField"));
 		assertNull (document.get("aLongField"));
 
@@ -383,7 +384,7 @@ public class PojongoTest extends MongoDBTest{
 		pojongo.insert(createMegaZordePojo);
 		createMegaZordePojo.setId(null);
 		List<Category> categories = createMegaZordePojo.getCategories();
-		Category category = categories.remove(0);
+		Category category = categories.get(0);
 		category.setName(null);
 		PojoWithListInnerObject result = pojongo.findByExample(createMegaZordePojo).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());		

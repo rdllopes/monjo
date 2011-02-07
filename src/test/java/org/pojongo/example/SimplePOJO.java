@@ -5,12 +5,33 @@ import org.pojongo.core.conversion.Transient;
 import org.pojongo.document.IdentifiableDocument;
 
 public class SimplePOJO implements IdentifiableDocument<ObjectId> {
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+	public enum Status{
+		EDITED,
+		LOCK, NEW;
+	}
+
+	private Double aDoubleField;
+
+	private String aField;
+	
+	private Long aLongField;
+	
+	private Integer anIntegerField;
+
+	private String anotherField;
+
+	private String aTransientField;
+	
+	private ObjectId id;
+	
+	private Status status;
+	
+	
+	public SimplePOJO() {
+	}
+
+	public SimplePOJO(ObjectId objectId) {
+		this.id = objectId;
 	}
 
 	@Override
@@ -30,70 +51,31 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		return true;
 	}
 
-	public enum Status{
-		NEW,
-		EDITED, LOCK;
-	}
-	
-	private Status status;
-	
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	private ObjectId id;
-	private String aField;
-	private String anotherField;
-	public ObjectId getId() {
-		return id;
-	}
-
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
-
-	public String getaField() {
-		return aField;
-	}
-
-	public void setaField(String aField) {
-		this.aField = aField;
-	}
-
-	public String getAnotherField() {
-		return anotherField;
-	}
-
-	public void setAnotherField(String anotherField) {
-		this.anotherField = anotherField;
-	}
-
-	public Integer getAnIntegerField() {
-		return anIntegerField;
-	}
-
-	public void setAnIntegerField(Integer anIntegerField) {
-		this.anIntegerField = anIntegerField;
+	public void generateId() {
+		if (id == null){
+			id = new ObjectId();
+		}
+		
 	}
 
 	public Double getaDoubleField() {
 		return aDoubleField;
 	}
 
-	public void setaDoubleField(Double aDoubleField) {
-		this.aDoubleField = aDoubleField;
+	public String getaField() {
+		return aField;
 	}
 
 	public Long getaLongField() {
 		return aLongField;
 	}
 
-	public void setaLongField(Long aLongField) {
-		this.aLongField = aLongField;
+	public Integer getAnIntegerField() {
+		return anIntegerField;
+	}
+
+	public String getAnotherField() {
+		return anotherField;
 	}
 
 	@Transient
@@ -101,28 +83,50 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		return aTransientField;
 	}
 
+	public ObjectId getId() {
+		return id;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	public void setaDoubleField(Double aDoubleField) {
+		this.aDoubleField = aDoubleField;
+	}
+
+	public void setaField(String aField) {
+		this.aField = aField;
+	}
+	public void setaLongField(Long aLongField) {
+		this.aLongField = aLongField;
+	}
+	public void setAnIntegerField(Integer anIntegerField) {
+		this.anIntegerField = anIntegerField;
+	}
+		
+	public void setAnotherField(String anotherField) {
+		this.anotherField = anotherField;
+	}
+	
 	public void setaTransientField(String aTransientField) {
 		this.aTransientField = aTransientField;
 	}
-
-	private Integer anIntegerField;
-	private Double aDoubleField;
-	private Long aLongField;
-		
-	private String aTransientField;
 	
-	public SimplePOJO() {
-	}
-	
-	public SimplePOJO(ObjectId objectId) {
-		this.id = objectId;
+	public void setId(ObjectId id) {
+		this.id = id;
 	}
 
-	public void generateId() {
-		if (id == null){
-			id = new ObjectId();
-		}
-		
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
 }

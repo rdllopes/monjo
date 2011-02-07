@@ -100,7 +100,7 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 		DBObject document = converter.from(pojo).toDocument();
 
 		assertThat(document.containsField("anIntegerField"), is(true));
-		assertThat(document.containsField("_id"), is(false));
+		assertThat(document.containsField("_id"), is(true));
 		assertThat(document.containsField("aField"), is(false));
 		assertThat(document.containsField("anotherField"), is(false));
 		assertThat(document.containsField("aLongField"), is(false));

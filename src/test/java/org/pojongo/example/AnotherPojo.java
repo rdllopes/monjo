@@ -4,7 +4,7 @@ package org.pojongo.example;
 public class AnotherPojo extends AbstractObject {
 		
 		private User user;
-
+		
 		public String getDescription() {
 			return description;
 		}
