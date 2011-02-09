@@ -1,4 +1,4 @@
-package org.pojongo.test.util;
+package org.monjo.test.util;
 
 import static org.hamcrest.Matchers.is;
 

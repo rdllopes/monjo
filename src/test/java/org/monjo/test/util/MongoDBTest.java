@@ -1,4 +1,4 @@
-package org.pojongo.test.util;
+package org.monjo.test.util;
 
 import org.junit.After;
 import org.junit.AfterClass;

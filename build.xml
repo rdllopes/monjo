@@ -2,15 +2,15 @@
 <!-- ====================================================================== 
      17/01/2011 12:51:05                                                        
 
-     Pojongo    
+     Monjo    
      Mongo Object Converter
                    
      rlopes                                                                
      ====================================================================== -->
-<project name="pojongo" default="jar">
+<project name="monjo" default="jar">
 	<property file="build.properties" />
     <description>
-            Mongo Object Converter
+    	Java Object to Mongo API
     </description>
 	
 	<path id="java.path">

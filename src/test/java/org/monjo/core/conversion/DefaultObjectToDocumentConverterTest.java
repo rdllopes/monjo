@@ -1,19 +1,19 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
+import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monj.example.SimplePOJO;
+import org.monj.example.SimplePOJOWithStringId;
 import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.core.conversion.ObjectToDocumentConverter;
-import org.pojongo.example.SimplePOJO;
-import org.pojongo.example.SimplePOJOWithStringId;
-import org.pojongo.test.util.MongoDBTest;
+import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.DBObject;
 

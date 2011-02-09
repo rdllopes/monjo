@@ -1,7 +1,7 @@
-package org.pojongo.example;
+package org.monj.example;
 
 import org.apache.commons.beanutils.Converter;
-import org.pojongo.example.SimplePOJO.Status;
+import org.monj.example.SimplePOJO.Status;
 
 public class StatusConverter implements Converter{
 

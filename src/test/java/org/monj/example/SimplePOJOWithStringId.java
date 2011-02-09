@@ -1,4 +1,4 @@
-package org.pojongo.example;
+package org.monj.example;
 
 import org.monjo.document.IdentifiableDocument;
 

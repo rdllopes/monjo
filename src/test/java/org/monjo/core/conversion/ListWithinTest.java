@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import java.util.List;
 
@@ -7,10 +7,10 @@ import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.monj.example.ListWithin;
 import org.monjo.core.conversion.Monjo;
 import org.monjo.core.conversion.MonjoConverterFactory;
-import org.pojongo.example.ListWithin;
-import org.pojongo.test.util.MongoDBTest;
+import org.monjo.test.util.MongoDBTest;
 
 public class ListWithinTest extends MongoDBTest{
 	

@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
+import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,20 +18,20 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monj.example.AnotherPojo;
+import org.monj.example.Category;
+import org.monj.example.ComplexPojo;
+import org.monj.example.PojoWithListInnerObject;
+import org.monj.example.SimplePOJO;
+import org.monj.example.StatusConverter;
+import org.monj.example.SubClassPojo;
+import org.monj.example.User;
+import org.monj.example.SimplePOJO.Status;
 import org.monjo.core.conversion.Monjo;
 import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.core.conversion.MonjoCursor;
 import org.monjo.core.conversion.NullCommand;
-import org.pojongo.example.AnotherPojo;
-import org.pojongo.example.Category;
-import org.pojongo.example.ComplexPojo;
-import org.pojongo.example.PojoWithListInnerObject;
-import org.pojongo.example.SimplePOJO;
-import org.pojongo.example.SimplePOJO.Status;
-import org.pojongo.example.StatusConverter;
-import org.pojongo.example.SubClassPojo;
-import org.pojongo.example.User;
-import org.pojongo.test.util.MongoDBTest;
+import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
