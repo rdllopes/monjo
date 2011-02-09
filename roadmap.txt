@@ -5,8 +5,8 @@ OK * Basic Document to POJO conversion
 OK * Basic POJO to Document conversion
 OK * Special handling for ObjectIds
 OK * Do not persist transient fields
-* Support date fields
+OK * Support date fields
 
 Query:
-* Simple Query API
+OK * Simple Query API
 * Handle atomic operations ($set, $inc, etc)
