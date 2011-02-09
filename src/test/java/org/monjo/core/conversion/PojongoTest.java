@@ -55,7 +55,7 @@ public class PojongoTest extends MongoDBTest{
 		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		ObjectId objectId = pojongo.save(pojo);
 		
-		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));
+		DBObject document = getMonjoCollection().findOne(new BasicDBObject("_id", objectId));
 		
 		Class<?> anIntegerFieldClass = document.get("anIntegerField").getClass();
 		assertThat(anIntegerFieldClass, classEqualTo(Integer.class));
@@ -90,7 +90,7 @@ public class PojongoTest extends MongoDBTest{
 		pojo.setId(objectId);
 		
 		pojongo.save(pojo);
-		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));
+		DBObject document = getMonjoCollection().findOne(new BasicDBObject("_id", objectId));
 
 		// yes, yes. If you have used save all data will be erased!  
 		assertNull (document.get("anIntegerField"));

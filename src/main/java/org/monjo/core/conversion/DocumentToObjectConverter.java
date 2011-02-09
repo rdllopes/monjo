@@ -1,5 +1,8 @@
 package org.monjo.core.conversion;
 
+import org.hibernate.cfg.DefaultNamingStrategy;
+import org.hibernate.cfg.NamingStrategy;
+
 import com.mongodb.DBObject;
 
 /**
@@ -42,5 +45,7 @@ public interface DocumentToObjectConverter {
 	 * @throws IllegalArgumentException if <code>objectType</code> is <code>null</code>.
 	 */
 	<T extends Object> T to(final Class<T> objectType);
+
+	void setNamingStrategy(NamingStrategy defaultNamingStrategy);
 
 }

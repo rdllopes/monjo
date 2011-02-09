@@ -9,6 +9,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
+import org.hibernate.cfg.DefaultNamingStrategy;
+import org.hibernate.cfg.NamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.monj.example.SimplePOJO;
@@ -27,6 +29,8 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	@Before
 	public void setUp() throws Exception {
 		converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter();
+		converter.setNamingStrategy(new DefaultNamingStrategy());
+		MongoDBTest.getMonjoCollection().drop();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
-import org.monjo.document.IdentifiableDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

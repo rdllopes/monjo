@@ -13,43 +13,42 @@ import com.mongodb.QueryBuilder;
 
 public class MongoDBTest {
 
-	private static DBCollection pojongoCollection;
+	private static DBCollection monjoCollection;
 	private static Mongo mongo;
-	private static DB pojongoDB;
+	private static DB mongoDB;
 
 	@BeforeClass
 	public static void connectToMongo() throws Exception {
-		mongo = new Mongo();
-		
-		pojongoDB = mongo.getDB("pojongoTest");
-		pojongoCollection = pojongoDB.getCollection("SimplePOJO");
+		mongo = new Mongo();		
+		mongoDB = mongo.getDB("pojongoTest");
+		monjoCollection = mongoDB.getCollection("SimplePOJO");
 	}
 
 	
 	public static DB getMongoDB() {
-		return pojongoDB;
+		return mongoDB;
 	}
 	@AfterClass
 	public static void dispose() {
 		mongo.close();
 	}
-	
+
 	@After
 	public void tearDown() {
-		getPojongoCollection().remove(new BasicDBObject());
+		getMonjoCollection().remove(new BasicDBObject());
 	}
 	
 	protected void saveToMongo(DBObject dbObject) {
-		getPojongoCollection().save(dbObject);
+		getMonjoCollection().save(dbObject);
 	}
 	
 	protected DBObject getFromMongo(Object id) {
-		return getPojongoCollection().findOne(QueryBuilder.start("_id").is(id).get());
+		return getMonjoCollection().findOne(QueryBuilder.start("_id").is(id).get());
 	}
 
 
-	public static DBCollection getPojongoCollection() {
-		return pojongoCollection;
+	public static DBCollection getMonjoCollection() {
+		return monjoCollection;
 	}
 
 }
