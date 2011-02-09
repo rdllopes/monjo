@@ -196,14 +196,12 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		return (T) dbObject.get("_id");
 	}
 
-	@SuppressWarnings("unchecked")
 	public T update(C identifiableDocument) {
 		DBObject dbObject = converter.from(identifiableDocument).enableUpdate().toDocument();
 		DBObject dbObject2 = converter.getIdDocument(identifiableDocument);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
 		collection.update(dbObject2, dbObject, true, false);
-		identifiableDocument.setId((T) dbObject.get("_id"));
-		return (T) dbObject.get("_id");
+		return identifiableDocument.getId();
 	}
 	
 }
