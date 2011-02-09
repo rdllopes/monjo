@@ -27,8 +27,6 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	
 	private Command<C> command;
 	
-	private MonjoConverter converter;
-
 	public Monjo(DB mongoDb, Class<C> clasz) {
 		this(mongoDb, clasz, new NullCommand<C>());
 	}
@@ -45,7 +43,11 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
 	public DBObject createCriteriaByExample(C example) {
-		return converter.from(example).enableSearch().toDocument();
+		return getConverter().from(example).enableSearch().toDocument();
+	}
+
+	public MonjoConverter getConverter() {
+		return MonjoConverterFactory.getInstance().getDefaultPojongoConverter();
 	}
 
 	/**
@@ -55,7 +57,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	public MonjoCursor<C> find(){
 		logger.debug("finding all items from collection:{}", collection.getName());
 		DBCursor cursor = collection.find();
-		return new MonjoCursor<C>(cursor, converter, clasz, command);
+		return new MonjoCursor<C>(cursor, getConverter(), clasz, command);
 	}
 	
 	
@@ -67,7 +69,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	public MonjoCursor<C> findBy(DBObject criteria){
 		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBCursor cursor = collection.find(criteria);
-		return new MonjoCursor<C>(cursor, converter, clasz, command);
+		return new MonjoCursor<C>(cursor, getConverter(), clasz, command);
 	}
 	
 	public MonjoCursor<C> findByExample(C example) {
@@ -103,7 +105,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		DBObject dbObject = collection.findOne(criteria);
 		try {
 			logger.debug("item found:{}", dbObject);
-			return command.execute(converter.from(dbObject).to(clasz));
+			return command.execute(getConverter().from(dbObject).to(clasz));
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -120,7 +122,6 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 
 	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
 		collection = mongoDb.getCollection(collectionName);
-		converter = MonjoConverterFactory.getInstance().getDefaultPojongoConverter();
 		this.clasz = clasz;
 		this.command = command2;
 	}
@@ -135,7 +136,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	public T insert(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).toDocument();
+		DBObject dbObject = getConverter().from(identifiableDocument).toDocument();
 		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.insert(dbObject);
 		identifiableDocument.setId((T) dbObject.get("_id"));
@@ -189,7 +190,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	public T save(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).toDocument();
+		DBObject dbObject = getConverter().from(identifiableDocument).toDocument();
 		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.save(dbObject);
 		identifiableDocument.setId((T) dbObject.get("_id"));
@@ -197,8 +198,8 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	}
 
 	public T update(C identifiableDocument) {
-		DBObject dbObject = converter.from(identifiableDocument).enableUpdate().toDocument();
-		DBObject dbObject2 = converter.getIdDocument(identifiableDocument);
+		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().toDocument();
+		DBObject dbObject2 = getConverter().getIdDocument(identifiableDocument);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
 		collection.update(dbObject2, dbObject, true, false);
 		return identifiableDocument.getId();
