@@ -11,6 +11,8 @@ import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.core.conversion.DocumentToObjectConverter;
+import org.monjo.core.conversion.MonjoConverterFactory;
 import org.pojongo.example.SimplePOJO;
 import org.pojongo.example.SimplePOJOWithStringId;
 import org.pojongo.test.util.MongoDBTest;

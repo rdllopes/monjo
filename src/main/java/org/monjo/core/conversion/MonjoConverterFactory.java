@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.hibernate.cfg.NamingStrategy;

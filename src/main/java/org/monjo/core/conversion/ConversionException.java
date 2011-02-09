@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 /**
  * Exception indicating that something wrong happened while converting objects.

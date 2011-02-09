@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
-import org.pojongo.document.IdentifiableDocument;
+import org.monjo.document.IdentifiableDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import com.mongodb.DBObject;
  * Default implementation of <code>DocumentToObjectConverter</code>.
  * 
  * @author Caio Filipini
- * @see org.pojongo.core.conversion.DocumentToObjectConverter
+ * @see org.monjo.core.conversion.DocumentToObjectConverter
  */
 public class DefaultDocumentToObjectConverter implements DocumentToObjectConverter {
 

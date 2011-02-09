@@ -1,8 +1,8 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.NamingStrategy;
-import org.pojongo.document.IdentifiableDocument;
+import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

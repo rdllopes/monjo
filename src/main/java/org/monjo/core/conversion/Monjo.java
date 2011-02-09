@@ -1,7 +1,7 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import org.hibernate.cfg.NamingStrategy;
-import org.pojongo.document.IdentifiableDocument;
+import org.monjo.document.IdentifiableDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -9,6 +9,8 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.core.conversion.MonjoConverterFactory;
+import org.monjo.core.conversion.ObjectToDocumentConverter;
 import org.pojongo.example.SimplePOJO;
 import org.pojongo.example.SimplePOJOWithStringId;
 import org.pojongo.test.util.MongoDBTest;

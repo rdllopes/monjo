@@ -1,7 +1,7 @@
 package org.pojongo.example;
 
 import org.bson.types.ObjectId;
-import org.pojongo.document.IdentifiableDocument;
+import org.monjo.document.IdentifiableDocument;
 
 public abstract class AbstractObject implements IdentifiableDocument<ObjectId>{
 

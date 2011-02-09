@@ -8,6 +8,8 @@ import static org.pojongo.test.util.HamcrestPatch.classEqualTo;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.core.conversion.MonjoConverterFactory;
+import org.monjo.core.conversion.ObjectToDocumentConverter;
 import org.pojongo.example.SimplePOJO;
 import org.pojongo.test.util.MongoDBTest;
 

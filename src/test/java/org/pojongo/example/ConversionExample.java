@@ -3,9 +3,9 @@ package org.pojongo.example;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pojongo.core.conversion.DocumentToObjectConverter;
-import org.pojongo.core.conversion.ObjectToDocumentConverter;
-import org.pojongo.core.conversion.MonjoConverterFactory;
+import org.monjo.core.conversion.DocumentToObjectConverter;
+import org.monjo.core.conversion.MonjoConverterFactory;
+import org.monjo.core.conversion.ObjectToDocumentConverter;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;

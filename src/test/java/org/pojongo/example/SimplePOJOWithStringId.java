@@ -1,6 +1,6 @@
 package org.pojongo.example;
 
-import org.pojongo.document.IdentifiableDocument;
+import org.monjo.document.IdentifiableDocument;
 
 public class SimplePOJOWithStringId implements IdentifiableDocument<String> {
 	

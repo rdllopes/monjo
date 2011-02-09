@@ -1,4 +1,4 @@
-package org.pojongo.core.conversion;
+package org.monjo.core.conversion;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

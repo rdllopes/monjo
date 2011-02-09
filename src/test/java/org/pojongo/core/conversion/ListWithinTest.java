@@ -7,6 +7,8 @@ import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.core.conversion.Monjo;
+import org.monjo.core.conversion.MonjoConverterFactory;
 import org.pojongo.example.ListWithin;
 import org.pojongo.test.util.MongoDBTest;
 

@@ -1,8 +1,8 @@
 package org.pojongo.example;
 
 import org.bson.types.ObjectId;
-import org.pojongo.core.conversion.Transient;
-import org.pojongo.document.IdentifiableDocument;
+import org.monjo.core.conversion.Transient;
+import org.monjo.document.IdentifiableDocument;
 
 public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	public enum Status{

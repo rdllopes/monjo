@@ -1,4 +1,4 @@
-package org.pojongo.document;
+package org.monjo.document;
 
 /**
  * Interface defining an identifiable MongoDB document.
