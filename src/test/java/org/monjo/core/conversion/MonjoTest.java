@@ -38,7 +38,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 
-public class PojongoTest extends MongoDBTest{
+public class MonjoTest extends MongoDBTest{
 
 	@Before
 	public void setUp() throws Exception {
