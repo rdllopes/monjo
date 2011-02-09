@@ -19,7 +19,7 @@ public class ImprovedNamingObjectToDocumentConverterTest extends MongoDBTest {
 
 	@Before
 	public void setUp() throws Exception {
-		converter = PojongoConverterFactory.getInstance().configure(new ImprovedNamingStrategy()).getDefaultObjectConverter();
+		converter = MonjoConverterFactory.getInstance().configure(new ImprovedNamingStrategy()).getDefaultObjectConverter();
 	}
 	
 	@Test

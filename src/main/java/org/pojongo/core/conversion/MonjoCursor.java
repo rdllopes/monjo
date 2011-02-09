@@ -9,18 +9,18 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-public class PojongoCursor<C> {
+public class MonjoCursor<C> {
 	
-	private static final Logger logger = LoggerFactory.getLogger(PojongoCursor.class);
+	private static final Logger logger = LoggerFactory.getLogger(MonjoCursor.class);
 	
 	private DBCursor cursor;
 	private Class<C> clasz;
-	private PojongoConverter converter;
+	private MonjoConverter converter;
 	private Command<C> command;
 
 	// public PojongoCursor(DBCursor dbCursor, PojongoConverter converter, Class<C> clasz) {}
 	
-	public PojongoCursor(DBCursor dbCursor, PojongoConverter converter,
+	public MonjoCursor(DBCursor dbCursor, MonjoConverter converter,
 			Class<C> clasz, Command<C> command) {
 		this.cursor = dbCursor;
 		this.clasz = clasz;
@@ -31,17 +31,17 @@ public class PojongoCursor<C> {
 		this.command = command;
 	}
 
-	public PojongoCursor<C> sort(DBObject orderBy){
+	public MonjoCursor<C> sort(DBObject orderBy){
 		cursor.sort(orderBy);
 		return this;
 	}
 	
-	public PojongoCursor<C> limit(int n){
+	public MonjoCursor<C> limit(int n){
 		cursor.limit(n);
 		return this;
 	}
 	
-	public PojongoCursor<C> skip(int n){
+	public MonjoCursor<C> skip(int n){
 		cursor.skip(n);
 		return this;
 	}

@@ -7,7 +7,7 @@ import org.pojongo.document.IdentifiableDocument;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class DefaultPojongoConverter implements PojongoConverter{
+public class DefaultPojongoConverter implements MonjoConverter{
 	private DefaultDocumentToObjectConverter defaultDocumentToObjectConverter = new DefaultDocumentToObjectConverter();
 	private DefaultObjectToDocumentConverter defaultObjectToDocumentConverter = new DefaultObjectToDocumentConverter();
 	

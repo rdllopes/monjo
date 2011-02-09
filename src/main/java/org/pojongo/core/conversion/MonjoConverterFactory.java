@@ -3,17 +3,17 @@ package org.pojongo.core.conversion;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.hibernate.cfg.NamingStrategy;
 
-public class PojongoConverterFactory {
+public class MonjoConverterFactory {
 	
 	private NamingStrategy namingStrategy;
 
-	private static PojongoConverterFactory converterFactory 
-		= new PojongoConverterFactory();
+	private static MonjoConverterFactory converterFactory 
+		= new MonjoConverterFactory();
 	
 	/**
 	 * @return the singleton instance of PojongoConverterFactory
 	 */
-	public static PojongoConverterFactory getInstance(){
+	public static MonjoConverterFactory getInstance(){
 		return converterFactory;
 	}
 	
@@ -22,16 +22,16 @@ public class PojongoConverterFactory {
 	 * @param namingStrategy
 	 * @return
 	 */
-	public PojongoConverterFactory configure(NamingStrategy namingStrategy) {
+	public MonjoConverterFactory configure(NamingStrategy namingStrategy) {
 		this.namingStrategy = namingStrategy;
 		return this;
 	}
 
-	private PojongoConverterFactory(){
+	private MonjoConverterFactory(){
 		this(new DefaultNamingStrategy());
 	}
 
-	private PojongoConverterFactory(
+	private MonjoConverterFactory(
 			NamingStrategy defaultNamingStrategy) {
 		this.namingStrategy = defaultNamingStrategy;
 	}
@@ -52,8 +52,8 @@ public class PojongoConverterFactory {
 		return converter;
 	}
 	
-	public PojongoConverter getDefaultPojongoConverter(){
-		PojongoConverter converter = new DefaultPojongoConverter();
+	public MonjoConverter getDefaultPojongoConverter(){
+		MonjoConverter converter = new DefaultPojongoConverter();
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	
 		}

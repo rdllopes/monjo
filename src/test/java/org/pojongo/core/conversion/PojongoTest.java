@@ -38,7 +38,7 @@ public class PojongoTest extends MongoDBTest{
 
 	@Before
 	public void setUp() throws Exception {
-		PojongoConverterFactory.getInstance()
+		MonjoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
 				.getDefaultObjectConverter();
 		ConvertUtils.register(new StatusConverter(), Status.class);				
@@ -48,7 +48,7 @@ public class PojongoTest extends MongoDBTest{
 	public void deveriaGravarElemento(){
 		SimplePOJO pojo = createSimplePojo();
 		
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		ObjectId objectId = pojongo.save(pojo);
 		
 		DBObject document = getPojongoCollection().findOne(new BasicDBObject("_id", objectId));
@@ -77,7 +77,7 @@ public class PojongoTest extends MongoDBTest{
 	@Test
 	public void deveriaAtualizarElemento(){
 		SimplePOJO pojo = createSimplePojo();		
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		pojongo.removeAll();
 		ObjectId objectId = pojongo.save(pojo);
 
@@ -103,7 +103,7 @@ public class PojongoTest extends MongoDBTest{
 	public void deveriaEncontrarDocumentoInserido(){
 		SimplePOJO pojo = createSimplePojo();
 
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		ObjectId objectId = pojongo.insert(pojo);
 		
 		SimplePOJO simplePOJO = pojongo.findOne(new SimplePOJO(objectId));
@@ -119,7 +119,7 @@ public class PojongoTest extends MongoDBTest{
 	
 	@Test
 	public void deveriaLimitarResultados() throws Exception{
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		insertPojoCollection(pojongo);
 		
@@ -128,7 +128,7 @@ public class PojongoTest extends MongoDBTest{
 		assertEquals(5, list.size());
 	}
 
-	private void insertPojoCollection(Pojongo<ObjectId, SimplePOJO> pojongo) {
+	private void insertPojoCollection(Monjo<ObjectId, SimplePOJO> pojongo) {
 		for(int i = 0; i < 30; i++){
 			SimplePOJO pojo = new SimplePOJO();
 			pojo.setAnIntegerField(i);
@@ -141,7 +141,7 @@ public class PojongoTest extends MongoDBTest{
 	
 	@Test
 	public void deveriaComecarNoQuintoResultado() throws Exception{
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		insertPojoCollection(pojongo);
 		
@@ -153,7 +153,7 @@ public class PojongoTest extends MongoDBTest{
 	
 	@Test
 	public void deveriaContarDocumentosColecao(){
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		insertPojoCollection(pojongo);
 			
@@ -162,7 +162,7 @@ public class PojongoTest extends MongoDBTest{
 	
 	@Test
 	public void deveriaFiltrarUsandoIn() throws Exception{
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setAnIntegerField(1);
@@ -196,7 +196,7 @@ public class PojongoTest extends MongoDBTest{
 	
 	@Test
 	public void deveriaRemover(){
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setAnIntegerField(123);
@@ -220,7 +220,7 @@ public class PojongoTest extends MongoDBTest{
 	public void testEnumTypes() throws Exception {
 		SimplePOJO simplePOJO = new SimplePOJO();
 		simplePOJO.setStatus(Status.NEW);
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		pojongo.insert(simplePOJO);
 		SimplePOJO simplePOJO2 = pojongo.findOne(simplePOJO.getId());
 		assertEquals(simplePOJO.getStatus(),simplePOJO2.getStatus());
@@ -235,13 +235,13 @@ public class PojongoTest extends MongoDBTest{
 
 		AnotherPojo anotherPojo = createAnotherPojo(user);
 		
-		Pojongo<ObjectId, AnotherPojo> pojongoComplex = new Pojongo<ObjectId, AnotherPojo>(getMongoDB(), AnotherPojo.class);
+		Monjo<ObjectId, AnotherPojo> pojongoComplex = new Monjo<ObjectId, AnotherPojo>(getMongoDB(), AnotherPojo.class);
 
 		pojongoComplex.removeAll();
 
 		pojongoComplex.insert(anotherPojo);
 		
-		PojongoCursor<AnotherPojo> pojongoCursor = pojongoComplex.find();
+		MonjoCursor<AnotherPojo> pojongoCursor = pojongoComplex.find();
 		AnotherPojo anotherPojo2 = pojongoCursor.toList().get(0);
 		assertEquals("NewCategory", anotherPojo2.getUser().getName());
 	}
@@ -253,19 +253,19 @@ public class PojongoTest extends MongoDBTest{
 		
 		Category category = new Category();
 		category.setName("NewCategory");
-		Pojongo<ObjectId, Category> pojongoCategory = new Pojongo<ObjectId, Category>(getMongoDB(), Category.class);
+		Monjo<ObjectId, Category> pojongoCategory = new Monjo<ObjectId, Category>(getMongoDB(), Category.class);
 		pojongoCategory.insert(category);
 
 		ComplexPojo complexPojo = createComplexPojo(category);
 //		complexPojo.setCategories(categories);
-		Pojongo<ObjectId, ComplexPojo> pojongoComplex = new Pojongo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
+		Monjo<ObjectId, ComplexPojo> pojongoComplex = new Monjo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
 
 		pojongoComplex.removeAll();
 		pojongoCategory.removeAll();
 
 		pojongoComplex.insert(complexPojo);
 		
-		PojongoCursor<ComplexPojo> pojongoCursor = pojongoComplex.find();
+		MonjoCursor<ComplexPojo> pojongoCursor = pojongoComplex.find();
 		ComplexPojo complex = pojongoCursor.toList().get(0);
 		assertEquals(category.getId(), complex.getCategory().getId());
 	//	assertEquals(category.getId(), complex.getCategories().get(0).getId());
@@ -293,13 +293,13 @@ public class PojongoTest extends MongoDBTest{
 	@Test
 	public void shouldNotUseRef() throws Exception{
 		PojoWithListInnerObject pojo = createMegaZordePojo();
-		Pojongo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		Monjo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 
 		pojongoComplex.removeAll();
 
 		pojongoComplex.insert(pojo);
 		
-		PojongoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
+		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
 		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
 		assertNotNull(complex.getCategories().get(0).getId());
 	}
@@ -326,14 +326,14 @@ public class PojongoTest extends MongoDBTest{
 		String extraInfo = "this extra info";
 		pojo.setExtraProperty(extraInfo);
 		
-		Pojongo<ObjectId, SubClassPojo> pojongo = new Pojongo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
+		Monjo<ObjectId, SubClassPojo> pojongo = new Monjo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
 		pojongo.removeAll();
 		ObjectId objectId = pojongo.insert(pojo);
 		
 		SimplePOJO simplePOJO = createSimplePojo();
 		simplePOJO.setId(objectId);
 		
-		Pojongo<ObjectId, SimplePOJO> pojongo2 = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
+		Monjo<ObjectId, SimplePOJO> pojongo2 = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
 		pojongo2.update(simplePOJO);
 
 		SimplePOJO fixture = createSimplePojo();
@@ -356,11 +356,11 @@ public class PojongoTest extends MongoDBTest{
 	@Test
 	public void shouldUpdateComplexObject(){
 		SimplePOJO fixture = createSimplePojo();
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
 		pojongo.removeAll();
 		ObjectId objectId = pojongo.insert(fixture);
 
-		Pojongo<ObjectId, SubClassPojo> pojongo2 = new Pojongo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
+		Monjo<ObjectId, SubClassPojo> pojongo2 = new Monjo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
 		SubClassPojo classPojo = pojongo2.findOne(objectId);
 		compareTwoSimplePojos(fixture, classPojo);
 	}
@@ -368,7 +368,7 @@ public class PojongoTest extends MongoDBTest{
 	@Test
 	public void shouldFindByExample() {
 		PojoWithListInnerObject createMegaZordePojo = createMegaZordePojo();
-		Pojongo<ObjectId, PojoWithListInnerObject> pojongo = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 		pojongo.removeAll();
 		pojongo.insert(createMegaZordePojo);
 		createMegaZordePojo.setId(null);
@@ -379,7 +379,7 @@ public class PojongoTest extends MongoDBTest{
 	@Test
 	public void shouldFindByExampleSoSo() {
 		PojoWithListInnerObject createMegaZordePojo = createMegaZordePojo();
-		Pojongo<ObjectId, PojoWithListInnerObject> pojongo = new Pojongo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 		pojongo.removeAll();
 		pojongo.insert(createMegaZordePojo);
 		createMegaZordePojo.setId(null);
@@ -393,7 +393,7 @@ public class PojongoTest extends MongoDBTest{
 	@Test
 	public void shouldFindBySimpleExample() {
 		SimplePOJO simplePOJO = createSimplePojo();
-		Pojongo<ObjectId, SimplePOJO> pojongo = new Pojongo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		pojongo.removeAll();
 		pojongo.insert(simplePOJO);
 		SimplePOJO result = pojongo.findByExample(simplePOJO).toList().get(0);

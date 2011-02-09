@@ -14,7 +14,7 @@ public class ListWithinTest extends MongoDBTest{
 	
 	@Before
 	public void setUp() throws Exception {
-		PojongoConverterFactory.getInstance()
+		MonjoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
 				.getDefaultObjectConverter();
 	}
@@ -25,7 +25,7 @@ public class ListWithinTest extends MongoDBTest{
 		pojo.addItem(42);
 		pojo.addItem(43);
 		
-		Pojongo<ObjectId, ListWithin> pojongo = new Pojongo<ObjectId, ListWithin>(getMongoDB(), ListWithin.class);
+		Monjo<ObjectId, ListWithin> pojongo = new Monjo<ObjectId, ListWithin>(getMongoDB(), ListWithin.class);
 		ObjectId objectId = pojongo.save(pojo);
 		ListWithin listWithin = pojongo.findOne(objectId);
 		List<String> strings = listWithin.getNames();

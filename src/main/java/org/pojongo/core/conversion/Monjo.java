@@ -12,36 +12,36 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 /**
- * This is a main class of Pojongo. It should be used to everyday works such as 
+ * This is a main class of Monjo. It should be used to everyday works such as 
  * find, save object, search by example.
  * 
  * 
  * @author Rodrigo di Lorenzo Lopes
  * 
  */
-public class Pojongo<T, C extends IdentifiableDocument<T>> {
+public class Monjo<T, C extends IdentifiableDocument<T>> {
 	
-	private static final Logger logger = LoggerFactory.getLogger(Pojongo.class);
+	private static final Logger logger = LoggerFactory.getLogger(Monjo.class);
 	private Class<C> clasz;
 	private DBCollection collection;
 	
 	private Command<C> command;
 	
-	private PojongoConverter converter;
+	private MonjoConverter converter;
 
-	public Pojongo(DB mongoDb, Class<C> clasz) {
+	public Monjo(DB mongoDb, Class<C> clasz) {
 		this(mongoDb, clasz, new NullCommand<C>());
 	}
 
-	public Pojongo(DB mongoDb, Class<C> clasz, Command<C> command) {
-		PojongoConverterFactory factory = PojongoConverterFactory.getInstance();
+	public Monjo(DB mongoDb, Class<C> clasz, Command<C> command) {
+		MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
 		NamingStrategy namingStrategy = factory.getNamingStrategy();
 		String collectionName = namingStrategy.classToTableName(clasz.getName());				
 		initialize(mongoDb, clasz, collectionName, command);
 		
 	}
 	
-	public Pojongo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
+	public Monjo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
 	public DBObject createCriteriaByExample(C example) {
@@ -52,10 +52,10 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * Search all objects in mongo collection 
 	 * @return a cursor to query result
 	 */
-	public PojongoCursor<C> find(){
+	public MonjoCursor<C> find(){
 		logger.debug("finding all items from collection:{}", collection.getName());
 		DBCursor cursor = collection.find();
-		return new PojongoCursor<C>(cursor, converter, clasz, command);
+		return new MonjoCursor<C>(cursor, converter, clasz, command);
 	}
 	
 	
@@ -64,13 +64,13 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 	 * @param criteria to be used in query
 	 * @return a cursor to query result 
 	 */
-	public PojongoCursor<C> findBy(DBObject criteria){
+	public MonjoCursor<C> findBy(DBObject criteria){
 		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBCursor cursor = collection.find(criteria);
-		return new PojongoCursor<C>(cursor, converter, clasz, command);
+		return new MonjoCursor<C>(cursor, converter, clasz, command);
 	}
 	
-	public PojongoCursor<C> findByExample(C example) {
+	public MonjoCursor<C> findByExample(C example) {
 		return findBy(createCriteriaByExample(example));
 	}
 
@@ -120,7 +120,7 @@ public class Pojongo<T, C extends IdentifiableDocument<T>> {
 
 	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
 		collection = mongoDb.getCollection(collectionName);
-		converter = PojongoConverterFactory.getInstance().getDefaultPojongoConverter();
+		converter = MonjoConverterFactory.getInstance().getDefaultPojongoConverter();
 		this.clasz = clasz;
 		this.command = command2;
 	}
