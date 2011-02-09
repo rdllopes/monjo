@@ -23,14 +23,10 @@ import org.monj.example.Category;
 import org.monj.example.ComplexPojo;
 import org.monj.example.PojoWithListInnerObject;
 import org.monj.example.SimplePOJO;
+import org.monj.example.Status;
 import org.monj.example.StatusConverter;
 import org.monj.example.SubClassPojo;
 import org.monj.example.User;
-import org.monj.example.SimplePOJO.Status;
-import org.monjo.core.conversion.Monjo;
-import org.monjo.core.conversion.MonjoConverterFactory;
-import org.monjo.core.conversion.MonjoCursor;
-import org.monjo.core.conversion.NullCommand;
 import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBList;
@@ -322,11 +318,14 @@ public class MonjoTest extends MongoDBTest{
 	
 	@Test
 	public void shouldUpdateSimpleObject(){
+		Status thing = Status.Delta;
+		System.out.println(thing.getClass().isEnum());
+		
 		SubClassPojo pojo = new SubClassPojo();
 		pojo.setAnIntegerField(44);
 		pojo.setaLongField(44L);
 		pojo.setaDoubleField(44.0);
-		pojo.setStatus(Status.NEW);
+		pojo.setStatus(thing);
 		String extraInfo = "this extra info";
 		pojo.setExtraProperty(extraInfo);
 		
@@ -345,7 +344,7 @@ public class MonjoTest extends MongoDBTest{
 		assertTrue(fixture.getaDoubleField().equals(simplePOJO.getaDoubleField()));
 		assertTrue(fixture.getAnIntegerField().equals(simplePOJO.getAnIntegerField()));
 		assertTrue(fixture.getaLongField().equals(simplePOJO.getaLongField()));
-		assertTrue(Status.NEW.equals(simplePOJO.getStatus()));
+		assertTrue(Status.Delta.equals(simplePOJO.getStatus()));
 		
 		
 		
@@ -353,7 +352,7 @@ public class MonjoTest extends MongoDBTest{
 		assertTrue(fixture.getaDoubleField().equals(classPojo.getaDoubleField()));
 		assertTrue(fixture.getAnIntegerField().equals(classPojo.getAnIntegerField()));
 		assertTrue(fixture.getaLongField().equals(classPojo.getaLongField()));
-		assertTrue(Status.NEW.equals(classPojo.getStatus()));
+		assertTrue(Status.Delta.equals(classPojo.getStatus()));
 		assertTrue(extraInfo.equals(classPojo.getExtraProperty()));
 	}
 

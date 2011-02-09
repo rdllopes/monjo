@@ -5,28 +5,22 @@ import org.monjo.core.conversion.Transient;
 import org.monjo.document.IdentifiableDocument;
 
 public class SimplePOJO implements IdentifiableDocument<ObjectId> {
-	public enum Status{
-		EDITED,
-		LOCK, NEW;
-	}
-
 	private Double aDoubleField;
 
 	private String aField;
-	
+
 	private Long aLongField;
-	
+
 	private Integer anIntegerField;
 
 	private String anotherField;
 
 	private String aTransientField;
-	
+
 	private ObjectId id;
-	
+
 	private Status status;
-	
-	
+
 	public SimplePOJO() {
 	}
 
@@ -52,10 +46,10 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	}
 
 	public void generateId() {
-		if (id == null){
+		if (id == null) {
 			id = new ObjectId();
 		}
-		
+
 	}
 
 	public Double getaDoubleField() {
@@ -106,21 +100,23 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	public void setaField(String aField) {
 		this.aField = aField;
 	}
+
 	public void setaLongField(Long aLongField) {
 		this.aLongField = aLongField;
 	}
+
 	public void setAnIntegerField(Integer anIntegerField) {
 		this.anIntegerField = anIntegerField;
 	}
-		
+
 	public void setAnotherField(String anotherField) {
 		this.anotherField = anotherField;
 	}
-	
+
 	public void setaTransientField(String aTransientField) {
 		this.aTransientField = aTransientField;
 	}
-	
+
 	public void setId(ObjectId id) {
 		this.id = id;
 	}

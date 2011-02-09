@@ -1,7 +1,6 @@
 package org.monj.example;
 
 import org.apache.commons.beanutils.Converter;
-import org.monj.example.SimplePOJO.Status;
 
 public class StatusConverter implements Converter{
 
