@@ -117,7 +117,6 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 	private Object getFieldValue(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
 		Class<? extends Object> clasz = fieldValue.getClass();
 		if (isEnumWorkAround(clasz)) {
-			System.out.println("IS ENUM!" + clasz);
 			fieldValue = fieldValue.toString();
 		} else if (fieldValue instanceof List) {
 			List list = (List) fieldValue;
