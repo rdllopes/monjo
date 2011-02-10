@@ -77,7 +77,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	}
 
 	/**
-	 * Find Object by Id. Its presume that id field is filled.
+	 * Find Object by Id. It presumes that id field is filled.
 	 * 
 	 * @param <C> an IdentifiableDocument type
 	 * @param collection that contains the document to be found
@@ -96,7 +96,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * @param collection that contains the document to be found
 	 * @param id of document to be found (if that exists)
 	 * @param clasz
-	 * @return
+	 * @return object if found an object that matches with criteria used
 	 * @throws Exception 
 	 */
 	public C findOne(T id){
@@ -105,6 +105,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		DBObject dbObject = collection.findOne(criteria);
 		try {
 			logger.debug("item found:{}", dbObject);
+			if (dbObject == null) return null;
 			return command.execute(getConverter().from(dbObject).to(clasz));
 		} catch (Exception e) {
 			e.printStackTrace();
