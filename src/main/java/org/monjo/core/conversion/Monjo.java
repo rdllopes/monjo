@@ -33,10 +33,25 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 
 	public Monjo(DB mongoDb, Class<C> clasz, Command<C> command) {
 		MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
-		NamingStrategy namingStrategy = factory.getNamingStrategy();
-		String collectionName = namingStrategy.classToTableName(clasz.getName());				
+		String collectionName = findOutCollectionName(clasz, factory);
 		initialize(mongoDb, clasz, collectionName, command);
-		
+	}
+
+	private String findOutCollectionName(Class<C> clasz, MonjoConverterFactory factory) {
+		if (annotatedWithCollection(clasz)) {
+			return clasz.getAnnotation(Collection.class).value();
+		} else {
+			return extractNameFromClassName(clasz, factory);							
+		}
+	}
+
+	private String extractNameFromClassName(Class<C> clasz, MonjoConverterFactory factory) {
+		NamingStrategy namingStrategy = factory.getNamingStrategy();
+		return namingStrategy.classToTableName(clasz.getName());
+	}
+
+	private boolean annotatedWithCollection(Class<C> clasz) {
+		return clasz.isAnnotationPresent(Collection.class);
 	}
 	
 	public Monjo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {

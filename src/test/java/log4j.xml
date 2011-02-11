@@ -37,7 +37,7 @@
 		<appender-ref ref="stdout" />
 	</category>
 
-	<category name="org.pojongo">
+	<category name="org.monjo">
 		<priority value="DEBUG" />
 		<appender-ref ref="stdout" />
 	</category>
