@@ -37,7 +37,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
 
-	private String findOutCollectionName(Class<C> clasz, MonjoConverterFactory factory) {
+	protected String findOutCollectionName(Class<C> clasz, MonjoConverterFactory factory) {
 		if (annotatedWithCollection(clasz)) {
 			return clasz.getAnnotation(Collection.class).value();
 		} else {
