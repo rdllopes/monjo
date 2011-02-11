@@ -19,13 +19,13 @@ import com.mongodb.DBObject;
 
 public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 
-	private ObjectToDocumentConverter converter;
+	private ObjectToDocumentConverter<SimplePOJO> converter;
 
 	@Before
 	public void setUp() throws Exception {
 		converter = MonjoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
-				.getDefaultObjectConverter();
+				.getDefaultObjectConverter(SimplePOJO.class);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -114,6 +114,11 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	public void shouldPopulateStringIdIfDefined() {
 		SimplePOJOWithStringId pojoWithStringId = new SimplePOJOWithStringId();
 		pojoWithStringId.setId("abcd1234");
+		
+		ObjectToDocumentConverter<SimplePOJOWithStringId>
+		converter = MonjoConverterFactory.getInstance()
+		.configure(new DefaultNamingStrategy())
+		.getDefaultObjectConverter(SimplePOJOWithStringId.class);
 
 		DBObject document = converter.from(pojoWithStringId).toDocument();
 
@@ -160,6 +165,12 @@ public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 	private void assertIdOfTypeStringIsPreserved() {
 		SimplePOJOWithStringId pojoWithStringId = new SimplePOJOWithStringId();
 		pojoWithStringId.setId("abcd1234");
+		
+		ObjectToDocumentConverter<SimplePOJOWithStringId>
+		converter = MonjoConverterFactory.getInstance()
+		.configure(new DefaultNamingStrategy())
+		.getDefaultObjectConverter(SimplePOJOWithStringId.class);
+		
 
 		DBObject document = converter.from(pojoWithStringId).toDocument();
 		saveToMongo(document);

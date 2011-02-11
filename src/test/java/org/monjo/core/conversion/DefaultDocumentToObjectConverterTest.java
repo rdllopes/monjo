@@ -24,28 +24,17 @@ import com.mongodb.DBObject;
 
 public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	
-	private DocumentToObjectConverter converter;
 
 	@Before
 	public void setUp() throws Exception {
-		converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter();
-		converter.setNamingStrategy(new DefaultNamingStrategy());
 		MongoDBTest.getMonjoCollection().drop();
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
-	public void shouldThrowIllegalArgumentExceptionIfDocumentIsNull() {
-		converter.from(null);
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void shouldThrowIllegalArgumentExceptionIfObjectTypeIsNull() throws IllegalArgumentException, Exception {
-		converter.from(new BasicDBObject()).to(null);
-	}
-	
 	@Test(expected=IllegalStateException.class)
-	public void shouldThrowIllegalStateExceptionIfToMethodIsCalledWithouthCallingFromMethodFirst() throws Exception {		
-		converter.to(SimplePOJO.class);
+	public void shouldThrowIllegalStateExceptionIfToMethodIsCalledWithouthCallingFromMethodFirst() throws Exception {
+		DocumentToObjectConverter<SimplePOJO> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJO.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());		
+		converter.to();
 	}
 	
 	@Test
@@ -56,8 +45,11 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		saveToMongo(document);
 		
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
-		
-		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
+
+		DocumentToObjectConverter<SimplePOJO> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJO.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());		
+
+		SimplePOJO convertedObject = converter.from(docFromMongo).to();
 		assertThat(convertedObject.getaField(), is(equalTo("aFieldValue")));
 		assertThat(convertedObject.getAnotherField(), is(equalTo("anotherFieldValue")));
 	}
@@ -71,8 +63,11 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		DBObject doc = spy(document);
 		
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
-		
-		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
+
+		DocumentToObjectConverter<SimplePOJO> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJO.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());		
+
+		SimplePOJO convertedObject = converter.from(docFromMongo).to();
 		assertThat(convertedObject.getaField(), is(equalTo("aFieldValue")));
 		assertThat(convertedObject.getAnotherField(), is(nullValue()));
 		
@@ -89,8 +84,10 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		saveToMongo(document);
 		
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
+		DocumentToObjectConverter<SimplePOJO> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJO.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());		
 		
-		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
+		SimplePOJO convertedObject = converter.from(docFromMongo).to();
 		assertThat(convertedObject.getAnIntegerField(), is(equalTo(42)));
 		assertThat(convertedObject.getaLongField(), is(equalTo(43L)));
 		assertThat(convertedObject.getaDoubleField(), is(equalTo(44.0)));
@@ -103,8 +100,11 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		
 		Object documentId = document.get("_id");
 		DBObject docFromMongo = getFromMongo(documentId);
-		
-		SimplePOJO convertedObject = converter.from(docFromMongo).to(SimplePOJO.class);
+
+		DocumentToObjectConverter<SimplePOJO> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJO.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());		
+
+		SimplePOJO convertedObject = converter.from(docFromMongo).to();
 		assertThat(convertedObject.getId(), is(equalTo(documentId)));
 	}
 	
@@ -117,7 +117,9 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		Object documentId = document.get("_id");
 		DBObject docFromMongo = getFromMongo(documentId);
 		
-		SimplePOJOWithStringId convertedObject = converter.from(docFromMongo).to(SimplePOJOWithStringId.class);
+		DocumentToObjectConverter<SimplePOJOWithStringId> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJOWithStringId.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());				
+		SimplePOJOWithStringId convertedObject = converter.from(docFromMongo).to();
 		Class<?> idClass = convertedObject.getId().getClass();
 		assertThat(idClass, classEqualTo(String.class));
 		assertThat(convertedObject.getId(), is(equalTo(documentId)));
@@ -130,8 +132,10 @@ public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 		saveToMongo(document);
 		
 		DBObject docFromMongo = getFromMongo(document.get("_id"));
-		
-		SimplePOJO simplePOJO = converter.from(docFromMongo).to(SimplePOJO.class);
+		DocumentToObjectConverter<SimplePOJO> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(SimplePOJO.class);
+		converter.setNamingStrategy(new DefaultNamingStrategy());		
+
+		SimplePOJO simplePOJO = converter.from(docFromMongo).to();
 		assertThat(simplePOJO.getaTransientField(), is(nullValue()));
 	}
 	

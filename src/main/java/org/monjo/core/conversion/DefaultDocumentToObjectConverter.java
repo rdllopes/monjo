@@ -20,7 +20,7 @@ import com.mongodb.DBObject;
  * @author Caio Filipini
  * @see org.monjo.core.conversion.DocumentToObjectConverter
  */
-public class DefaultDocumentToObjectConverter implements DocumentToObjectConverter {
+public class DefaultDocumentToObjectConverter<T extends Object> implements DocumentToObjectConverter<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentToObjectConverter.class);
 
@@ -28,19 +28,19 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 	private DBObject document;
 	private NamingStrategy namingStrategy;
 
-	/**
-	 * Default constructor.
-	 */
-	DefaultDocumentToObjectConverter() {
-		// this.mirror = new Mirror();
+	private Class<T> objectType;
+
+	public DefaultDocumentToObjectConverter(Class<T> objectType) {
+		this.objectType = objectType;
 	}
 
-	DefaultDocumentToObjectConverter(NamingStrategy namingStrategy) {
+	public DefaultDocumentToObjectConverter(NamingStrategy namingStrategy, Class<T> innerEntityClass) {
 		this.namingStrategy = namingStrategy;
+		this.objectType = innerEntityClass;
 	}
 
 	@Override
-	public DefaultDocumentToObjectConverter from(final DBObject document) {
+	public DefaultDocumentToObjectConverter<T> from(final DBObject document) {
 		if (document == null) {
 			throw new IllegalArgumentException("cannot convert a null document");
 		}
@@ -49,7 +49,7 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 	}
 
 	@Override
-	public <T extends Object> T to(final Class<T> objectType) {
+	public T to() {
 		if (document == null) {
 			throw new IllegalStateException("cannot convert a null document, please call from(DBObject) first!");
 		}
@@ -95,8 +95,8 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 				if (fieldValue instanceof BasicDBObject) {
 					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
 					Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
-					DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
-					fieldValue = converter.from(basicDBObject).to(innerEntityClass);
+					DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
+					fieldValue = converter.from(basicDBObject).to();
 				}
 				if (fieldValue instanceof List) {
 					// Covariant problem 
@@ -106,8 +106,8 @@ public class DefaultDocumentToObjectConverter implements DocumentToObjectConvert
 						if (object instanceof DBObject) {
 							DBObject dbObject = (DBObject) object;
 							Class<?> innerEntityClass = Class.forName((String) dbObject.get("_ref"));
-							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy);
-							newList.add(converter.from(dbObject).to(innerEntityClass));
+							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
+							newList.add(converter.from(dbObject).to());
 						} else {
 							newList.add(object);
 						}

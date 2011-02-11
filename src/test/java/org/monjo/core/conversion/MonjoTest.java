@@ -38,9 +38,7 @@ public class MonjoTest extends MongoDBTest{
 
 	@Before
 	public void setUp() throws Exception {
-		MonjoConverterFactory.getInstance()
-				.configure(new DefaultNamingStrategy())
-				.getDefaultObjectConverter();
+		MonjoConverterFactory.getInstance().configure(new DefaultNamingStrategy());
 		ConvertUtils.register(new StatusConverter(), Status.class);				
 	}
 	

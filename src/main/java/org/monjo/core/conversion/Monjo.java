@@ -46,8 +46,10 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		return getConverter().from(example).enableSearch().toDocument();
 	}
 
-	public MonjoConverter getConverter() {
-		return MonjoConverterFactory.getInstance().getDefaultPojongoConverter();
+	public MonjoConverter<C> getConverter() {
+		 MonjoConverterFactory converterFactory = MonjoConverterFactory.getInstance();
+		 MonjoConverter<C> monjoConverter = converterFactory.getDefaultPojongoConverter(clasz);
+		 return monjoConverter;
 	}
 
 	/**
@@ -57,7 +59,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	public MonjoCursor<C> find(){
 		logger.debug("finding all items from collection:{}", collection.getName());
 		DBCursor cursor = collection.find();
-		return new MonjoCursor<C>(cursor, getConverter(), clasz, command);
+		return new MonjoCursor<C>(cursor, getConverter(), command);
 	}
 	
 	
@@ -69,7 +71,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	public MonjoCursor<C> findBy(DBObject criteria){
 		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBCursor cursor = collection.find(criteria);
-		return new MonjoCursor<C>(cursor, getConverter(), clasz, command);
+		return new MonjoCursor<C>(cursor, getConverter(), command);
 	}
 	
 	public MonjoCursor<C> findByExample(C example) {
@@ -106,7 +108,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		try {
 			logger.debug("item found:{}", dbObject);
 			if (dbObject == null) return null;
-			return command.execute(getConverter().from(dbObject).to(clasz));
+			return command.execute(getConverter().from(dbObject).to());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

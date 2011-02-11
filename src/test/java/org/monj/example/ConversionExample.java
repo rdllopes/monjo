@@ -25,13 +25,13 @@ public class ConversionExample {
 	}
 
 	private static void listExistingExamples(DBCollection examples) throws IllegalArgumentException, Exception {
-		DocumentToObjectConverter converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter();;
+		DocumentToObjectConverter<Example> converter = MonjoConverterFactory.getInstance().getDefaultDocumentConverter(Example.class);
 		List<Example> exampleList = new ArrayList<Example>();
 		DBCursor cursor = examples.find();
 		
 		while (cursor.hasNext()) {
 			DBObject document = cursor.next();
-			exampleList.add(converter.from(document).to(Example.class));
+			exampleList.add(converter.from(document).to());
 		}
 		
 		for (Example example : exampleList) {
@@ -40,9 +40,9 @@ public class ConversionExample {
 	}
 
 	private static void saveNewExamples(DBCollection examples) {
-		ObjectToDocumentConverter converter = MonjoConverterFactory
+		ObjectToDocumentConverter<Example> converter = MonjoConverterFactory
 			.getInstance()
-			.getDefaultObjectConverter();
+			.getDefaultObjectConverter(Example.class);
 		
 		Example oneExample = new Example("first example", 1);
 		examples.save(converter.from(oneExample).toDocument());

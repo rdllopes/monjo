@@ -11,7 +11,7 @@ import com.mongodb.DBObject;
  * 
  * @author Caio Filipini
  */
-public interface ObjectToDocumentConverter {
+public interface ObjectToDocumentConverter<T extends Object> {
 
 	/**
 	 * Configures which <code>Object</code> should be converted.<br /><br />
@@ -25,7 +25,7 @@ public interface ObjectToDocumentConverter {
 	 * @return the converter.
 	 * @throws IllegalArgumentException if <code>object</code> is null.
 	 */
-	ObjectToDocumentConverter from(Object object);
+	ObjectToDocumentConverter<T> from(T object);
 
 	/**
 	 * Converts the previously configured <code>Object</code> into a corresponding MongoDB's<br />
@@ -43,11 +43,11 @@ public interface ObjectToDocumentConverter {
 	 */
 	DBObject toDocument();
 
-	ObjectToDocumentConverter enableUpdate();
+	ObjectToDocumentConverter<T> enableUpdate();
 
-	ObjectToDocumentConverter enableSearch();
+	ObjectToDocumentConverter<T> enableSearch();
 
-	ObjectToDocumentConverter setPrefix(String string);
+	ObjectToDocumentConverter<T> setPrefix(String string);
 
 	DBObject toDocument(BasicDBObject document);
 

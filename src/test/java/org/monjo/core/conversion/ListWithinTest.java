@@ -18,7 +18,7 @@ public class ListWithinTest extends MongoDBTest{
 	public void setUp() throws Exception {
 		MonjoConverterFactory.getInstance()
 				.configure(new DefaultNamingStrategy())
-				.getDefaultObjectConverter();
+				.getDefaultObjectConverter(ListWithin.class);
 	}
 
 	@Test

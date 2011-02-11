@@ -9,21 +9,17 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-public class MonjoCursor<C> {
+public class MonjoCursor<C extends Object> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MonjoCursor.class);
 	
 	private DBCursor cursor;
-	private Class<C> clasz;
-	private MonjoConverter converter;
+	private MonjoConverter<C> converter;
 	private Command<C> command;
 
-	// public PojongoCursor(DBCursor dbCursor, PojongoConverter converter, Class<C> clasz) {}
 	
-	public MonjoCursor(DBCursor dbCursor, MonjoConverter converter,
-			Class<C> clasz, Command<C> command) {
+	public MonjoCursor(DBCursor dbCursor, MonjoConverter<C> converter, Command<C> command) {
 		this.cursor = dbCursor;
-		this.clasz = clasz;
 		this.converter = converter;
 		if (command == null){
 			command = new NullCommand<C>();
@@ -56,7 +52,7 @@ public class MonjoCursor<C> {
 		while (cursor.hasNext()) {
 			document = cursor.next();
 			logger.debug("document found:{}", document);
-			C object  = converter.from(document).to(clasz);			
+			C object  = converter.from(document).to();			
 			list.add(object);
 		}		
 		return command.execute(list);

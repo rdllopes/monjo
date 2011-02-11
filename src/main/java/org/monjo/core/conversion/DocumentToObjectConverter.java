@@ -13,7 +13,7 @@ import com.mongodb.DBObject;
  * 
  * @author Caio Filipini
  */
-public interface DocumentToObjectConverter {
+public interface DocumentToObjectConverter<T extends Object> {
 
 	/**
 	 * Configures which <code>DBObject</code> should be converted.<br /><br />
@@ -27,7 +27,7 @@ public interface DocumentToObjectConverter {
 	 * @return the converter.
 	 * @throws IllegalArgumentException if <code>document</code> is null.
 	 */
-	DocumentToObjectConverter from(final DBObject document) throws IllegalArgumentException;
+	DocumentToObjectConverter<T> from(final DBObject document) throws IllegalArgumentException;
 
 	/**
 	 * Converts the previously configured <code>DBObject</code> to a corresponding instance<br />
@@ -38,13 +38,12 @@ public interface DocumentToObjectConverter {
 	 * set on the target object, preserving the data type returned by MongoDB's driver.
 	 * 
 	 * @param <T> the generic type for objectType.
-	 * @param objectType the type to be converted to.
 	 * @return an instance of <code>objectType</code> populated with corresponding values from MongoDB's document.
 	 * 
 	 * @throws IllegalStateException if <code>to(Class)</code> is called without calling <code>from(DBObject)</code> first.
 	 * @throws IllegalArgumentException if <code>objectType</code> is <code>null</code>.
 	 */
-	<T extends Object> T to(final Class<T> objectType);
+	T to();
 
 	void setNamingStrategy(NamingStrategy defaultNamingStrategy);
 

@@ -7,18 +7,27 @@ import org.monjo.document.IdentifiableDocument;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class DefaultPojongoConverter implements MonjoConverter{
-	private DefaultDocumentToObjectConverter defaultDocumentToObjectConverter = new DefaultDocumentToObjectConverter();
-	private DefaultObjectToDocumentConverter defaultObjectToDocumentConverter = new DefaultObjectToDocumentConverter();
+public class DefaultPojongoConverter<T extends Object> implements MonjoConverter<T>{
+	
+
+	public DefaultPojongoConverter(Class<T> objectType) {
+		defaultDocumentToObjectConverter = new DefaultDocumentToObjectConverter<T>(objectType);
+		defaultObjectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(objectType); 
+	}
+	
+	private DefaultDocumentToObjectConverter<T> defaultDocumentToObjectConverter;
+	private DefaultObjectToDocumentConverter<T> defaultObjectToDocumentConverter;
 	
 	
-	public DefaultDocumentToObjectConverter from(DBObject document) {
+	public DefaultDocumentToObjectConverter<T> from(DBObject document) {
 		return defaultDocumentToObjectConverter.from(document);
 	}
-	public <T> T to(Class<T> objectType){
-		return defaultDocumentToObjectConverter.to(objectType);
+
+	public T to(){
+		return defaultDocumentToObjectConverter.to();
 	}
-	public ObjectToDocumentConverter from(Object javaObject) {
+	
+	public ObjectToDocumentConverter<T> from(T javaObject) {
 		return defaultObjectToDocumentConverter.from(javaObject);
 	}
 	public DBObject toDocument() {
@@ -43,22 +52,23 @@ public class DefaultPojongoConverter implements MonjoConverter{
 	}
 	
 	@Override
-	public ObjectToDocumentConverter enableUpdate() {
+	public ObjectToDocumentConverter<T> enableUpdate() {
 		return defaultObjectToDocumentConverter.enableUpdate();
 	}
 
 	@Override
-	public ObjectToDocumentConverter enableSearch() {
+	public ObjectToDocumentConverter<T> enableSearch() {
 		return defaultObjectToDocumentConverter.enableSearch();
 	}
 
 	@Override
-	public ObjectToDocumentConverter setPrefix(String string) {
+	public ObjectToDocumentConverter<T> setPrefix(String string) {
 		return defaultObjectToDocumentConverter.setPrefix(string);
 	}
 	@Override
 	public DBObject toDocument(BasicDBObject document) {
 		return defaultObjectToDocumentConverter.toDocument(document);
 	}
+
 	
 }

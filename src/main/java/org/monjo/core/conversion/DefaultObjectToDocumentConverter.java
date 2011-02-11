@@ -21,26 +21,29 @@ import com.mongodb.DBObject;
  * @author Rodrigo di Lorenzo Lopes
  * @see org.monjo.core.conversion.ObjectToDocumentConverter
  */
-public class DefaultObjectToDocumentConverter implements ObjectToDocumentConverter {
+public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConverter<T> {
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
 	private boolean update = false;
 	private boolean search;
 	private String prefix;
+	private Class<T> objectType;
 
 	
-	/**
-	 * Default constructor.
-	 */
-	DefaultObjectToDocumentConverter() {
+	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy, Class<T> objectType) {
+		if (objectType == null) throw new NullPointerException();
+		this.objectType = objectType;
+		this.namingStrategy = namingStrategy;
+		
 	}
 
-	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy) {
-		this.namingStrategy = namingStrategy;
+	public DefaultObjectToDocumentConverter(Class<T> objectType) {
+		if (objectType == null) throw new NullPointerException();
+		this.objectType = objectType;
 	}
 
 	@Override
-	public ObjectToDocumentConverter from(final Object javaObject) {
+	public ObjectToDocumentConverter<T> from(final T javaObject) {
 		if (javaObject == null) {
 			throw new IllegalArgumentException("cannot convert a null object");
 		}
@@ -58,7 +61,7 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 		if (javaObject == null) {
 			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
 		}
-		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(javaObject.getClass());
+		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 
 		for (PropertyDescriptor descriptor : descriptors) {
 			Method readMethod = descriptor.getReadMethod();
@@ -133,7 +136,7 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 		} else if (fieldValue instanceof IdentifiableDocument) {
 			fieldValue = getFieldValueIdentifiable(document, readMethod, fieldValue, fieldName);
 		} else if (!(fieldValue instanceof Serializable)) {
-			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
+			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
 			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
 			innerBasicDBObject.put("_ref", clasz.getCanonicalName());
 			fieldValue = innerBasicDBObject;
@@ -164,7 +167,7 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 			innerBasicDBObject = new BasicDBObject();
 			innerBasicDBObject.put("_id", identifiable.getId());
 		} else {
-			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy);
+			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
 			if (search) {
 				converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "."  : fieldName + "." ).toDocument(document);
 				return null;
@@ -188,19 +191,19 @@ public class DefaultObjectToDocumentConverter implements ObjectToDocumentConvert
 	}
 
 	@Override
-	public ObjectToDocumentConverter enableUpdate() {
+	public ObjectToDocumentConverter<T> enableUpdate() {
 		this.update = true;
 		return this;
 	}
 
 	@Override
-	public ObjectToDocumentConverter enableSearch() {
+	public ObjectToDocumentConverter<T> enableSearch() {
 		this.search = true;
 		return this;
 	}
 
 	@Override
-	public ObjectToDocumentConverter setPrefix(String string) {
+	public ObjectToDocumentConverter<T> setPrefix(String string) {
 		this.prefix = string;
 		return this;
 	}

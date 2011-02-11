@@ -36,24 +36,24 @@ public class MonjoConverterFactory {
 		this.namingStrategy = defaultNamingStrategy;
 	}
 	
-	public ObjectToDocumentConverter getDefaultObjectConverter(){
-		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter();
+	public <T> ObjectToDocumentConverter<T> getDefaultObjectConverter(Class<T> class1){
+		DefaultObjectToDocumentConverter<T> converter = new DefaultObjectToDocumentConverter<T>(class1);
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	
 		}
 		return converter;
 	}
 	
-	public DocumentToObjectConverter getDefaultDocumentConverter(){
-		DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter();
+	public <T> DocumentToObjectConverter<T> getDefaultDocumentConverter(Class<T> class1){
+		DefaultDocumentToObjectConverter<T> converter = new DefaultDocumentToObjectConverter<T>(class1);
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	
 		}
 		return converter;
 	}
 	
-	public MonjoConverter getDefaultPojongoConverter(){
-		MonjoConverter converter = new DefaultPojongoConverter();
+	public <T> MonjoConverter<T> getDefaultPojongoConverter(Class<T> class1){
+		MonjoConverter<T> converter = new DefaultPojongoConverter<T>(class1);
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	
 		}

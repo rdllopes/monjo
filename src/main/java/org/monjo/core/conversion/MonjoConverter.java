@@ -4,8 +4,8 @@ import org.hibernate.cfg.NamingStrategy;
 
 import com.mongodb.DBObject;
 
-public interface MonjoConverter extends ObjectToDocumentConverter,
-		DocumentToObjectConverter {
+public interface MonjoConverter<T extends Object> extends ObjectToDocumentConverter<T>,
+		DocumentToObjectConverter<T> {
 
 	void setNamingStrategy(NamingStrategy namingStrategy);
 	
