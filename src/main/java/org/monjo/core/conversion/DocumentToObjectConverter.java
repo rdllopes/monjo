@@ -1,6 +1,5 @@
 package org.monjo.core.conversion;
 
-import org.hibernate.cfg.DefaultNamingStrategy;
 import org.hibernate.cfg.NamingStrategy;
 
 import com.mongodb.DBObject;

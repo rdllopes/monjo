@@ -14,6 +14,7 @@ public class SimplePOJOWithStringId implements IdentifiableDocument<String> {
 		return id;
 	}
 
+	@Override
 	public void setId(String id) {
 		this.id = id;
 	}

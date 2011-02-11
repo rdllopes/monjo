@@ -15,10 +15,12 @@ public class ListWithin implements IdentifiableDocument<ObjectId>{
 	
 	private List<String> names;
 
+	@Override
 	public ObjectId getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(ObjectId id) {
 		this.id = id;
 	}

@@ -142,6 +142,7 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 		}
 	}
 
+	@Override
 	public void setNamingStrategy(NamingStrategy namingStrategy) {
 		this.namingStrategy = namingStrategy;
 	}

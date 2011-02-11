@@ -77,6 +77,7 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		return aTransientField;
 	}
 
+	@Override
 	public ObjectId getId() {
 		return id;
 	}
@@ -117,6 +118,7 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 		this.aTransientField = aTransientField;
 	}
 
+	@Override
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
