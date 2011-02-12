@@ -12,8 +12,8 @@ import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
-import org.monj.example.SimplePOJO;
-import org.monj.example.SimplePOJOWithStringId;
+import org.monjo.example.SimplePOJO;
+import org.monjo.example.SimplePOJOWithStringId;
 import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBObject;

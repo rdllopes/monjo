@@ -1,4 +1,4 @@
-package org.monj.example;
+package org.monjo.example;
 
 import org.bson.types.ObjectId;
 import org.monjo.core.conversion.Transient;

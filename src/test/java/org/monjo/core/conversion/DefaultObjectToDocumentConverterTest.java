@@ -9,10 +9,10 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
-import org.monj.example.SimplePOJO;
-import org.monj.example.SimplePOJOWithStringId;
 import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.core.conversion.ObjectToDocumentConverter;
+import org.monjo.example.SimplePOJO;
+import org.monjo.example.SimplePOJOWithStringId;
 import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.DBObject;

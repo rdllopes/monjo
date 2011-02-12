@@ -8,9 +8,9 @@ import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
-import org.monj.example.SimplePOJO;
 import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.core.conversion.ObjectToDocumentConverter;
+import org.monjo.example.SimplePOJO;
 import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.DBObject;

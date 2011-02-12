@@ -1,4 +1,4 @@
-package org.monj.example;
+package org.monjo.example;
 
 import java.util.List;
 

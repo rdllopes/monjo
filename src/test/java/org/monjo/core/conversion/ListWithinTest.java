@@ -7,9 +7,9 @@ import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.monj.example.ListWithin;
 import org.monjo.core.conversion.Monjo;
 import org.monjo.core.conversion.MonjoConverterFactory;
+import org.monjo.example.ListWithin;
 import org.monjo.test.util.MongoDBTest;
 
 public class ListWithinTest extends MongoDBTest{

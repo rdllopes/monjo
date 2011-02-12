@@ -1,6 +1,7 @@
-package org.monj.example;
+package org.monjo.example;
 
-public class User {
+
+public class Category extends AbstractObject {
 	
 	private String name;
 
