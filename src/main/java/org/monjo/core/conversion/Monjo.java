@@ -19,25 +19,25 @@ import com.mongodb.DBObject;
  * @author Rodrigo di Lorenzo Lopes
  * 
  */
-public class Monjo<T, C extends IdentifiableDocument<T>> {
+public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Monjo.class);
-	private Class<C> clasz;
+	private Class<T> clasz;
 	private DBCollection collection;
 	
-	private Command<C> command;
+	private Command<T> command;
 	
-	public Monjo(DB mongoDb, Class<C> clasz) {
-		this(mongoDb, clasz, new NullCommand<C>());
+	public Monjo(DB mongoDb, Class<T> clasz) {
+		this(mongoDb, clasz, new NullCommand<T>());
 	}
 
-	public Monjo(DB mongoDb, Class<C> clasz, Command<C> command) {
+	public Monjo(DB mongoDb, Class<T> clasz, Command<T> command) {
 		MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
 		String collectionName = findOutCollectionName(clasz, factory);
 		initialize(mongoDb, clasz, collectionName, command);
 	}
 
-	protected String findOutCollectionName(Class<C> clasz, MonjoConverterFactory factory) {
+	protected String findOutCollectionName(Class<T> clasz, MonjoConverterFactory factory) {
 		if (annotatedWithCollection(clasz)) {
 			return clasz.getAnnotation(Collection.class).value();
 		} else {
@@ -45,25 +45,25 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		}
 	}
 
-	private String extractNameFromClassName(Class<C> clasz, MonjoConverterFactory factory) {
+	private String extractNameFromClassName(Class<T> clasz, MonjoConverterFactory factory) {
 		NamingStrategy namingStrategy = factory.getNamingStrategy();
 		return namingStrategy.classToTableName(clasz.getName());
 	}
 
-	private boolean annotatedWithCollection(Class<C> clasz) {
+	private boolean annotatedWithCollection(Class<T> clasz) {
 		return clasz.isAnnotationPresent(Collection.class);
 	}
 	
-	public Monjo(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command) {
+	public Monjo(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command) {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
-	public DBObject createCriteriaByExample(C example) {
+	public DBObject createCriteriaByExample(T example) {
 		return getConverter().from(example).enableSearch().toDocument();
 	}
 
-	public MonjoConverter<C> getConverter() {
+	public MonjoConverter<T> getConverter() {
 		 MonjoConverterFactory converterFactory = MonjoConverterFactory.getInstance();
-		 MonjoConverter<C> monjoConverter = converterFactory.getDefaultPojongoConverter(clasz);
+		 MonjoConverter<T> monjoConverter = converterFactory.getDefaultPojongoConverter(clasz);
 		 return monjoConverter;
 	}
 
@@ -71,10 +71,10 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * Search all objects in mongo collection 
 	 * @return a cursor to query result
 	 */
-	public MonjoCursor<C> find(){
+	public MonjoCursor<T> find(){
 		logger.debug("finding all items from collection:{}", collection.getName());
 		DBCursor cursor = collection.find();
-		return new MonjoCursor<C>(cursor, getConverter(), command);
+		return new MonjoCursor<T>(cursor, getConverter(), command);
 	}
 	
 	
@@ -83,13 +83,13 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * @param criteria to be used in query
 	 * @return a cursor to query result 
 	 */
-	public MonjoCursor<C> findBy(DBObject criteria){
+	public MonjoCursor<T> findBy(DBObject criteria){
 		logger.debug("finding all items from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBCursor cursor = collection.find(criteria);
-		return new MonjoCursor<C>(cursor, getConverter(), command);
+		return new MonjoCursor<T>(cursor, getConverter(), command);
 	}
 	
-	public MonjoCursor<C> findByExample(C example) {
+	public MonjoCursor<T> findByExample(T example) {
 		return findBy(createCriteriaByExample(example));
 	}
 
@@ -102,7 +102,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * @return document converted to object from collection that matches _id == c.getId()  
 	 * @throws Exception 
 	 */
-	public C findOne(C c) {
+	public T findOne(T c) {
 		return findOne(c.getId());
 	}
 
@@ -116,7 +116,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * @return object if found an object that matches with criteria used
 	 * @throws Exception 
 	 */
-	public C findOne(T id){
+	public T findOne(Id id){
 		BasicDBObject criteria = new BasicDBObject("_id", id);
 		logger.debug("finding an item from collection:{} by criteria:{}", collection.getName(), criteria);
 		DBObject dbObject = collection.findOne(criteria);
@@ -138,7 +138,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 		return collection.getCount();
 	}
 
-	private void initialize(DB mongoDb, Class<C> clasz, String collectionName, Command<C> command2) {
+	private void initialize(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command2) {
 		collection = mongoDb.getCollection(collectionName);
 		this.clasz = clasz;
 		this.command = command2;
@@ -153,12 +153,12 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public T insert(C identifiableDocument) {
+	public Id insert(T identifiableDocument) {
 		DBObject dbObject = getConverter().from(identifiableDocument).toDocument();
 		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.insert(dbObject);
-		identifiableDocument.setId((T) dbObject.get("_id"));
-		return (T) dbObject.get("_id");
+		identifiableDocument.setId((Id) dbObject.get("_id"));
+		return (Id) dbObject.get("_id");
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * Remove an item with specific id
 	 * @param id
 	 */
-	public void removeBy(T id){
+	public void removeBy(Id id){
 		BasicDBObject basicObject = new BasicDBObject("_id", id);
 		logger.debug("removing item:{} from collection:{}", basicObject, collection.getName());
 		removeByCriteria(basicObject);
@@ -207,15 +207,15 @@ public class Monjo<T, C extends IdentifiableDocument<T>> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public T save(C identifiableDocument) {
+	public Id save(T identifiableDocument) {
 		DBObject dbObject = getConverter().from(identifiableDocument).toDocument();
 		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.save(dbObject);
-		identifiableDocument.setId((T) dbObject.get("_id"));
-		return (T) dbObject.get("_id");
+		identifiableDocument.setId((Id) dbObject.get("_id"));
+		return (Id) dbObject.get("_id");
 	}
 
-	public T update(C identifiableDocument) {
+	public Id update(T identifiableDocument) {
 		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().toDocument();
 		DBObject dbObject2 = getConverter().getIdDocument(identifiableDocument);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
