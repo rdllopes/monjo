@@ -1,0 +1,187 @@
+package org.monjo.core.conversion;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.monjo.test.util.HamcrestPatch.classEqualTo;
+
+import java.util.List;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.bson.types.ObjectId;
+import org.hibernate.cfg.DefaultNamingStrategy;
+import org.junit.Before;
+import org.junit.Test;
+import org.monjo.example.SimplePOJO;
+import org.monjo.example.Status;
+import org.monjo.example.StatusConverter;
+import org.monjo.example.SubClassPojo;
+import org.monjo.test.util.MongoDBTest;
+
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+public class SimplePojoTest extends MongoDBTest {
+
+	@Before
+	public void setUp() throws Exception {
+		MonjoConverterFactory.getInstance().configure(new DefaultNamingStrategy());
+		ConvertUtils.register(new StatusConverter(), Status.class);
+	}
+
+	@Test
+	public void deveriaGravarElemento() {
+		SimplePOJO pojo = PojoBuilder.createSimplePojo();
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = pojongo.save(pojo);
+		
+		DBObject document = getMonjoCollection().findOne(new BasicDBObject("_id", objectId));
+		Class<?> anIntegerFieldClass = document.get("anIntegerField").getClass();
+		assertThat(anIntegerFieldClass, classEqualTo(Integer.class));
+		assertThat((Integer) document.get("anIntegerField"), is(equalTo(42)));
+
+		Class<?> aLongFieldClass = document.get("aLongField").getClass();
+		assertThat(aLongFieldClass, classEqualTo(Long.class));
+		assertThat((Long) document.get("aLongField"), is(equalTo(43L)));
+
+		Class<?> aDoubleFieldClass = document.get("aDoubleField").getClass();
+		assertThat(aDoubleFieldClass, classEqualTo(Double.class));
+		assertThat((Double) document.get("aDoubleField"), is(equalTo(44.0)));
+	}
+
+	@Test
+	public void deveriaEncontrarDocumentoInserido() {
+		SimplePOJO pojo = PojoBuilder.createSimplePojo();
+
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = pojongo.insert(pojo);
+
+		SimplePOJO simplePOJO = pojongo.findOne(new SimplePOJO(objectId));
+		compareTwoSimplePojos(pojo, simplePOJO);
+
+	}
+
+	@Test
+	public void shouldUpdateComplexObject() {
+		SimplePOJO fixture = PojoBuilder.createSimplePojo();
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo",
+				new NullCommand<SimplePOJO>());
+		pojongo.removeAll();
+		ObjectId objectId = pojongo.insert(fixture);
+
+		Monjo<ObjectId, SubClassPojo> pojongo2 = new Monjo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo",
+				new NullCommand<SubClassPojo>());
+		SubClassPojo classPojo = pojongo2.findOne(objectId);
+		compareTwoSimplePojos(fixture, classPojo);
+	}
+	
+	@Test
+	public void deveriaFiltrarUsandoIn() throws Exception{
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		SimplePOJO pojo = new SimplePOJO();
+		pojo.setAnIntegerField(1);
+		pojo.setaLongField(43L);
+		pojo.setaDoubleField(44.0);
+		
+		SimplePOJO pojo2 = new SimplePOJO();
+		pojo2.setAnIntegerField(2);
+		pojo2.setaLongField(43L);
+		pojo2.setaDoubleField(44.0);
+		
+		SimplePOJO pojo3 = new SimplePOJO();
+		pojo3.setAnIntegerField(3);
+		pojo3.setaLongField(43L);
+		pojo3.setaDoubleField(44.0);
+		
+		pojongo.insert(pojo);
+		pojongo.insert(pojo2);
+		pojongo.insert(pojo3);
+		
+		BasicDBList inValues = new BasicDBList();
+		inValues.add(1);
+		inValues.add(2);
+		
+		BasicDBObject criteria = new BasicDBObject("anIntegerField", new BasicDBObject("$in", inValues));
+
+		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
+ 		
+		assertEquals(2, list.size());
+	}
+
+	private void compareTwoSimplePojos(SimplePOJO pojo, SimplePOJO simplePOJO) {
+		assertThat(pojo.getAnIntegerField(), is(simplePOJO.getAnIntegerField()));
+		assertThat(pojo.getaLongField(), is(simplePOJO.getaLongField()));
+		assertThat(pojo.getaDoubleField(), is(simplePOJO.getaDoubleField()));
+	}
+
+	
+	
+	@Test
+	public void deveriaRemover(){
+		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		
+		SimplePOJO pojo = new SimplePOJO();
+		pojo.setAnIntegerField(123);
+		pojo.setaLongField(43L);
+		pojo.setaDoubleField(44.0);
+		
+		pojongo.insert(pojo);
+		
+		BasicDBObject criteria = new BasicDBObject("anIntegerField", 123);
+		
+		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
+		
+		pojongo.removeByCriteria(criteria);
+		
+		List<SimplePOJO> list2 = pojongo.findBy(criteria).toList();
+		
+		assertArrayEquals(new Integer[]{1,0}, new Integer[]{list.size(), list2.size()});
+	}
+	
+	
+	@Test
+	public void shouldUpdateSimpleObject(){
+		Status thing = Status.Delta;
+		System.out.println(thing.getClass().isEnum());
+		
+		SubClassPojo pojo = new SubClassPojo();
+		pojo.setAnIntegerField(44);
+		pojo.setaLongField(44L);
+		pojo.setaDoubleField(44.0);
+		pojo.setStatus(thing);
+		String extraInfo = "this extra info";
+		pojo.setExtraProperty(extraInfo);
+		
+		Monjo<ObjectId, SubClassPojo> pojongo = new Monjo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
+		pojongo.removeAll();
+		ObjectId objectId = pojongo.insert(pojo);
+		
+		SimplePOJO simplePOJO = PojoBuilder.createSimplePojo();
+		simplePOJO.setId(objectId);
+		
+		Monjo<ObjectId, SimplePOJO> pojongo2 = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
+		pojongo2.update(simplePOJO);
+
+		SimplePOJO fixture = PojoBuilder.createSimplePojo();
+		simplePOJO = pojongo.findOne(objectId);		
+		assertTrue(fixture.getaDoubleField().equals(simplePOJO.getaDoubleField()));
+		assertTrue(fixture.getAnIntegerField().equals(simplePOJO.getAnIntegerField()));
+		assertTrue(fixture.getaLongField().equals(simplePOJO.getaLongField()));
+		assertTrue(Status.Delta.equals(simplePOJO.getStatus()));
+		
+		
+		
+		SubClassPojo classPojo = pojongo.findOne(objectId);
+		assertTrue(fixture.getaDoubleField().equals(classPojo.getaDoubleField()));
+		assertTrue(fixture.getAnIntegerField().equals(classPojo.getAnIntegerField()));
+		assertTrue(fixture.getaLongField().equals(classPojo.getaLongField()));
+		assertTrue(Status.Delta.equals(classPojo.getStatus()));
+		assertTrue(extraInfo.equals(classPojo.getExtraProperty()));
+	}
+
+}
