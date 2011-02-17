@@ -15,7 +15,7 @@ import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.DBObject;
 
-public class ImprovedNamingObjectToDocumentConverterTest extends MongoDBTest {
+public class ImprovedNamingConverterTest extends MongoDBTest {
 
 	private ObjectToDocumentConverter<SimplePOJO> converter;
 
