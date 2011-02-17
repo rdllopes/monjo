@@ -1,5 +1,6 @@
 package org.monjo.core.conversion;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
@@ -11,8 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.monjo.core.conversion.Monjo;
 import org.monjo.core.conversion.MonjoConverterFactory;
+import org.monjo.example.AnotherPojo;
+import org.monjo.example.Category;
+import org.monjo.example.ComplexPojo;
 import org.monjo.example.ListWithin;
 import org.monjo.example.PojoWithListInnerObject;
+import org.monjo.example.User;
 import org.monjo.test.util.MongoDBTest;
 
 public class ComplexSaveTest extends MongoDBTest{
@@ -51,4 +56,50 @@ public class ComplexSaveTest extends MongoDBTest{
 		assertNotNull(complex.getCategories().get(0).getId());
 	}
 
+	
+	
+	@Test
+	public void shouldNotUseRef2() throws Exception{
+		User user = new User();
+		user.setName("NewCategory");
+
+		AnotherPojo anotherPojo = PojoBuilder.createAnotherPojo(user);
+		
+		Monjo<ObjectId, AnotherPojo> pojongoComplex = new Monjo<ObjectId, AnotherPojo>(getMongoDB(), AnotherPojo.class);
+
+		pojongoComplex.removeAll();
+
+		pojongoComplex.insert(anotherPojo);
+		
+		MonjoCursor<AnotherPojo> pojongoCursor = pojongoComplex.find();
+		AnotherPojo anotherPojo2 = pojongoCursor.toList().get(0);
+		assertEquals("NewCategory", anotherPojo2.getUser().getName());
+	}
+	
+	
+	
+	@Test
+	public void shouldUseRef() throws Exception{
+		
+		Category category = new Category();
+		category.setName("NewCategory");
+		Monjo<ObjectId, Category> pojongoCategory = new Monjo<ObjectId, Category>(getMongoDB(), Category.class);
+		pojongoCategory.insert(category);
+
+		ComplexPojo complexPojo = PojoBuilder.createComplexPojo(category);
+//		complexPojo.setCategories(categories);
+		Monjo<ObjectId, ComplexPojo> pojongoComplex = new Monjo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
+
+		pojongoComplex.removeAll();
+		pojongoCategory.removeAll();
+
+		pojongoComplex.insert(complexPojo);
+		
+		MonjoCursor<ComplexPojo> pojongoCursor = pojongoComplex.find();
+		ComplexPojo complex = pojongoCursor.toList().get(0);
+		assertEquals(category.getId(), complex.getCategory().getId());
+	//	assertEquals(category.getId(), complex.getCategories().get(0).getId());
+		
+	}
+	
 }

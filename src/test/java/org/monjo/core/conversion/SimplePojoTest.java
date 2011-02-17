@@ -66,20 +66,6 @@ public class SimplePojoTest extends MongoDBTest {
 	}
 
 	@Test
-	public void shouldUpdateComplexObject() {
-		SimplePOJO fixture = PojoBuilder.createSimplePojo();
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo",
-				new NullCommand<SimplePOJO>());
-		pojongo.removeAll();
-		ObjectId objectId = pojongo.insert(fixture);
-
-		Monjo<ObjectId, SubClassPojo> pojongo2 = new Monjo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo",
-				new NullCommand<SubClassPojo>());
-		SubClassPojo classPojo = pojongo2.findOne(objectId);
-		compareTwoSimplePojos(fixture, classPojo);
-	}
-	
-	@Test
 	public void deveriaFiltrarUsandoIn() throws Exception{
 		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
@@ -113,7 +99,7 @@ public class SimplePojoTest extends MongoDBTest {
 		assertEquals(2, list.size());
 	}
 
-	private void compareTwoSimplePojos(SimplePOJO pojo, SimplePOJO simplePOJO) {
+	public static void compareTwoSimplePojos(SimplePOJO pojo, SimplePOJO simplePOJO) {
 		assertThat(pojo.getAnIntegerField(), is(simplePOJO.getAnIntegerField()));
 		assertThat(pojo.getaLongField(), is(simplePOJO.getaLongField()));
 		assertThat(pojo.getaDoubleField(), is(simplePOJO.getaDoubleField()));
@@ -143,45 +129,6 @@ public class SimplePojoTest extends MongoDBTest {
 		assertArrayEquals(new Integer[]{1,0}, new Integer[]{list.size(), list2.size()});
 	}
 	
-	
-	@Test
-	public void shouldUpdateSimpleObject(){
-		Status thing = Status.Delta;
-		System.out.println(thing.getClass().isEnum());
-		
-		SubClassPojo pojo = new SubClassPojo();
-		pojo.setAnIntegerField(44);
-		pojo.setaLongField(44L);
-		pojo.setaDoubleField(44.0);
-		pojo.setStatus(thing);
-		String extraInfo = "this extra info";
-		pojo.setExtraProperty(extraInfo);
-		
-		Monjo<ObjectId, SubClassPojo> pojongo = new Monjo<ObjectId, SubClassPojo>(getMongoDB(), SubClassPojo.class, "simplePojo", new NullCommand<SubClassPojo>());
-		pojongo.removeAll();
-		ObjectId objectId = pojongo.insert(pojo);
-		
-		SimplePOJO simplePOJO = PojoBuilder.createSimplePojo();
-		simplePOJO.setId(objectId);
-		
-		Monjo<ObjectId, SimplePOJO> pojongo2 = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class, "simplePojo", new NullCommand<SimplePOJO>());
-		pojongo2.update(simplePOJO);
 
-		SimplePOJO fixture = PojoBuilder.createSimplePojo();
-		simplePOJO = pojongo.findOne(objectId);		
-		assertTrue(fixture.getaDoubleField().equals(simplePOJO.getaDoubleField()));
-		assertTrue(fixture.getAnIntegerField().equals(simplePOJO.getAnIntegerField()));
-		assertTrue(fixture.getaLongField().equals(simplePOJO.getaLongField()));
-		assertTrue(Status.Delta.equals(simplePOJO.getStatus()));
-		
-		
-		
-		SubClassPojo classPojo = pojongo.findOne(objectId);
-		assertTrue(fixture.getaDoubleField().equals(classPojo.getaDoubleField()));
-		assertTrue(fixture.getAnIntegerField().equals(classPojo.getAnIntegerField()));
-		assertTrue(fixture.getaLongField().equals(classPojo.getaLongField()));
-		assertTrue(Status.Delta.equals(classPojo.getStatus()));
-		assertTrue(extraInfo.equals(classPojo.getExtraProperty()));
-	}
 
 }
