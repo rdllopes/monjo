@@ -1,7 +1,8 @@
-package org.monjo.core.conversion;
+package org.monjo.core;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ChainCommand<T> implements Command<T>{
 	private List<Command<T>> list = new ArrayList<Command<T>>(); 

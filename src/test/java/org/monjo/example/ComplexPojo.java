@@ -1,6 +1,6 @@
 package org.monjo.example;
 
-import org.monjo.core.conversion.Reference;
+import org.monjo.core.annotations.Reference;
 
 
 

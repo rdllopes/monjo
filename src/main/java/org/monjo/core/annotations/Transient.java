@@ -1,4 +1,4 @@
-package org.monjo.core.conversion;
+package org.monjo.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

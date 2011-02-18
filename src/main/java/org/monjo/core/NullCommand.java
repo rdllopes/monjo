@@ -1,4 +1,4 @@
-package org.monjo.core.conversion;
+package org.monjo.core;
 
 import java.util.List;
 

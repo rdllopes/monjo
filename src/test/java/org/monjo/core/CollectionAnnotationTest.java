@@ -1,9 +1,12 @@
-package org.monjo.core.conversion;
+package org.monjo.core;
 
 import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.monjo.core.Monjo;
+import org.monjo.core.annotations.Collection;
+import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.DB;

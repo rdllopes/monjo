@@ -9,6 +9,8 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.NamingStrategy;
+import org.monjo.core.annotations.Reference;
+import org.monjo.core.annotations.Transient;
 import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBList;

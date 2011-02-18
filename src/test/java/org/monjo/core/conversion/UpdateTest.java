@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.core.Monjo;
+import org.monjo.core.NullCommand;
 import org.monjo.example.Category;
 import org.monjo.example.PojoWithListInnerObject;
 import org.monjo.example.SimplePOJO;
@@ -94,9 +96,9 @@ public class UpdateTest extends MongoDBTest {
 		monjo.<Category> updateInnerObject("categories", category, anotherObject);
 		
 		PojoWithListInnerObject result = monjo.findOne(innerObject.getId());
-		Category category2 = result.getCategories().get(0);
-		assertEquals(inicialCategory.getName(), category2.getName());
-		assertEquals(category.getWeight(), category2.getWeight());
+		Category categoryResult = result.getCategories().get(0);
+		assertEquals(inicialCategory.getName(), categoryResult.getName());
+		assertEquals(category.getWeight(), categoryResult.getWeight());
 	}
 
 }

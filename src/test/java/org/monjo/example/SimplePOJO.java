@@ -1,7 +1,7 @@
 package org.monjo.example;
 
 import org.bson.types.ObjectId;
-import org.monjo.core.conversion.Transient;
+import org.monjo.core.annotations.Transient;
 import org.monjo.document.IdentifiableDocument;
 
 public class SimplePOJO implements IdentifiableDocument<ObjectId> {

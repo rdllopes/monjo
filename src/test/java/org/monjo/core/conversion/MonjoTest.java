@@ -13,6 +13,7 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.core.Monjo;
 import org.monjo.example.AnotherPojo;
 import org.monjo.example.Category;
 import org.monjo.example.ComplexPojo;
