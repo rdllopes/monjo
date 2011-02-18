@@ -1,12 +1,17 @@
-Roadmap:
---
-Conversion:
-OK * Basic Document to POJO conversion
-OK * Basic POJO to Document conversion
-OK * Special handling for ObjectIds
-OK * Do not persist transient fields
-OK * Support date fields
+=======
+Roadmap
+=======
 
-Query:
-OK * Simple Query API
-* Handle atomic operations ($set, $inc, etc)
+Things to improve
+
+   * Reflection is used in everywhere... should be cached
+   * Annotations should describe all mapping behavior (no Interface needed)   
+   * Try Pojo seriously (verify if id is really needed)
+   * Extensions: Validation (jsr330) 
+   * Must have a trustable way to identify value types to automatically persist
+   * Fields should can be renamed using annotations (Ex: @Property("blablabla"))
+   * Serialized objects should be stored in binary fields (Ex:  @Serialized) 
+   * Should be possible not use standard Javabeans
+   * Fields should be indexed for better performance using annotations
+   * Advanced mapper which should allow raw conversion, void toObject(DBObject) or DBObject fromObject(Object)
+   
