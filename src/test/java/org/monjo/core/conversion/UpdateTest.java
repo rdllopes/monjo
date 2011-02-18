@@ -2,6 +2,8 @@ package org.monjo.core.conversion;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
@@ -79,7 +81,7 @@ public class UpdateTest extends MongoDBTest {
 	}
 
 	@Test
-	public void shouldNotLoseFields() {
+	public void shouldNotLoseFields() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		PojoWithListInnerObject innerObject = PojoBuilder.createMegaZordePojo();
 		Category inicialCategory = innerObject.getCategories().get(0);
 		innerObject.getCategories().get(0).setWeight(100l);
@@ -87,13 +89,12 @@ public class UpdateTest extends MongoDBTest {
 		monjo.insert(innerObject);
 		
 		PojoWithListInnerObject anotherObject = new PojoWithListInnerObject();
-		anotherObject.setId(innerObject.getId());
 		Category category   = new Category();
 		category.setWeight(200l);
 		category.setId(inicialCategory.getId());
 		anotherObject.addCategory(category);
 		
-		monjo.<Category> updateInnerObject("categories", category, anotherObject);
+		monjo.updateInnerObject(anotherObject, "categories");
 		
 		PojoWithListInnerObject result = monjo.findOne(innerObject.getId());
 		Category categoryResult = result.getCategories().get(0);

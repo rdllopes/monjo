@@ -1,5 +1,11 @@
 package org.monjo.core;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.conversion.MonjoConverter;
@@ -231,8 +237,16 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	 * @param fieldname Special field use to selection
 	 * @param identifiableDocument to be updated
 	 * @return id of identifiableDocument
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
-	public <C extends IdentifiableDocument<?>> Id updateInnerObject(String fieldname, C innerObject, T identifiableDocument) {
+	public Id updateInnerObject(T identifiableDocument, String fieldname) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		if (identifiableDocument.getId() != null) {
+			throw new IllegalAccessException("Id already filled");
+		}
+		List list = (List) PropertyUtils.getProperty(identifiableDocument, fieldname);
+		Object innerObject = list.get(0);
 		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().specialField(fieldname).toDocument();
 		DBObject dbObject2 = ((MonjoConverter<T>) getConverter().setPrefix(fieldname)).getIdDocument(innerObject);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
