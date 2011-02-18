@@ -4,6 +4,7 @@ import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
@@ -25,9 +26,12 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
 	private boolean update = false;
+	private boolean innerObject;
 	private boolean search;
 	private String prefix;
 	private Class<T> objectType;
+	private String specialField;
+	private boolean innerUpdate;
 
 	
 	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy, Class<T> objectType) {
@@ -78,7 +82,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 				throw new RuntimeException(e);
 			}
 			if (fieldValue == null) {
-				if ("id".equals(fieldName) && !(search || update)) {
+				if ("id".equals(fieldName) && !(search || update || innerObject)) {
 					ObjectId objectId = new ObjectId();
 					if (javaObject instanceof IdentifiableDocument) {
 						IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
@@ -108,8 +112,19 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			}
 						
 			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);
-			if (fieldValue != null)
-				document.put(documentFieldName, fieldValue);
+			if (fieldValue != null) {
+				if (innerUpdate) {
+					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
+					Set<String> keys = basicDBObject.keySet();
+					for (String key : keys) {
+						document.put(key, basicDBObject.get(key));
+					}
+				} else {
+					document.put(documentFieldName, fieldValue);
+				}
+				
+			}
+				
 		}
 		if (update) {
 			document = createSetUpdate(document);
@@ -124,8 +139,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		} else if (fieldValue instanceof List) {
 			List list = (List) fieldValue;
 			if (list.size() == 0)
-				return null;
-			if (search) {
+				return null;	
+			if (search || innerUpdate) {
 				if (list.size() > 1)
 					fieldValue = new BasicDBObject("$or", getDbList(document, readMethod, fieldName, list));
 				else 
@@ -160,24 +175,32 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	}
 
 	private Object getFieldValueIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
-		Object value;
 		DBObject innerBasicDBObject;
 		if (readMethod.isAnnotationPresent(Reference.class)) {
 			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
 			innerBasicDBObject = new BasicDBObject();
 			innerBasicDBObject.put("_id", identifiable.getId());
+			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 		} else {
 			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
 			if (search) {
 				converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "."  : fieldName + "." ).toDocument(document);
 				return null;
+			} 
+			else if (innerUpdate && fieldName.equals(specialField)) {
+				innerBasicDBObject = converter.enableInnerObject().from(element).setPrefix(fieldName + ".$.").toDocument();
 			}
-			else 
+			else { 
 				innerBasicDBObject = converter.from(element).toDocument();
+				innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
+			}
 		}
-		innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
-		value = innerBasicDBObject;
-		return value;
+		return innerBasicDBObject;
+	}
+
+	private ObjectToDocumentConverter enableInnerObject() {
+		innerObject = true;
+		return this;
 	}
 
 	private BasicDBObject createSetUpdate(DBObject document) {
@@ -208,5 +231,11 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return this;
 	}
 
+	@Override
+	public ObjectToDocumentConverter<T> specialField(String fieldname) {
+		this.specialField = fieldname;
+		this.innerUpdate = true;
+		return this;
+	}
 
 }

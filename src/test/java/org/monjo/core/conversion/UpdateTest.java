@@ -1,12 +1,14 @@
 package org.monjo.core.conversion;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
+import org.monjo.example.Category;
+import org.monjo.example.PojoWithListInnerObject;
 import org.monjo.example.SimplePOJO;
 import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
@@ -76,7 +78,25 @@ public class UpdateTest extends MongoDBTest {
 
 	@Test
 	public void shouldNotLoseFields() {
-		PojoBuilder.createMegaZordePojo();
+		PojoWithListInnerObject innerObject = PojoBuilder.createMegaZordePojo();
+		Category inicialCategory = innerObject.getCategories().get(0);
+		innerObject.getCategories().get(0).setWeight(100l);
+		Monjo<ObjectId, PojoWithListInnerObject> monjo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		monjo.insert(innerObject);
+		
+		PojoWithListInnerObject anotherObject = new PojoWithListInnerObject();
+		anotherObject.setId(innerObject.getId());
+		Category category   = new Category();
+		category.setWeight(200l);
+		category.setId(inicialCategory.getId());
+		anotherObject.addCategory(category);
+		
+		monjo.<Category> updateInnerObject("categories", category, anotherObject);
+		
+		PojoWithListInnerObject result = monjo.findOne(innerObject.getId());
+		Category category2 = result.getCategories().get(0);
+		assertEquals(inicialCategory.getName(), category2.getName());
+		assertEquals(category.getWeight(), category2.getWeight());
 	}
 
 }

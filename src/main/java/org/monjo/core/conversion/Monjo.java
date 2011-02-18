@@ -223,4 +223,19 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		return identifiableDocument.getId();
 	}
 	
+	/**
+	 * 
+	 * @param fieldname Special field use to selection
+	 * @param identifiableDocument to be updated
+	 * @return id of identifiableDocument
+	 */
+	public <C extends IdentifiableDocument<?>> Id updateInnerObject(String fieldname, C innerObject, T identifiableDocument) {
+		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().specialField(fieldname).toDocument();
+		DBObject dbObject2 = ((MonjoConverter<T>) getConverter().setPrefix(fieldname)).getIdDocument(innerObject);
+		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
+		collection.update(dbObject2, dbObject, true, false);
+		return identifiableDocument.getId();
+
+	}
+	
 }

@@ -17,6 +17,7 @@ public class DefaultPojongoConverter<T extends Object> implements MonjoConverter
 	
 	private DefaultDocumentToObjectConverter<T> defaultDocumentToObjectConverter;
 	private DefaultObjectToDocumentConverter<T> defaultObjectToDocumentConverter;
+	private String prefix;
 	
 	
 	@Override
@@ -31,7 +32,8 @@ public class DefaultPojongoConverter<T extends Object> implements MonjoConverter
 	
 	@Override
 	public ObjectToDocumentConverter<T> from(T javaObject) {
-		return defaultObjectToDocumentConverter.from(javaObject);
+		defaultObjectToDocumentConverter.from(javaObject);
+		return this;
 	}
 	@Override
 	public DBObject toDocument() {
@@ -46,9 +48,9 @@ public class DefaultPojongoConverter<T extends Object> implements MonjoConverter
 	public DBObject getIdDocument(Object object) {
 		if (object instanceof IdentifiableDocument) {
 			@SuppressWarnings("rawtypes")
-			IdentifiableDocument document = (IdentifiableDocument<ObjectId>) object;
-			DBObject dbObject = new BasicDBObject();
-			dbObject.put("_id", document.getId());
+			IdentifiableDocument document = (IdentifiableDocument<ObjectId>) object;			
+			DBObject dbObject = new BasicDBObject();			
+			dbObject.put((prefix == null) ? "_id" : prefix + "._id", document.getId());
 			return dbObject;
 		}
 		return null;
@@ -57,21 +59,31 @@ public class DefaultPojongoConverter<T extends Object> implements MonjoConverter
 	
 	@Override
 	public ObjectToDocumentConverter<T> enableUpdate() {
-		return defaultObjectToDocumentConverter.enableUpdate();
+		defaultObjectToDocumentConverter.enableUpdate();
+		return this;
 	}
 
 	@Override
 	public ObjectToDocumentConverter<T> enableSearch() {
-		return defaultObjectToDocumentConverter.enableSearch();
+		defaultObjectToDocumentConverter.enableSearch();
+		return this;
 	}
 
 	@Override
 	public ObjectToDocumentConverter<T> setPrefix(String string) {
-		return defaultObjectToDocumentConverter.setPrefix(string);
+		defaultObjectToDocumentConverter.setPrefix(string);
+		this.prefix = string;
+		return this;
 	}
 	@Override
 	public DBObject toDocument(BasicDBObject document) {
 		return defaultObjectToDocumentConverter.toDocument(document);
+	}
+
+	@Override
+	public ObjectToDocumentConverter<T> specialField(String fieldname) {
+		defaultObjectToDocumentConverter.specialField(fieldname);
+		return this;
 	}
 
 	

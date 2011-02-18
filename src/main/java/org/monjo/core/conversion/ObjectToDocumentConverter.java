@@ -1,5 +1,7 @@
 package org.monjo.core.conversion;
 
+import org.monjo.document.IdentifiableDocument;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -42,6 +44,8 @@ public interface ObjectToDocumentConverter<T extends Object> {
 	 * @throws IllegalStateException if <code>toDocument()</code> is called without calling <code>from(Object)</code> first.
 	 */
 	DBObject toDocument();
+	
+	ObjectToDocumentConverter<T> specialField(String fieldname);
 
 	ObjectToDocumentConverter<T> enableUpdate();
 
