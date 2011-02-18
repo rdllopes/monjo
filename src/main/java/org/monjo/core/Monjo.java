@@ -1,7 +1,7 @@
 package org.monjo.core;
 
 import org.hibernate.cfg.NamingStrategy;
-import org.monjo.core.annotations.Collection;
+import org.monjo.core.annotations.Entity;
 import org.monjo.core.conversion.MonjoConverter;
 import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.document.IdentifiableDocument;
@@ -42,7 +42,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 
 	protected String findOutCollectionName(Class<T> clasz, MonjoConverterFactory factory) {
 		if (annotatedWithCollection(clasz)) {
-			return clasz.getAnnotation(Collection.class).value();
+			return clasz.getAnnotation(Entity.class).value();
 		} else {
 			return extractNameFromClassName(clasz, factory);							
 		}
@@ -54,7 +54,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	}
 
 	private boolean annotatedWithCollection(Class<T> clasz) {
-		return clasz.isAnnotationPresent(Collection.class);
+		return clasz.isAnnotationPresent(Entity.class);
 	}
 	
 	public Monjo(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command) {

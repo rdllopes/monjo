@@ -27,11 +27,11 @@ public class FinbdByExampleTest extends MongoDBTest {
 	@Test
 	public void shouldFindByExample() {
 		PojoWithListInnerObject createMegaZordePojo = PojoBuilder.createMegaZordePojo();
-		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
-		pojongo.removeAll();
-		pojongo.insert(createMegaZordePojo);
+		Monjo<ObjectId, PojoWithListInnerObject> monjo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		monjo.removeAll();
+		monjo.insert(createMegaZordePojo);
 		createMegaZordePojo.setId(null);
-		PojoWithListInnerObject result = pojongo.findByExample(createMegaZordePojo).toList().get(0);
+		PojoWithListInnerObject result = monjo.findByExample(createMegaZordePojo).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());
 	}
 

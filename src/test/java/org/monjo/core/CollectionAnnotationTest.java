@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.monjo.core.Monjo;
-import org.monjo.core.annotations.Collection;
+import org.monjo.core.annotations.Entity;
 import org.monjo.core.conversion.MonjoConverterFactory;
 import org.monjo.document.IdentifiableDocument;
 
@@ -22,7 +22,7 @@ public class CollectionAnnotationTest {
 	}
 	
 
-	@Collection("another_collection")
+	@Entity("another_collection")
 	public static class SimplePojoAnnotated implements IdentifiableDocument<ObjectId>{
 		private ObjectId objectId;
 
