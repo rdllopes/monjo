@@ -115,7 +115,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 						
 			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);
 			if (fieldValue != null) {
-				if (innerUpdate) {
+				if (innerUpdate && fieldName.equals(specialField)) {
 					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
 					Set<String> keys = basicDBObject.keySet();
 					for (String key : keys) {
