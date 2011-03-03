@@ -14,6 +14,8 @@ public class ListWithin implements IdentifiableDocument<ObjectId>{
 	private ObjectId id;
 	
 	private List<String> names;
+	
+	private List<Integer> groups;
 
 	@Override
 	public ObjectId getId() {
@@ -31,13 +33,28 @@ public class ListWithin implements IdentifiableDocument<ObjectId>{
 
 	public void setNames(List<String> names) {
 		this.names = names;
+	}	
+
+	public List<Integer> getGroups() {
+		return groups;
 	}
 
-	public void addItem(int i) {
+	public void setGroups(List<Integer> groups) {
+		this.groups = groups;
+	}
+
+	public void addName(int i) {
 		if (names == null){
 			names = new ArrayList<String>();
 		}
 		names.add(Integer.toString(i));
+	}
+	
+	public void addGroup(int i) {
+		if (groups == null){
+			groups = new ArrayList<Integer>();
+		}
+		groups.add(i);
 	}
 	
 }

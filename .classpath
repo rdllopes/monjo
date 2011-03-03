@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="lib" path="lib/mongo-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/mockito-all-1.8.3.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-sun-1.6.0.22"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.3.jar" sourcepath="/home/rlopes/desenvolvimento/commons-beanutils-1.8.3/commons-beanutils-1.8.3-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
@@ -13,5 +12,6 @@
 	<classpathentry kind="lib" path="lib/test/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/hamcrest-all-1.2RC3.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.8.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
