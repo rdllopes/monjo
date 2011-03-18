@@ -11,7 +11,7 @@ public class MonjoConverterFactory {
 		= new MonjoConverterFactory();
 	
 	/**
-	 * @return the singleton instance of PojongoConverterFactory
+	 * @return the singleton instance of MonjoConverterFactory
 	 */
 	public static MonjoConverterFactory getInstance(){
 		return converterFactory;
@@ -52,8 +52,8 @@ public class MonjoConverterFactory {
 		return converter;
 	}
 	
-	public <T> MonjoConverter<T> getDefaultPojongoConverter(Class<T> class1){
-		MonjoConverter<T> converter = new DefaultPojongoConverter<T>(class1);
+	public <T> MonjoConverter<T> getDefaultMonjoConverter(Class<T> class1){
+		MonjoConverter<T> converter = new DefaultMonjoConverter<T>(class1);
 		if (namingStrategy != null){
 			converter.setNamingStrategy(namingStrategy);	
 		}

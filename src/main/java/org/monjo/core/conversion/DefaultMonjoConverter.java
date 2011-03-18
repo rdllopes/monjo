@@ -7,10 +7,10 @@ import org.monjo.document.IdentifiableDocument;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class DefaultPojongoConverter<T extends Object> implements MonjoConverter<T>{
+public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T>{
 	
 
-	public DefaultPojongoConverter(Class<T> objectType) {
+	public DefaultMonjoConverter(Class<T> objectType) {
 		defaultDocumentToObjectConverter = new DefaultDocumentToObjectConverter<T>(objectType);
 		defaultObjectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(objectType); 
 	}

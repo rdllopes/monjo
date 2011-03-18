@@ -1,10 +1,8 @@
 package org.monjo.core;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.annotations.Entity;
@@ -72,7 +70,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 
 	public MonjoConverter<T> getConverter() {
 		 MonjoConverterFactory converterFactory = MonjoConverterFactory.getInstance();
-		 MonjoConverter<T> monjoConverter = converterFactory.getDefaultPojongoConverter(clasz);
+		 MonjoConverter<T> monjoConverter = converterFactory.getDefaultMonjoConverter(clasz);
 		 return monjoConverter;
 	}
 
