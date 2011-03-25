@@ -70,10 +70,7 @@ public class SimplePojoTest extends MongoDBTest {
 	public void deveriaFiltrarUsandoIn() throws Exception{
 		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
-		SimplePOJO pojo = new SimplePOJO();
-		pojo.setAnIntegerField(1);
-		pojo.setaLongField(43L);
-		pojo.setaDoubleField(44.0);
+		SimplePOJO pojo = createSimplePojo();
 		
 		SimplePOJO pojo2 = new SimplePOJO();
 		pojo2.setAnIntegerField(2);
@@ -98,6 +95,14 @@ public class SimplePojoTest extends MongoDBTest {
 		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
  		
 		assertEquals(2, list.size());
+	}
+
+	public static SimplePOJO createSimplePojo() {
+		SimplePOJO pojo = new SimplePOJO();
+		pojo.setAnIntegerField(1);
+		pojo.setaLongField(43L);
+		pojo.setaDoubleField(44.0);
+		return pojo;
 	}
 
 	public static void compareTwoSimplePojos(SimplePOJO pojo, SimplePOJO simplePOJO) {
