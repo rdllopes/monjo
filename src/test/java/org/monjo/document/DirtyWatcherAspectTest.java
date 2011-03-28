@@ -1,8 +1,10 @@
 package org.monjo.document;
 
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 import java.util.Set;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.monjo.example.SimplePOJO;
 
@@ -15,8 +17,8 @@ public class DirtyWatcherAspectTest {
 		SimplePOJO simplePOJO = new SimplePOJO();
 		simplePOJO.setaDoubleField(10.0);
 		InternalMonjoObject monjoObject = (InternalMonjoObject) simplePOJO;
-		Set<String> dirtFields = monjoObject.getDirtFields();
+		Set<String> dirtFields = monjoObject.dirtFields();
 		assertEquals(1, dirtFields.size());
-		assertTrue(dirtFields.contains("setDoubleField"));
+		assertThat(dirtFields, hasItems("setaDoubleField"));
 	}
 }

@@ -15,7 +15,7 @@ public class DirtyWatcherAspect {
 	public static class BaseObjectImpl implements InternalMonjoObject {
 		private Set<String> dirtFields = new HashSet<String>();
 
-		public Set<String> getDirtFields() {
+		public Set<String> dirtFields() {
 			return dirtFields;
 		}
 

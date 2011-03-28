@@ -14,13 +14,9 @@ import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.monjo.core.Monjo;
-import org.monjo.example.AnotherPojo;
-import org.monjo.example.Category;
-import org.monjo.example.ComplexPojo;
 import org.monjo.example.SimplePOJO;
 import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
-import org.monjo.example.User;
 import org.monjo.test.util.MongoDBTest;
 
 import com.mongodb.BasicDBObject;

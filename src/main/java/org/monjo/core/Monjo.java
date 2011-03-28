@@ -58,7 +58,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	}
 
 	private boolean annotatedWithCollection(Class<T> clasz) {
-		return clasz.isAnnotationPresent(Entity.class);
+		return clasz.isAnnotationPresent(Entity.class) && !"".equals(clasz.getAnnotation(Entity.class).value());
 	}
 	
 	public Monjo(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command) {

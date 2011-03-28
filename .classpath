@@ -11,8 +11,9 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/test/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/test/slf4j-log4j12-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/test/hamcrest-all-1.2RC3.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.8.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/test/junit-dep-4.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/hamcrest-all-1.2RC3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

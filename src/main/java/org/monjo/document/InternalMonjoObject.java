@@ -7,7 +7,7 @@ import java.util.Set;
  */
 public interface InternalMonjoObject{
 
-	public Set<String> getDirtFields();
+	public Set<String> dirtFields();
 
 	public void addDirtField(String fieldName);
 }
