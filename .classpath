@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="resource/aop"/>
 	<classpathentry kind="src" path="src/others"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="src" path="resource"/>
 	<classpathentry kind="src" path="src/aop"/>
 	<classpathentry kind="src" path="aoptest"/>
 	<classpathentry kind="lib" path="lib/mongo-2.1.jar"/>
