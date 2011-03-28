@@ -4,6 +4,8 @@
 	<classpathentry kind="src" path="src/others"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="resource"/>
+	<classpathentry kind="src" path="src/aop"/>
+	<classpathentry kind="src" path="aoptest"/>
 	<classpathentry kind="lib" path="lib/mongo-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/mockito-all-1.8.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
