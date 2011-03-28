@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aspectj PUBLIC
+"-//AspectJ//DTD//EN"  "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+<aspectj>
+	<aspects>
+		<aspect name="org.monjo.document.DirtyWatcherAspect"/>
+	</aspects>
+	<weaver  options="-verbose">	
+		<include within="org.monjo.example.*"/>
+		<include within="org.monjo.document.*"/>
+	</weaver>
+</aspectj>

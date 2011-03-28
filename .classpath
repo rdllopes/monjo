@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/others"/>
 	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="resource"/>
 	<classpathentry kind="lib" path="lib/mongo-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/mockito-all-1.8.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -12,8 +13,8 @@
 	<classpathentry kind="lib" path="lib/test/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/test/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.8.1.jar"/>
-	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/test/junit-dep-4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/hamcrest-all-1.2RC3.jar"/>
+	<classpathentry kind="lib" path="lib/test/junit-dep-4.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/aspectjrt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
