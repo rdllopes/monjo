@@ -2,8 +2,8 @@ package org.monjo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +13,7 @@ import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
 import org.monjo.document.IdentifiableDocument;
+import org.monjo.document.InternalMonjoObject;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -35,6 +36,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	private Class<T> objectType;
 	private String specialField;
 	private boolean innerUpdate;
+	private HashSet<String> dirtFields;
 
 	
 	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy, Class<T> objectType) {
@@ -69,6 +71,16 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
 		}
 		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
+		dirtFields = new HashSet<String>();
+		if (javaObject instanceof InternalMonjoObject) {
+			InternalMonjoObject internalMonjoObject = (InternalMonjoObject) javaObject;
+			Set<String> temp = internalMonjoObject.dirtFields();
+			for (String name : temp) {
+                 char propName[] = name.substring("set".length()).toCharArray();					              
+                 propName[0] = Character.toLowerCase( propName[0] );
+                 dirtFields.add(new String( propName));
+			}
+		} 
 
 		for (PropertyDescriptor descriptor : descriptors) {
 			Method readMethod = descriptor.getReadMethod();
@@ -84,7 +96,10 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+			
+			// tratamento para valores nulos
 			if (fieldValue == null) {
+				// preencher o id caso seja insert ... não faze-lo na busca, atualização ou em innerObjects
 				if ("id".equals(fieldName) && !(search || update || innerObject)) {
 					ObjectId objectId = new ObjectId();
 					if (javaObject instanceof IdentifiableDocument) {
@@ -95,7 +110,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 					}
 					fieldValue = objectId;
 				} else {
-					continue;
+					if (isASkipField(fieldName))
+						continue;
 				}
 			}
 			String documentFieldName = fieldName;
@@ -113,20 +129,9 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			if (prefix != null) {
 				documentFieldName = prefix + documentFieldName; 				
 			}
-						
-			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);
-			if (fieldValue != null) {
-				if (innerUpdate && fieldName.equals(specialField)) {
-					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-					Set<String> keys = basicDBObject.keySet();
-					for (String key : keys) {
-						document.put(key, basicDBObject.get(key));
-					}
-				} else {
-					document.put(documentFieldName, fieldValue);
-				}
-				
-			}
+
+			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);				
+			putAnotherKeyValueInDocument(document, fieldName, fieldValue, documentFieldName);				
 				
 		}
 		if (update) {
@@ -135,7 +140,26 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return document;
 	}
 
+	private void putAnotherKeyValueInDocument(BasicDBObject document, String fieldName, Object fieldValue, String documentFieldName) {
+		if (innerUpdate && fieldName.equals(specialField)) {
+			BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
+			Set<String> keys = basicDBObject.keySet();
+			for (String key : keys) {
+				document.put(key, basicDBObject.get(key));
+			}
+		} else {
+			if (fieldValue != null || !isASkipField(fieldName)) {
+				document.put(documentFieldName, fieldValue);				
+			}
+		}
+	}
+
+	private boolean isASkipField(String fieldName) {
+		return !dirtFields.contains(fieldName);
+	}
+
 	private Object getFieldValue(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
+		if (fieldValue == null) return null;
 		Class<? extends Object> clasz = fieldValue.getClass();
 		if (isEnumWorkAround(clasz)) {
 			fieldValue = fieldValue.toString();
