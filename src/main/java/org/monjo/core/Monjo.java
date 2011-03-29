@@ -223,11 +223,19 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	}
 
 	public Id update(T identifiableDocument) {
-		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().toDocument();
+		DBObject dbObject = createUpdateCriteria(identifiableDocument);
 		DBObject dbObject2 = getConverter().getIdDocument(identifiableDocument);
-		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
-		collection.update(dbObject2, dbObject, true, false);
+		update(dbObject2, dbObject);
 		return identifiableDocument.getId();
+	}
+
+	public DBObject createUpdateCriteria(T identifiableDocument) {
+		return getConverter().from(identifiableDocument).enableUpdate().toDocument();
+	}
+	
+	public void update(DBObject query, DBObject update) {
+		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {query, update, collection.getName()});		
+		collection.update(query, update, true, false);
 	}
 	
 	/**
