@@ -16,7 +16,7 @@ public class DirtyWatcherAspectTest {
 	public void shouldVerifyFieldCalling(){
 		SimplePOJO simplePOJO = new SimplePOJO();
 		simplePOJO.setaDoubleField(10.0);
-		InternalMonjoObject monjoObject = (InternalMonjoObject) simplePOJO;
+		DirtFieldsWatcher monjoObject = (DirtFieldsWatcher) simplePOJO;
 		Set<String> dirtFields = monjoObject.dirtFields();
 		assertEquals(1, dirtFields.size());
 		assertThat(dirtFields, hasItems("setaDoubleField"));

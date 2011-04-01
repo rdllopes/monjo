@@ -12,7 +12,7 @@ import org.aspectj.lang.annotation.DeclareMixin;
 @Aspect
 public class DirtyWatcherAspect {
 
-	public static class BaseObjectImpl implements InternalMonjoObject {
+	public static class BaseObjectImpl implements DirtFieldsWatcher {
 		private Set<String> dirtFields = new HashSet<String>();
 
 		public Set<String> dirtFields() {
@@ -25,13 +25,13 @@ public class DirtyWatcherAspect {
 	}
 
 	@DeclareMixin("(@org.monjo.core.annotations.Entity *)")
-	public static InternalMonjoObject createMoodyImplementation() {
+	public static DirtFieldsWatcher createMoodyImplementation() {
 		return new BaseObjectImpl();
 	}
 
 	@Before("call(void (@org.monjo.core.annotations.Entity *).set*(*))")
 	public void listOperation(JoinPoint joinPoint) {
-		InternalMonjoObject entity = (InternalMonjoObject) joinPoint.getTarget();
+		DirtFieldsWatcher entity = (DirtFieldsWatcher) joinPoint.getTarget();
 		entity.addDirtField(joinPoint.getSignature().getName());
 	}
 }

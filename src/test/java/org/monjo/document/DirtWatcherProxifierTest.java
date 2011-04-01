@@ -26,7 +26,7 @@ public class DirtWatcherProxifierTest {
 		System.out.println(System.currentTimeMillis() - initial);
 		simplePOJO2.setaDoubleField(null);
 		System.out.println(simplePOJO2.getaDoubleField());
-		InternalMonjoObject internalMonjoObject = (InternalMonjoObject) object;
+		DirtFieldsWatcher internalMonjoObject = (DirtFieldsWatcher) object;
 		Set<String> set = internalMonjoObject.dirtFields();
 		for (String string : set) {
 			System.out.println(string);
