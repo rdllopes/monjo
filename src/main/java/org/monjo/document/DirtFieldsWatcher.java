@@ -5,7 +5,7 @@ import java.util.Set;
 /*
  * FIXME isso deveria extender IdentifiableDocument...
  */
-public interface InternalMonjoObject{
+public interface DirtFieldsWatcher{
 
 	public Set<String> dirtFields();
 

@@ -10,6 +10,7 @@ import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.monjo.core.Monjo;
+import org.monjo.document.DirtWatcherProxifier;
 import org.monjo.example.Category;
 import org.monjo.example.PojoWithListInnerObject;
 import org.monjo.example.Status;
@@ -49,5 +50,21 @@ public class FinbdByExampleTest extends MongoDBTest {
 		assertNotNull(result.getCategories().get(0).getId());
 	}
 
+	@Test
+	public void shouldFindByExampleSoSoWithProxy() {
+		PojoWithListInnerObject createMegaZordePojo = PojoBuilder.createMegaZordePojo();
+		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		pojongo.removeAll();
+		pojongo.insert(createMegaZordePojo);
+		createMegaZordePojo.setId(null);
+		List<Category> categories = createMegaZordePojo.getCategories();
+		Category category = categories.get(0);
+		category.setName(null);
+		
+		PojoWithListInnerObject megaZordProxified = DirtWatcherProxifier.proxify(new PojoWithListInnerObject());
+		megaZordProxified.setCategories(categories);
+		PojoWithListInnerObject result = pojongo.findByExample(megaZordProxified).toList().get(0);
+		assertNotNull(result.getCategories().get(0).getId());
+	}
 
 }
