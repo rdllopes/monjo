@@ -1,7 +1,9 @@
 package org.monjo.example;
 
+import org.monjo.core.annotations.Entity;
 import org.monjo.document.IdentifiableDocument;
 
+@Entity
 public class IntegerId implements IdentifiableDocument<Integer>{
 	
 	private Integer id;

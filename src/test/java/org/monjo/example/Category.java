@@ -1,6 +1,8 @@
 package org.monjo.example;
 
+import org.monjo.core.annotations.Entity;
 
+@Entity
 public class Category extends AbstractObject {
 	
 	private String name;

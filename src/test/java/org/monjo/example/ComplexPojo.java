@@ -1,9 +1,10 @@
 package org.monjo.example;
 
+import org.monjo.core.annotations.Entity;
 import org.monjo.core.annotations.Reference;
 
 
-
+@Entity
 public class ComplexPojo extends AbstractObject {
 	
 	private Category category;

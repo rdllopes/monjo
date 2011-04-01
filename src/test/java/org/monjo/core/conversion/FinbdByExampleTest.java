@@ -2,6 +2,7 @@ package org.monjo.core.conversion;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
@@ -31,7 +32,9 @@ public class FinbdByExampleTest extends MongoDBTest {
 		Monjo<ObjectId, PojoWithListInnerObject> monjo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 		monjo.removeAll();
 		monjo.insert(createMegaZordePojo);
-		createMegaZordePojo.setId(null);
+		
+		PojoWithListInnerObject createMegaZordePojo2 = new PojoWithListInnerObject();
+		createMegaZordePojo2.addCategory(createMegaZordePojo.getCategories().get(0));
 		PojoWithListInnerObject result = monjo.findByExample(createMegaZordePojo).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());
 	}
@@ -42,10 +45,15 @@ public class FinbdByExampleTest extends MongoDBTest {
 		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 		pojongo.removeAll();
 		pojongo.insert(createMegaZordePojo);
-		createMegaZordePojo.setId(null);
+
 		List<Category> categories = createMegaZordePojo.getCategories();
-		Category category = categories.get(0);
-		category.setName(null);
+
+		createMegaZordePojo = new PojoWithListInnerObject();
+		Category findCategory = new Category();
+		findCategory.setId(categories.get(0).getId());
+		createMegaZordePojo.addCategory(findCategory);
+
+		
 		PojoWithListInnerObject result = pojongo.findByExample(createMegaZordePojo).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());
 	}
@@ -56,13 +64,16 @@ public class FinbdByExampleTest extends MongoDBTest {
 		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
 		pojongo.removeAll();
 		pojongo.insert(createMegaZordePojo);
-		createMegaZordePojo.setId(null);
+		
 		List<Category> categories = createMegaZordePojo.getCategories();
-		Category category = categories.get(0);
-		category.setName(null);
+		createMegaZordePojo = new PojoWithListInnerObject();
+		Category findCategory = new Category();
+		findCategory.setId(categories.get(0).getId());
+		List<Category> list = new ArrayList<Category>();
+		list.add(findCategory);
 		
 		PojoWithListInnerObject megaZordProxified = DirtWatcherProxifier.proxify(new PojoWithListInnerObject());
-		megaZordProxified.setCategories(categories);
+		megaZordProxified.setCategories(list);
 		PojoWithListInnerObject result = pojongo.findByExample(megaZordProxified).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());
 	}
