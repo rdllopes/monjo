@@ -25,6 +25,9 @@ public class DirtWatcherProxifier {
 	};
 
 	public static <T> T proxify(final T pojo) {
+		if (pojo instanceof DirtFieldsWatcher) {
+			return pojo;
+		}
 		Enhancer enhancer = new Enhancer();
 		enhancer.setSuperclass(pojo.getClass());
 		enhancer.setInterfaces(new Class[] { DirtFieldsWatcher.class });
