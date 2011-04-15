@@ -5,23 +5,23 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.NamingStrategy;
+import org.monjo.core.Operation;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
-import org.monjo.document.IdentifiableDocument;
 import org.monjo.document.DirtFieldsWatcher;
+import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
- * Default implementation of <code>ObjectToDocumentConverter</codse>.
+ * Default implementation of <code>ObjectToDocumentConverter</code>.
  * 
  * @author Caio Filipini
  * @author Rodrigo di Lorenzo Lopes
@@ -30,26 +30,26 @@ import com.mongodb.DBObject;
 public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConverter<T> {
 	private Object javaObject;
 	private NamingStrategy namingStrategy;
-	private boolean update = false;
-	private boolean innerObject;
-	private boolean search;
+	// bom candidato a final
+	private Operation operation = Operation.Insert;
+
 	private String prefix;
 	private Class<T> objectType;
-	private String specialField;
-	private boolean innerUpdate;
 	private HashSet<String> dirtFields;
+	private boolean dirtWatcher;
 	private boolean skip;
 
-	
 	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy, Class<T> objectType) {
-		if (objectType == null) throw new NullPointerException();
+		if (objectType == null)
+			throw new NullPointerException();
 		this.objectType = objectType;
 		this.namingStrategy = namingStrategy;
-		
+
 	}
 
 	public DefaultObjectToDocumentConverter(Class<T> objectType) {
-		if (objectType == null) throw new NullPointerException();
+		if (objectType == null)
+			throw new NullPointerException();
 		this.objectType = objectType;
 	}
 
@@ -75,14 +75,15 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 		dirtFields = new HashSet<String>();
 		if (javaObject instanceof DirtFieldsWatcher) {
+			dirtWatcher = true;
 			DirtFieldsWatcher internalMonjoObject = (DirtFieldsWatcher) javaObject;
 			Set<String> temp = internalMonjoObject.dirtFields();
 			for (String name : temp) {
-                 char propName[] = name.substring("set".length()).toCharArray();					              
-                 propName[0] = Character.toLowerCase( propName[0] );
-                 dirtFields.add(new String( propName));
+				char propName[] = name.substring("set".length()).toCharArray();
+				propName[0] = Character.toLowerCase(propName[0]);
+				dirtFields.add(new String(propName));
 			}
-		} 
+		}
 
 		for (PropertyDescriptor descriptor : descriptors) {
 			Method readMethod = descriptor.getReadMethod();
@@ -98,88 +99,99 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			
+
 			// tratamento para valores nulos
-			if (fieldValue == null) {
-				// preencher o id caso seja insert ... não faze-lo na busca, atualização ou em innerObjects
-				if ("id".equals(fieldName) && !(search || update || innerObject)) {
-					ObjectId objectId = new ObjectId();
-					if (javaObject instanceof IdentifiableDocument) {
-						IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
-						// TODO retirar essa bomba relogio daqui (veja
-						// literatura sobre type erasure)
-						identifiableDocument.setId(objectId);
-					}
-					fieldValue = objectId;
-				} else {
-					if (isASkipField(fieldName))
-						continue;
+			// preencher o id caso seja insert ... não faze-lo na busca,
+			// atualização ou em innerObjects
+			if (fieldValue == null && "id".equals(fieldName) && operation.equals(Operation.Insert)) {
+				ObjectId objectId = new ObjectId();
+				// trocar por annotation
+				if (javaObject instanceof IdentifiableDocument) {
+					IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
+					// TODO retirar essa bomba relogio daqui (veja
+					// literatura sobre type erasure)
+					identifiableDocument.setId(objectId);
 				}
+				fieldValue = objectId;
 			}
-			String documentFieldName = fieldName;
 			if (fieldName.indexOf("$") >= 0) {
 				continue;
 			}
-			if ("id".equals(fieldName)) {
-				if (update) {
+
+			String documentFieldName = fieldName;
+			if ("id".equals(fieldName)) {				
+				if (operation.equals(Operation.Update) || operation.equals(Operation.UpdateWithAddSet)) {
 					continue;
 				}
-				documentFieldName = "_id";
+				documentFieldName = getDocumentIdFieldName();
 			} else {
-				documentFieldName = namingStrategy.propertyToColumnName(fieldName);
+				documentFieldName = getDocumentFieldName(fieldName);
 			}
-			if (prefix != null) {
-				documentFieldName = prefix + documentFieldName; 				
+			if (isASkipField(fieldName)) {
+				continue;
 			}
 			skip = false;
-			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);
-			if (skip) continue;
-			putAnotherKeyValueInDocument(document, fieldName, fieldValue, documentFieldName);				
-				
+			fieldValue = processField(document, readMethod, fieldValue, documentFieldName);
+			if (skip)
+				continue;
+
+			putAnotherKeyValueInDocument(document, fieldName, fieldValue, documentFieldName);
+
 		}
-		if (update) {
+		if (operation.equals(Operation.Update)) {
 			document = createSetUpdate(document);
 		}
 		return document;
 	}
 
+	private String getDocumentIdFieldName() {
+		String documentFieldName;
+		documentFieldName = "_id";
+		if (prefix != null) {
+			documentFieldName = prefix + documentFieldName;
+		}
+		return documentFieldName;
+	}
+
+	private String getDocumentFieldName(String fieldName) {
+		String documentFieldName;
+		documentFieldName = namingStrategy.propertyToColumnName(fieldName);
+		if (prefix != null) {
+			documentFieldName = prefix + documentFieldName;
+		}
+		return documentFieldName;
+	}
+
 	private void putAnotherKeyValueInDocument(BasicDBObject document, String fieldName, Object fieldValue, String documentFieldName) {
-		if (innerUpdate && fieldName.equals(specialField)) {
-			BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-			Set<String> keys = basicDBObject.keySet();
-			for (String key : keys) {
-				document.put(key, basicDBObject.get(key));
-			}
-		} else {
-			if (fieldValue != null || !isASkipField(fieldName)) {
-				document.put(documentFieldName, fieldValue);				
-			}
+		if (fieldValue != null || dirtWatcher) {
+			document.put(documentFieldName, fieldValue);
 		}
 	}
 
 	private boolean isASkipField(String fieldName) {
-		return !dirtFields.contains(fieldName);
+		return dirtWatcher && !dirtFields.contains(fieldName);
 	}
 
-	private Object getFieldValue(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
-		if (fieldValue == null) return null;
+	/**
+	 * 
+	 * @param document
+	 * @param readMethod
+	 * @param fieldValue
+	 * @param fieldName
+	 * @return fieldValue. OBS: side effect... could change skip and document
+	 *         properties
+	 */
+	private Object processField(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
+		if (fieldValue == null)
+			return null;
 		Class<? extends Object> clasz = fieldValue.getClass();
 		if (isEnumWorkAround(clasz)) {
 			fieldValue = fieldValue.toString();
 		} else if (fieldValue instanceof Collection) {
-			Collection collection = (Collection) fieldValue;
-			if (collection.size() == 0)
-				return null;	
-			if (search || innerUpdate) {
-				if (collection.size() > 1)
-					fieldValue = new BasicDBObject("$or", getDbList(document, readMethod, fieldName, collection));
-				else 
-					fieldValue = getFieldValue(document, readMethod, collection.toArray()[0], fieldName);
-			} else {
-				fieldValue = getDbList(document, readMethod, fieldName, collection);
-			}
+			Collection<?> collection = (Collection<?>) fieldValue;
+			fieldValue = processFieldCollection(document, readMethod, fieldName, collection);
 		} else if (fieldValue instanceof IdentifiableDocument) {
-			fieldValue = getFieldValueIdentifiable(document, readMethod, fieldValue, fieldName);
+			fieldValue = processFieldIdentifiable(document, readMethod, fieldValue, fieldName);
 		} else if (!(fieldValue instanceof Serializable)) {
 			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
 			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
@@ -189,22 +201,88 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return fieldValue;
 	}
 
+	private Object processFieldCollection(BasicDBObject document, Method readMethod, String fieldName, Collection<?> collection) {
+		switch (operation) {
+		case Search:
+			if (collection == null) {
+				return null;
+			}
+			if (collection.size() == 1) {
+				return processField(document, readMethod, collection.toArray()[0], fieldName);
+			} else {
+				return getDbList(document, readMethod, fieldName, collection);
+			}
+		case Insert:
+			return getDbList(document, readMethod, fieldName, collection);
+		case Update:
+			if (collection.size() == 0) {
+				return getDbList(document, readMethod, fieldName, collection);
+			}
+			if (collection.size() == 1) {
+				Object uniqueElement = collection.toArray()[0];
+				if (uniqueElement instanceof IdentifiableDocument<?>) {
+					IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) uniqueElement;
+					if (identifiableDocument.getId() != null) {
+						return updateInnerObject(document, identifiableDocument, fieldName);
+					}
+				}
+			}
+			return getDbList(document, readMethod, fieldName, collection);
+
+		case UpdateWithAddSet:
+			if (collection.size() == 0) {
+				skip = true;
+				return null;
+			}
+			Object[] elements = collection.toArray();
+			Object firstElement = elements[0];
+			if (firstElement instanceof IdentifiableDocument<?>) {
+				verifyNullIds(elements);
+			}
+			if (collection.size() == 1) {
+				// { $addToSet : { field : value } } }
+				BasicDBObject innerObject = new BasicDBObject(fieldName, processField(document, readMethod, firstElement, fieldName));
+				document.put("$addToSet", innerObject);
+				skip = true;
+				return null;
+			}
+			// { $addToSet : { a : { $each : [ 3 , 5 , 6 ] } } }
+			BasicDBList list = getDbList(document, readMethod, fieldName, collection);
+			BasicDBObject eachObject = new BasicDBObject("$each", list);
+			BasicDBObject innerObject = new BasicDBObject(fieldName, eachObject);
+			document.put("$addToSet", innerObject);
+			skip = true;
+			return null;
+
+		}
+		return null;
+	}
+
+	private void verifyNullIds(Object[] elements) {
+		for (int i = 0; i < elements.length; i++) {
+			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) elements[i];
+			if (identifiable.getId() != null) {
+				throw new IllegalArgumentException("Any inner Object is IdentifiableDocument should not have non-null id for update actions");
+			}
+		}
+	}
+
 	private boolean isEnumWorkAround(Class<? extends Object> enumClass) {
-		 while ( enumClass.isAnonymousClass() ) {
-		      enumClass = enumClass.getSuperclass();
-		    }
-	    return enumClass.isEnum();
+		while (enumClass.isAnonymousClass()) {
+			enumClass = enumClass.getSuperclass();
+		}
+		return enumClass.isEnum();
 	}
 
 	private BasicDBList getDbList(BasicDBObject document, Method readMethod, String fieldName, Collection collection) {
 		BasicDBList dbList = new BasicDBList();
 		for (Object object : collection) {
-			dbList.add(getFieldValue(document, readMethod, object, fieldName));
+			dbList.add(processField(document, readMethod, object, fieldName));
 		}
 		return dbList;
 	}
 
-	private Object getFieldValueIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
+	private Object processFieldIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
 		DBObject innerBasicDBObject;
 		if (readMethod.isAnnotationPresent(Reference.class)) {
 			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
@@ -212,17 +290,10 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			innerBasicDBObject.put("_id", identifiable.getId());
 			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 		} else {
-			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
-			if (search) {
-				converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "."  : fieldName + "." ).toDocument(document);
-				// FIXME estou colocando mais efeito colateral no método
-				this.skip = true;
-				return null;
-			} 
-			else if (innerUpdate && fieldName.equals(specialField)) {
-				innerBasicDBObject = converter.enableInnerObject().from(element).setPrefix(fieldName + ".$.").toDocument();
-			}
-			else { 
+			if (operation.equals(Operation.Search)) {
+				return searchForInnerObject(document, element, fieldName);
+			} else {
+				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
 				innerBasicDBObject = converter.from(element).toDocument();
 				innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 			}
@@ -230,9 +301,18 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return innerBasicDBObject;
 	}
 
-	private ObjectToDocumentConverter enableInnerObject() {
-		innerObject = true;
-		return this;
+	private Object searchForInnerObject(BasicDBObject document, Object element, String fieldName) {
+		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
+		converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "." : fieldName + ".").toDocument(document);
+		this.skip = true;
+		return null;
+	}
+
+	private DBObject updateInnerObject(BasicDBObject document, IdentifiableDocument<?> element, String fieldName) {
+		skip = true;
+		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
+		converter.from(element).setPrefix(fieldName + ".$.").toDocument(document);
+		return null;
 	}
 
 	private BasicDBObject createSetUpdate(DBObject document) {
@@ -246,27 +326,14 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	}
 
 	@Override
-	public ObjectToDocumentConverter<T> enableUpdate() {
-		this.update = true;
-		return this;
-	}
-
-	@Override
-	public ObjectToDocumentConverter<T> enableSearch() {
-		this.search = true;
+	public ObjectToDocumentConverter<T> action(Operation operation) {
+		this.operation = operation;
 		return this;
 	}
 
 	@Override
 	public ObjectToDocumentConverter<T> setPrefix(String string) {
 		this.prefix = string;
-		return this;
-	}
-
-	@Override
-	public ObjectToDocumentConverter<T> specialField(String fieldname) {
-		this.specialField = fieldname;
-		this.innerUpdate = true;
 		return this;
 	}
 

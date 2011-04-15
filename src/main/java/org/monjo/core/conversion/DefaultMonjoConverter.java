@@ -2,6 +2,7 @@ package org.monjo.core.conversion;
 
 import org.bson.types.ObjectId;
 import org.hibernate.cfg.NamingStrategy;
+import org.monjo.core.Operation;
 import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBObject;
@@ -11,38 +12,38 @@ public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T
 	
 
 	public DefaultMonjoConverter(Class<T> objectType) {
-		defaultDocumentToObjectConverter = new DefaultDocumentToObjectConverter<T>(objectType);
-		defaultObjectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(objectType); 
+		documentToObjectConverter = new DefaultDocumentToObjectConverter<T>(objectType);
+		objectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(objectType); 
 	}
 	
-	private DefaultDocumentToObjectConverter<T> defaultDocumentToObjectConverter;
-	private DefaultObjectToDocumentConverter<T> defaultObjectToDocumentConverter;
+	private DefaultDocumentToObjectConverter<T> documentToObjectConverter;
+	private DefaultObjectToDocumentConverter<T> objectToDocumentConverter;
 	private String prefix;
 	
 	
 	@Override
 	public DefaultDocumentToObjectConverter<T> from(DBObject document) {
-		return defaultDocumentToObjectConverter.from(document);
+		return documentToObjectConverter.from(document);
 	}
 
 	@Override
 	public T to(){
-		return defaultDocumentToObjectConverter.to();
+		return documentToObjectConverter.to();
 	}
 	
 	@Override
 	public ObjectToDocumentConverter<T> from(T javaObject) {
-		defaultObjectToDocumentConverter.from(javaObject);
+		objectToDocumentConverter.from(javaObject);
 		return this;
 	}
 	@Override
 	public DBObject toDocument() {
-		return defaultObjectToDocumentConverter.toDocument();
+		return objectToDocumentConverter.toDocument();
 	}
 	@Override
 	public void setNamingStrategy(NamingStrategy namingStrategy) {
-		defaultDocumentToObjectConverter.setNamingStrategy(namingStrategy);
-		defaultObjectToDocumentConverter.setNamingStrategy(namingStrategy);
+		documentToObjectConverter.setNamingStrategy(namingStrategy);
+		objectToDocumentConverter.setNamingStrategy(namingStrategy);
 	}
 	@Override
 	public DBObject getIdDocument(Object object) {
@@ -58,33 +59,21 @@ public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T
 	}
 	
 	@Override
-	public ObjectToDocumentConverter<T> enableUpdate() {
-		defaultObjectToDocumentConverter.enableUpdate();
-		return this;
-	}
-
-	@Override
-	public ObjectToDocumentConverter<T> enableSearch() {
-		defaultObjectToDocumentConverter.enableSearch();
-		return this;
-	}
-
-	@Override
 	public ObjectToDocumentConverter<T> setPrefix(String string) {
-		defaultObjectToDocumentConverter.setPrefix(string);
+		objectToDocumentConverter.setPrefix(string);
 		this.prefix = string;
 		return this;
 	}
 	@Override
 	public DBObject toDocument(BasicDBObject document) {
-		return defaultObjectToDocumentConverter.toDocument(document);
+		return objectToDocumentConverter.toDocument(document);
 	}
 
 	@Override
-	public ObjectToDocumentConverter<T> specialField(String fieldname) {
-		defaultObjectToDocumentConverter.specialField(fieldname);
+	public ObjectToDocumentConverter<T> action(Operation operation) {
+		objectToDocumentConverter.action(operation);
 		return this;
+		
 	}
 
-	
 }

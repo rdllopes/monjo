@@ -1,6 +1,6 @@
 package org.monjo.core.conversion;
 
-import org.monjo.document.IdentifiableDocument;
+import org.monjo.core.Operation;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -45,14 +45,11 @@ public interface ObjectToDocumentConverter<T extends Object> {
 	 */
 	DBObject toDocument();
 	
-	ObjectToDocumentConverter<T> specialField(String fieldname);
-
-	ObjectToDocumentConverter<T> enableUpdate();
-
-	ObjectToDocumentConverter<T> enableSearch();
-
 	ObjectToDocumentConverter<T> setPrefix(String string);
 
 	DBObject toDocument(BasicDBObject document);
+
+	ObjectToDocumentConverter<T> action(Operation operation);
+
 
 }
