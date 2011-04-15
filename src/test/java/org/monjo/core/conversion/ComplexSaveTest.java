@@ -92,7 +92,7 @@ public class ComplexSaveTest extends MongoDBTest{
 		otherCategory.setName("Other Category");
 		anotherPojo.addCategory(otherCategory);
 		
-		pojongoComplex.update(anotherPojo);
+		pojongoComplex.updateWithAddSet(anotherPojo);
 		
 		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
 		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);

@@ -65,7 +65,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
 	public DBObject createCriteriaByExample(T example) {
-		return getConverter().from(example).enableSearch().toDocument();
+		return getConverter().from(example).action(Operation.Search).toDocument();
 	}
 
 	public MonjoConverter<T> getConverter() {
@@ -228,10 +228,23 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		update(dbObject2, dbObject);
 		return identifiableDocument.getId();
 	}
+	
+	public Id updateWithAddSet(T identifiableDocument) {
+		DBObject dbObject = createUpdateWithAddSetCriteria(identifiableDocument);
+		DBObject dbObject2 = getConverter().getIdDocument(identifiableDocument);
+		update(dbObject2, dbObject);
+		return identifiableDocument.getId();
+	}
+
 
 	public DBObject createUpdateCriteria(T identifiableDocument) {
-		return getConverter().from(identifiableDocument).enableUpdate().toDocument();
+		return getConverter().from(identifiableDocument).action(Operation.Update).toDocument();
 	}
+	
+	public DBObject createUpdateWithAddSetCriteria(T identifiableDocument) {
+		return getConverter().from(identifiableDocument).action(Operation.UpdateWithAddSet).toDocument();
+	}
+
 	
 	public void update(DBObject query, DBObject update) {
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {query, update, collection.getName()});		
@@ -253,7 +266,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		}
 		List list = (List) PropertyUtils.getProperty(identifiableDocument, fieldname);
 		Object innerObject = list.get(0);
-		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().specialField(fieldname).toDocument();
+		DBObject dbObject = getConverter().from(identifiableDocument).action(Operation.Update).toDocument();
 		DBObject dbObject2 = ((MonjoConverter<T>) getConverter().setPrefix(fieldname)).getIdDocument(innerObject);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
 		collection.update(dbObject2, dbObject, true, false);
