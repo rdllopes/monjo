@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -13,8 +12,8 @@ import org.bson.types.ObjectId;
 import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
-import org.monjo.document.IdentifiableDocument;
 import org.monjo.document.DirtFieldsWatcher;
+import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -132,7 +131,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 				documentFieldName = prefix + documentFieldName; 				
 			}
 			skip = false;
-			fieldValue = getFieldValue(document, readMethod, fieldValue, documentFieldName);
+			fieldValue = processField(document, readMethod, fieldValue, documentFieldName);
 			if (skip) continue;
 			putAnotherKeyValueInDocument(document, fieldName, fieldValue, documentFieldName);				
 				
@@ -161,30 +160,44 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return !dirtFields.contains(fieldName);
 	}
 
-	private Object getFieldValue(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
+	/**
+	 * 
+	 * @param document
+	 * @param readMethod
+	 * @param fieldValue
+	 * @param fieldName
+	 * @return fieldValue. OBS: side effect... could change skip and document properties 
+	 */
+	private Object processField(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
 		if (fieldValue == null) return null;
 		Class<? extends Object> clasz = fieldValue.getClass();
 		if (isEnumWorkAround(clasz)) {
 			fieldValue = fieldValue.toString();
 		} else if (fieldValue instanceof Collection) {
-			Collection collection = (Collection) fieldValue;
-			if (collection.size() == 0)
-				return null;	
-			if (search || innerUpdate) {
-				if (collection.size() > 1)
-					fieldValue = new BasicDBObject("$or", getDbList(document, readMethod, fieldName, collection));
-				else 
-					fieldValue = getFieldValue(document, readMethod, collection.toArray()[0], fieldName);
-			} else {
-				fieldValue = getDbList(document, readMethod, fieldName, collection);
-			}
+			Collection<?> collection = (Collection<?>) fieldValue;
+			fieldValue = processFieldCollection(document, readMethod, fieldName, collection);
 		} else if (fieldValue instanceof IdentifiableDocument) {
-			fieldValue = getFieldValueIdentifiable(document, readMethod, fieldValue, fieldName);
+			fieldValue = processFieldIdentifiable(document, readMethod, fieldValue, fieldName);
 		} else if (!(fieldValue instanceof Serializable)) {
 			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
 			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
 			innerBasicDBObject.put("_ref", clasz.getCanonicalName());
 			fieldValue = innerBasicDBObject;
+		}
+		return fieldValue;
+	}
+
+	private Object processFieldCollection(BasicDBObject document, Method readMethod, String fieldName, Collection<?> collection) {
+		Object fieldValue;
+		if (collection.size() == 0)
+			return null;	
+		if (search || innerUpdate) {
+			if (collection.size() > 1)
+				fieldValue = new BasicDBObject("$or", getDbList(document, readMethod, fieldName, collection));
+			else 
+				fieldValue = processField(document, readMethod, collection.toArray()[0], fieldName);
+		} else {
+			fieldValue = getDbList(document, readMethod, fieldName, collection);
 		}
 		return fieldValue;
 	}
@@ -199,12 +212,12 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	private BasicDBList getDbList(BasicDBObject document, Method readMethod, String fieldName, Collection collection) {
 		BasicDBList dbList = new BasicDBList();
 		for (Object object : collection) {
-			dbList.add(getFieldValue(document, readMethod, object, fieldName));
+			dbList.add(processField(document, readMethod, object, fieldName));
 		}
 		return dbList;
 	}
 
-	private Object getFieldValueIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
+	private Object processFieldIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
 		DBObject innerBasicDBObject;
 		if (readMethod.isAnnotationPresent(Reference.class)) {
 			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
