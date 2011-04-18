@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.monjo.core.annotations.Entity;
 import org.monjo.document.IdentifiableDocument;
 
+@Entity
 public class ListWithin implements IdentifiableDocument<ObjectId>{
 	
 	public ListWithin() {

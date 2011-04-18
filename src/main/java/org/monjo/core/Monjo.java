@@ -1,10 +1,8 @@
 package org.monjo.core;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.annotations.Entity;
@@ -60,19 +58,19 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	}
 
 	private boolean annotatedWithCollection(Class<T> clasz) {
-		return clasz.isAnnotationPresent(Entity.class);
+		return clasz.isAnnotationPresent(Entity.class) && !"".equals(clasz.getAnnotation(Entity.class).value());
 	}
 	
 	public Monjo(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command) {
 		initialize(mongoDb, clasz, collectionName, command);
 	}
 	public DBObject createCriteriaByExample(T example) {
-		return getConverter().from(example).enableSearch().toDocument();
+		return getConverter().from(example).action(Operation.Search).toDocument();
 	}
 
 	public MonjoConverter<T> getConverter() {
 		 MonjoConverterFactory converterFactory = MonjoConverterFactory.getInstance();
-		 MonjoConverter<T> monjoConverter = converterFactory.getDefaultPojongoConverter(clasz);
+		 MonjoConverter<T> monjoConverter = converterFactory.getDefaultMonjoConverter(clasz);
 		 return monjoConverter;
 	}
 
@@ -225,11 +223,32 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	}
 
 	public Id update(T identifiableDocument) {
-		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().toDocument();
+		DBObject dbObject = createUpdateCriteria(identifiableDocument);
 		DBObject dbObject2 = getConverter().getIdDocument(identifiableDocument);
-		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});		
-		collection.update(dbObject2, dbObject, true, false);
+		update(dbObject2, dbObject);
 		return identifiableDocument.getId();
+	}
+	
+	public Id updateWithAddSet(T identifiableDocument) {
+		DBObject dbObject = createUpdateWithAddSetCriteria(identifiableDocument);
+		DBObject dbObject2 = getConverter().getIdDocument(identifiableDocument);
+		update(dbObject2, dbObject);
+		return identifiableDocument.getId();
+	}
+
+
+	public DBObject createUpdateCriteria(T identifiableDocument) {
+		return getConverter().from(identifiableDocument).action(Operation.Update).toDocument();
+	}
+	
+	public DBObject createUpdateWithAddSetCriteria(T identifiableDocument) {
+		return getConverter().from(identifiableDocument).action(Operation.UpdateWithAddSet).toDocument();
+	}
+
+	
+	public void update(DBObject query, DBObject update) {
+		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {query, update, collection.getName()});		
+		collection.update(query, update, true, false);
 	}
 	
 	/**
@@ -247,7 +266,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		}
 		List list = (List) PropertyUtils.getProperty(identifiableDocument, fieldname);
 		Object innerObject = list.get(0);
-		DBObject dbObject = getConverter().from(identifiableDocument).enableUpdate().specialField(fieldname).toDocument();
+		DBObject dbObject = getConverter().from(identifiableDocument).action(Operation.Update).toDocument();
 		DBObject dbObject2 = ((MonjoConverter<T>) getConverter().setPrefix(fieldname)).getIdDocument(innerObject);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
 		collection.update(dbObject2, dbObject, true, false);

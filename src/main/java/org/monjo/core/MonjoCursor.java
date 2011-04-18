@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.monjo.core.conversion.MonjoConverter;
+import org.monjo.document.DirtWatcherProxifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,8 @@ public class MonjoCursor<C extends Object> {
 	private DBCursor cursor;
 	private MonjoConverter<C> converter;
 	private Command<C> command;
+
+	private boolean shouldUseProxy;
 
 	
 	public MonjoCursor(DBCursor dbCursor, MonjoConverter<C> converter, Command<C> command) {
@@ -47,13 +50,21 @@ public class MonjoCursor<C extends Object> {
 		return cursor.count();
 	}
 	
+	public MonjoCursor<C> proxify(){
+		this.shouldUseProxy = true;
+		return this;
+	}
+	
 	public List<C> toList(){
 		DBObject document;
 		List<C> list = new ArrayList<C>();
 		while (cursor.hasNext()) {
 			document = cursor.next();
 			logger.debug("document found:{}", document);
-			C object  = converter.from(document).to();			
+			C object  = converter.from(document).to();
+			if (shouldUseProxy) {
+				object = DirtWatcherProxifier.proxify(object);				
+			}
 			list.add(object);
 		}		
 		return command.execute(list);

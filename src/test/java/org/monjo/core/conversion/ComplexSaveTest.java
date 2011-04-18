@@ -65,9 +65,51 @@ public class ComplexSaveTest extends MongoDBTest{
 
 		pojongoComplex.removeAll();
 		pojongoComplex.insert(pojo);
+		assertNotNull(pojo.getCategories().get(0).getId());
+		
 		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
 		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
 		assertNotNull(complex.getCategories().get(0).getId());
+	}
+
+	@Test
+	public void shouldAddNewCategory() throws Exception {
+		PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
+		Monjo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
+				PojoWithListInnerObject.class);
+		pojongoComplex.removeAll();
+		
+		pojongoComplex.insert(pojo);
+		Category otherCategory = new Category();
+		otherCategory.setName("Other Category");
+		pojo.addCategory(otherCategory);
+		
+		pojongoComplex.update(pojo);		
+		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
+		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
+		assertEquals(2, complex.getCategories().size());
+	}
+
+	@Test
+	public void shouldAddNewCategoryButIHaveOnlyAnId() throws Exception {
+		PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
+		Monjo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
+				PojoWithListInnerObject.class);
+		pojongoComplex.removeAll();
+		
+		pojongoComplex.insert(pojo);
+		
+		PojoWithListInnerObject anotherPojo  = new PojoWithListInnerObject();
+		anotherPojo.setId(pojo.getId());
+		Category otherCategory = new Category();
+		otherCategory.setName("Other Category");
+		anotherPojo.addCategory(otherCategory);
+		
+		pojongoComplex.updateWithAddSet(anotherPojo);
+		
+		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
+		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
+		assertEquals(2, complex.getCategories().size());
 	}
 
 	
