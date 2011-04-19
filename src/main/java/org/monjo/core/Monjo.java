@@ -266,7 +266,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		}
 		List list = (List) PropertyUtils.getProperty(identifiableDocument, fieldname);
 		Object innerObject = list.get(0);
-		DBObject dbObject = getConverter().from(identifiableDocument).action(Operation.Update).toDocument();
+		DBObject dbObject = getConverter().from(identifiableDocument).action(Operation.UpdateInnerObject).toDocument();
 		DBObject dbObject2 = ((MonjoConverter<T>) getConverter().setPrefix(fieldname)).getIdDocument(innerObject);
 		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
 		collection.update(dbObject2, dbObject, true, false);

@@ -32,12 +32,13 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	private NamingStrategy namingStrategy;
 	// bom candidato a final
 	private Operation operation = Operation.Insert;
-
+	private BasicDBObject setUpdate;
 	private String prefix;
 	private Class<T> objectType;
 	private HashSet<String> dirtFields;
 	private boolean dirtWatcher;
 	private boolean skip;
+	private BasicDBObject rootDocument;
 
 	public DefaultObjectToDocumentConverter(NamingStrategy namingStrategy, Class<T> objectType) {
 		if (objectType == null)
@@ -64,13 +65,22 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 
 	@Override
 	public DBObject toDocument() {
-		return toDocument(new BasicDBObject());
+		this.rootDocument = new BasicDBObject();
+		return process();
 	}
 
 	@Override
-	public DBObject toDocument(BasicDBObject document) {
+	public DBObject toDocument(BasicDBObject rootDocument2) {
+		this.rootDocument = rootDocument2;
+		return process();
+	}
+
+	private DBObject process() {
 		if (javaObject == null) {
 			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
+		}
+		if (prefix == null && isUpdateAction()) {
+			setUpdate = new BasicDBObject();
 		}
 		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 		dirtFields = new HashSet<String>();
@@ -119,7 +129,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			}
 
 			String documentFieldName = fieldName;
-			if ("id".equals(fieldName)) {				
+			if ("id".equals(fieldName)) {
 				if (operation.equals(Operation.Update) || operation.equals(Operation.UpdateWithAddSet)) {
 					continue;
 				}
@@ -131,17 +141,32 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 				continue;
 			}
 			skip = false;
-			fieldValue = processField(document, readMethod, fieldValue, documentFieldName);
+			fieldValue = processField(readMethod, fieldValue, documentFieldName);
 			if (skip)
 				continue;
 
-			putAnotherKeyValueInDocument(document, fieldName, fieldValue, documentFieldName);
+			putAnotherKeyValueInDocument(fieldName, fieldValue, documentFieldName);
 
 		}
-		if (operation.equals(Operation.Update)) {
-			document = createSetUpdate(document);
+		if (prefix == null) {
+			switch (operation) {
+			case Update:
+			case UpdateInnerObject:
+			case UpdateWithAddSet:
+				rootDocument.put("$set", setUpdate);
+			}
 		}
-		return document;
+		return rootDocument;
+	}
+
+	private boolean isUpdateAction() {
+		switch (operation) {
+		case Update:
+		case UpdateInnerObject:
+		case UpdateWithAddSet:
+			return true;
+		}
+		return false;
 	}
 
 	private String getDocumentIdFieldName() {
@@ -162,9 +187,14 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return documentFieldName;
 	}
 
-	private void putAnotherKeyValueInDocument(BasicDBObject document, String fieldName, Object fieldValue, String documentFieldName) {
+	private void putAnotherKeyValueInDocument(String fieldName, Object fieldValue, String documentFieldName) {
 		if (fieldValue != null || dirtWatcher) {
-			document.put(documentFieldName, fieldValue);
+			if (isUpdateAction()) {
+				setUpdate.put(documentFieldName, fieldValue);
+			} else {
+				rootDocument.put(documentFieldName, fieldValue);
+			}
+
 		}
 	}
 
@@ -181,7 +211,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	 * @return fieldValue. OBS: side effect... could change skip and document
 	 *         properties
 	 */
-	private Object processField(BasicDBObject document, Method readMethod, Object fieldValue, String fieldName) {
+	private Object processField(Method readMethod, Object fieldValue, String fieldName) {
 		if (fieldValue == null)
 			return null;
 		Class<? extends Object> clasz = fieldValue.getClass();
@@ -189,9 +219,9 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			fieldValue = fieldValue.toString();
 		} else if (fieldValue instanceof Collection) {
 			Collection<?> collection = (Collection<?>) fieldValue;
-			fieldValue = processFieldCollection(document, readMethod, fieldName, collection);
+			fieldValue = processFieldCollection(readMethod, fieldName, collection);
 		} else if (fieldValue instanceof IdentifiableDocument) {
-			fieldValue = processFieldIdentifiable(document, readMethod, fieldValue, fieldName);
+			fieldValue = processFieldIdentifiable(readMethod, fieldValue, fieldName);
 		} else if (!(fieldValue instanceof Serializable)) {
 			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
 			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
@@ -201,33 +231,35 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return fieldValue;
 	}
 
-	private Object processFieldCollection(BasicDBObject document, Method readMethod, String fieldName, Collection<?> collection) {
+	private Object processFieldCollection(Method readMethod, String fieldName, Collection<?> collection) {
 		switch (operation) {
 		case Search:
 			if (collection == null) {
 				return null;
 			}
 			if (collection.size() == 1) {
-				return processField(document, readMethod, collection.toArray()[0], fieldName);
+				return processField(readMethod, collection.toArray()[0], fieldName);
 			} else {
-				return getDbList(document, readMethod, fieldName, collection);
+				return getDbList(readMethod, fieldName, collection);
 			}
 		case Insert:
-			return getDbList(document, readMethod, fieldName, collection);
+			return getDbList(readMethod, fieldName, collection);
 		case Update:
 			if (collection.size() == 0) {
-				return getDbList(document, readMethod, fieldName, collection);
+				return getDbList(readMethod, fieldName, collection);
 			}
-			if (collection.size() == 1) {
-				Object uniqueElement = collection.toArray()[0];
-				if (uniqueElement instanceof IdentifiableDocument<?>) {
-					IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) uniqueElement;
-					if (identifiableDocument.getId() != null) {
-						return updateInnerObject(document, identifiableDocument, fieldName);
-					}
+			return getDbList(readMethod, fieldName, collection);
+		case UpdateInnerObject:
+			if (collection.size() != 1) {
+				throw new IllegalArgumentException("It is not possible update multiples collection, using positional operator.");
+			}
+			Object uniqueElement = collection.toArray()[0];
+			if (uniqueElement instanceof IdentifiableDocument<?>) {
+				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) uniqueElement;
+				if (identifiableDocument.getId() != null) {
+					return updateInnerObject(identifiableDocument, fieldName);
 				}
 			}
-			return getDbList(document, readMethod, fieldName, collection);
 
 		case UpdateWithAddSet:
 			if (collection.size() == 0) {
@@ -241,16 +273,16 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			}
 			if (collection.size() == 1) {
 				// { $addToSet : { field : value } } }
-				BasicDBObject innerObject = new BasicDBObject(fieldName, processField(document, readMethod, firstElement, fieldName));
-				document.put("$addToSet", innerObject);
+				BasicDBObject innerObject = new BasicDBObject(fieldName, processField(readMethod, firstElement, fieldName));
+				rootDocument.put("$addToSet", innerObject);
 				skip = true;
 				return null;
 			}
 			// { $addToSet : { a : { $each : [ 3 , 5 , 6 ] } } }
-			BasicDBList list = getDbList(document, readMethod, fieldName, collection);
+			BasicDBList list = getDbList(readMethod, fieldName, collection);
 			BasicDBObject eachObject = new BasicDBObject("$each", list);
 			BasicDBObject innerObject = new BasicDBObject(fieldName, eachObject);
-			document.put("$addToSet", innerObject);
+			rootDocument.put("$addToSet", innerObject);
 			skip = true;
 			return null;
 
@@ -274,15 +306,15 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return enumClass.isEnum();
 	}
 
-	private BasicDBList getDbList(BasicDBObject document, Method readMethod, String fieldName, Collection collection) {
+	private BasicDBList getDbList(Method readMethod, String fieldName, Collection<?> collection) {
 		BasicDBList dbList = new BasicDBList();
 		for (Object object : collection) {
-			dbList.add(processField(document, readMethod, object, fieldName));
+			dbList.add(processField(readMethod, object, fieldName));
 		}
 		return dbList;
 	}
 
-	private Object processFieldIdentifiable(BasicDBObject document, Method readMethod, Object element, String fieldName) {
+	private Object processFieldIdentifiable(Method readMethod, Object element, String fieldName) {
 		DBObject innerBasicDBObject;
 		if (readMethod.isAnnotationPresent(Reference.class)) {
 			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
@@ -291,7 +323,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 		} else {
 			if (operation.equals(Operation.Search)) {
-				return searchForInnerObject(document, element, fieldName);
+				return searchForInnerObject(element, fieldName);
 			} else {
 				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
 				innerBasicDBObject = converter.from(element).toDocument();
@@ -301,17 +333,19 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return innerBasicDBObject;
 	}
 
-	private Object searchForInnerObject(BasicDBObject document, Object element, String fieldName) {
+	private Object searchForInnerObject(Object element, String fieldName) {
 		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
-		converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "." : fieldName + ".").toDocument(document);
+		converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "." : fieldName + ".").toDocument(rootDocument);
 		this.skip = true;
 		return null;
 	}
 
-	private DBObject updateInnerObject(BasicDBObject document, IdentifiableDocument<?> element, String fieldName) {
+	private DBObject updateInnerObject(IdentifiableDocument<?> element, String fieldName) {
 		skip = true;
 		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
-		converter.from(element).setPrefix(fieldName + ".$.").toDocument(document);
+		converter.from(element).setPrefix(fieldName + ".$.").toDocument(setUpdate);
+		// TODO ugly!!!
+		setUpdate.remove(fieldName + ".$._id");
 		return null;
 	}
 
