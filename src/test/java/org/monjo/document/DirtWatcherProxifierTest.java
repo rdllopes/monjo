@@ -1,42 +1,56 @@
 package org.monjo.document;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Scanner;
-import java.util.Set;
+import static org.junit.Assert.assertTrue;
 
-import org.monjo.example.SimplePOJO;
+import org.junit.Test;
 
 public class DirtWatcherProxifierTest {
-	public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, InterruptedException {
-		SimplePOJO simplePOJO = new SimplePOJO();
-		pause();
-		long initial = System.currentTimeMillis();
-		final int maxint = 100000000;
-//		for (int i = 0; i < maxint; i++)
-//			simplePOJO.setAnIntegerField(i);
-		System.out.println(System.currentTimeMillis() - initial);
-		
-		
-		DirtWatcherProxifier proxifier = new DirtWatcherProxifier();
-		Object object = proxifier.proxify(simplePOJO);
-		SimplePOJO simplePOJO2 = (SimplePOJO) object;
-		initial = System.currentTimeMillis();
-		for (int i = 0; i < maxint; i++)
-			simplePOJO2.setAnIntegerField(i);
-		System.out.println(System.currentTimeMillis() - initial);
-		simplePOJO2.setaDoubleField(null);
-		System.out.println(simplePOJO2.getaDoubleField());
-		DirtFieldsWatcher internalMonjoObject = (DirtFieldsWatcher) object;
-		Set<String> set = internalMonjoObject.dirtFields();
-		for (String string : set) {
-			System.out.println(string);
+
+	@Test
+	public void shouldProxifyJavaBean() {
+		JavaBean javaBean = new JavaBean();
+		JavaBean proxy = DirtWatcherProxifier.proxify(javaBean);
+		proxy.setName("a name");
+		if (proxy instanceof DirtFieldsWatcher) {
+			DirtFieldsWatcher dirtFieldsWatcher = (DirtFieldsWatcher) proxy;
+			assertTrue(dirtFieldsWatcher.dirtFields().contains("setName"));
 		}
-		pause();
+	}
+	
+	@Test
+	public void shouldWatchInternalCalls() {
+		JavaBean javaBean = new JavaBean();
+		JavaBean proxy = DirtWatcherProxifier.proxify(javaBean);
+		proxy.setDescription("special");
+		if (proxy instanceof DirtFieldsWatcher) {
+			DirtFieldsWatcher dirtFieldsWatcher = (DirtFieldsWatcher) proxy;
+			assertTrue(dirtFieldsWatcher.dirtFields().contains("setName"));
+		}
+		
+	}
+	
+	public static class JavaBean {
+		private String name;
+		private String description;
+		String getName() {
+			return name;
+		}
+		void setName(String name) {
+			this.name = name;
+		}
+		public String getDescription() {
+			return description;
+		}
+		public void setDescription(String description) {
+			if ("special".equals(description)){
+				setName("special");
+			}
+			this.description = description;
+		}
+		
+		
+		
+		
 	}
 
-	private static void pause() {
-		Scanner sc = new Scanner(System.in);
-		while (!sc.nextLine().equals(""));
-	}
 }
-
