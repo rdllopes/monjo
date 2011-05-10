@@ -37,6 +37,11 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	public Monjo(DB mongoDb, Class<T> clasz) {
 		this(mongoDb, clasz, new NullCommand<T>());
 	}
+	
+	public Monjo(DB mongoDb, Class<T> clasz, String collectionName) {
+		this(mongoDb, clasz, collectionName, new NullCommand<T>());
+	}
+
 
 	public Monjo(DB mongoDb, Class<T> clasz, Command<T> command) {
 		MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
