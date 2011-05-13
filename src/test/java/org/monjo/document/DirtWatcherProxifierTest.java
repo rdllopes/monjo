@@ -24,7 +24,7 @@ public class DirtWatcherProxifierTest {
 		proxy.setDescription("special");
 		if (proxy instanceof DirtFieldsWatcher) {
 			DirtFieldsWatcher dirtFieldsWatcher = (DirtFieldsWatcher) proxy;
-			assertTrue(dirtFieldsWatcher.dirtFields().contains("setName"));
+			assertTrue(dirtFieldsWatcher.dirtFields().contains("setDescription"));
 		}
 		
 	}

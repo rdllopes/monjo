@@ -335,7 +335,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 
 	private Object searchForInnerObject(Object element, String fieldName) {
 		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
-		converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "." : fieldName + ".").toDocument(rootDocument);
+		converter.from(element).setPrefix(prefix != null ? prefix + fieldName + "." : fieldName + ".").action(operation).toDocument(rootDocument);
 		this.skip = true;
 		return null;
 	}
