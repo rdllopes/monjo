@@ -3,7 +3,6 @@ package org.monjo.core.conversion;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.beanutils.ConvertUtils;
-import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.monjo.core.Monjo;
@@ -11,6 +10,9 @@ import org.monjo.example.IntegerId;
 import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
 import org.monjo.test.util.MongoDBTest;
+
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
+
 
 public class UsingNonObjectIdTest extends MongoDBTest {
 

@@ -1,7 +1,7 @@
 package org.monjo.core.conversion;
 
-import org.hibernate.cfg.DefaultNamingStrategy;
-import org.hibernate.cfg.NamingStrategy;
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
+import contrib.org.hibernate.cfg.NamingStrategy;
 
 public class MonjoConverterFactory {
 	

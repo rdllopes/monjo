@@ -9,15 +9,17 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
-import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.monjo.example.SimplePOJO;
 import org.monjo.example.SimplePOJOWithStringId;
 import org.monjo.test.util.MongoDBTest;
 
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
 
 public class DefaultDocumentToObjectConverterTest extends MongoDBTest {
 	

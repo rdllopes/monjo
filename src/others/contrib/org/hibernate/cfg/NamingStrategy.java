@@ -21,7 +21,8 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.cfg;
+package contrib.org.hibernate.cfg;
+
 
 /**
  * A set of rules for determining the physical column

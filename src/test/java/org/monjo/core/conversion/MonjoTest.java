@@ -10,7 +10,6 @@ import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
-import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.monjo.core.Monjo;
@@ -19,8 +18,11 @@ import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
 import org.monjo.test.util.MongoDBTest;
 
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
 
 
 public class MonjoTest extends MongoDBTest{

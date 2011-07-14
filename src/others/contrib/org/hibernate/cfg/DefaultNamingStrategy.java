@@ -21,12 +21,13 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.cfg;
+package contrib.org.hibernate.cfg;
 
 import java.io.Serializable;
 
-import org.hibernate.util.StringHelper;
-import org.hibernate.AssertionFailure;
+import contrib.org.hibernate.AssertionFailure;
+import contrib.org.hibernate.util.StringHelper;
+
 
 /**
  * The default <tt>NamingStrategy</tt>

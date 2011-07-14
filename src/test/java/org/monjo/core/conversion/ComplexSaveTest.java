@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 
 import org.bson.types.ObjectId;
-import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +18,9 @@ import org.monjo.example.ListWithin;
 import org.monjo.example.PojoWithListInnerObject;
 import org.monjo.example.User;
 import org.monjo.test.util.MongoDBTest;
+
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
+
 
 public class ComplexSaveTest extends MongoDBTest{
 	
