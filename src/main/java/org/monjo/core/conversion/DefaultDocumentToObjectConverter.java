@@ -2,6 +2,8 @@ package org.monjo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,8 +102,11 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 					fieldValue = converter.from(basicDBObject).to();
 				}
 				if (fieldValue instanceof List) {
-					// Covariant problem 
-					List newList = new ArrayList();
+					// Covariant problem
+					Method method = property.getReadMethod();
+					ParameterizedType parameterizedType = (ParameterizedType) method.getGenericReturnType();
+					Class<?> type = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+					ArrayList newList = new ArrayList();
 					List<?> list = (List<?>) fieldValue;
 					for (Object object : list) {
 						if (object instanceof DBObject) {
@@ -109,17 +114,22 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 							Class<?> innerEntityClass = Class.forName((String) dbObject.get("_ref"));
 							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
 							newList.add(converter.from(dbObject).to());
-						} else {
-							newList.add(object);
+						} else {							
+							newList.add(ConvertUtils.convert(object, type));
 						}
 					}
 					fieldValue = newList;
 					
 				}
-				if (fieldValue != null && !property.getPropertyType().isInstance(fieldValue)) {
-					fieldValue = ConvertUtils.convert(fieldValue, property.getPropertyType());
-				}						
+				fieldValue = applyConverters(property, fieldValue);						
 			}
+		}
+		return fieldValue;
+	}
+
+	private Object applyConverters(PropertyDescriptor property, Object fieldValue) {
+		if (fieldValue != null && !property.getPropertyType().isInstance(fieldValue)) {
+			fieldValue = ConvertUtils.convert(fieldValue, property.getPropertyType());
 		}
 		return fieldValue;
 	}

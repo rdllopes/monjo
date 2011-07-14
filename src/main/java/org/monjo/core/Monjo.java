@@ -37,6 +37,11 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	public Monjo(DB mongoDb, Class<T> clasz) {
 		this(mongoDb, clasz, new NullCommand<T>());
 	}
+	
+	public Monjo(DB mongoDb, Class<T> clasz, String collectionName) {
+		this(mongoDb, clasz, collectionName, new NullCommand<T>());
+	}
+
 
 	public Monjo(DB mongoDb, Class<T> clasz, Command<T> command) {
 		MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
@@ -162,7 +167,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	@SuppressWarnings("unchecked")
 	public Id insert(T identifiableDocument) {
 		DBObject dbObject = getConverter().from(identifiableDocument).toDocument();
-		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
+		logger.info("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.insert(dbObject);
 		identifiableDocument.setId((Id) dbObject.get("_id"));
 		return (Id) dbObject.get("_id");
@@ -172,7 +177,8 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	 * Remove all items from collection
 	 */
 	public void removeAll(){
-		logger.debug("dropping collection {}", collection.getName());
+		// carai mano, o que essa cara ta fazendo !?
+		logger.warn("dropping collection {}", collection.getName());
 		collection.drop();
 	}
 	
@@ -182,7 +188,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	 */
 	public void removeBy(Id id){
 		BasicDBObject basicObject = new BasicDBObject("_id", id);
-		logger.debug("removing item:{} from collection:{}", basicObject, collection.getName());
+		logger.warn("removing item:{} from collection:{}", basicObject, collection.getName());
 		removeByCriteria(basicObject);
 	}
 	
@@ -191,7 +197,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	 * @param criteria
 	 */
 	public void removeByCriteria(DBObject criteria){
-		logger.debug("removing item(s):{} from collection:{}", criteria, collection.getName());
+		logger.warn("removing item(s):{} from collection:{}", criteria, collection.getName());
 		collection.remove(criteria);
 	}
 	
@@ -216,7 +222,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 	@SuppressWarnings("unchecked")
 	public Id save(T identifiableDocument) {
 		DBObject dbObject = getConverter().from(identifiableDocument).toDocument();
-		logger.debug("inserting an item:{} in collection:{}", dbObject, collection.getName());
+		logger.info("inserting an item:{} in collection:{}", dbObject, collection.getName());
 		collection.save(dbObject);
 		identifiableDocument.setId((Id) dbObject.get("_id"));
 		return (Id) dbObject.get("_id");
@@ -247,7 +253,7 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 
 	
 	public void update(DBObject query, DBObject update) {
-		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {query, update, collection.getName()});		
+		logger.info("updating an item:{} for {} in collection:{}", new Object[] {query, update, collection.getName()});		
 		collection.update(query, update, true, false);
 	}
 	
@@ -266,9 +272,9 @@ public class Monjo<Id, T extends IdentifiableDocument<Id>> {
 		}
 		List list = (List) PropertyUtils.getProperty(identifiableDocument, fieldname);
 		Object innerObject = list.get(0);
-		DBObject dbObject = getConverter().from(identifiableDocument).action(Operation.Update).toDocument();
+		DBObject dbObject = getConverter().from(identifiableDocument).action(Operation.UpdateInnerObject).toDocument();
 		DBObject dbObject2 = ((MonjoConverter<T>) getConverter().setPrefix(fieldname)).getIdDocument(innerObject);
-		logger.debug("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
+		logger.info("updating an item:{} for {} in collection:{}", new Object[] {dbObject2, dbObject, collection.getName()});
 		collection.update(dbObject2, dbObject, true, false);
 		return identifiableDocument.getId();
 
