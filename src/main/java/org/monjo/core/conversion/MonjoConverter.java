@@ -1,8 +1,9 @@
 package org.monjo.core.conversion;
 
-import org.hibernate.cfg.NamingStrategy;
 
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.NamingStrategy;
 
 public interface MonjoConverter<T extends Object> extends ObjectToDocumentConverter<T>,
 		DocumentToObjectConverter<T> {

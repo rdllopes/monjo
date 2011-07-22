@@ -28,9 +28,9 @@ public class PojoBuilder {
 		return complexPojo;
 	}
 
-	public static AnotherPojo createAnotherPojo(User category) {
+	public static AnotherPojo createAnotherPojo(User user) {
 		AnotherPojo another = new AnotherPojo();
-		another.setUser(category);
+		another.setUser(user);
 		another.setDescription("pojo complexo");
 		return another;
 	}

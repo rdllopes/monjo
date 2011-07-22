@@ -22,7 +22,7 @@
  * Boston, MA  02110-1301  USA
  *
  */
-package org.hibernate;
+package contrib.org.hibernate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

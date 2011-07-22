@@ -6,16 +6,16 @@ import static org.junit.Assert.assertThat;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
 import org.bson.types.ObjectId;
-import org.hibernate.cfg.DefaultNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
-import org.monjo.core.conversion.MonjoConverterFactory;
-import org.monjo.core.conversion.ObjectToDocumentConverter;
 import org.monjo.example.SimplePOJO;
 import org.monjo.example.SimplePOJOWithStringId;
 import org.monjo.test.util.MongoDBTest;
 
+
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
 
 public class DefaultObjectToDocumentConverterTest extends MongoDBTest {
 

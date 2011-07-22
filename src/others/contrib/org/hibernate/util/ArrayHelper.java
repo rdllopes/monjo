@@ -22,7 +22,7 @@
  * Boston, MA  02110-1301  USA
  *
  */
-package org.hibernate.util;
+package contrib.org.hibernate.util;
 
 import java.util.Collection;
 import java.util.Iterator;

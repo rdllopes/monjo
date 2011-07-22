@@ -5,15 +5,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
 
-import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.junit.Before;
 import org.junit.Test;
-import org.monjo.core.conversion.MonjoConverterFactory;
-import org.monjo.core.conversion.ObjectToDocumentConverter;
 import org.monjo.example.SimplePOJO;
 import org.monjo.test.util.MongoDBTest;
 
+
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.ImprovedNamingStrategy;
 
 public class ImprovedNamingConverterTest extends MongoDBTest {
 
