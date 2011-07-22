@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.conversion.MonjoConverter;
 import org.monjo.core.conversion.MonjoConverterFactory;
@@ -12,11 +11,14 @@ import org.monjo.document.IdentifiableDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.NamingStrategy;
 
 /**
  * This is a main class of Monjo. It should be used to everyday works such as 

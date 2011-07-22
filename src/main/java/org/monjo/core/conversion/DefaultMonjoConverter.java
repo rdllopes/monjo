@@ -1,12 +1,14 @@
 package org.monjo.core.conversion;
 
 import org.bson.types.ObjectId;
-import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.Operation;
 import org.monjo.document.IdentifiableDocument;
 
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.NamingStrategy;
 
 public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T>{
 	

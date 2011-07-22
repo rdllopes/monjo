@@ -9,16 +9,18 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
-import org.hibernate.cfg.NamingStrategy;
 import org.monjo.core.Operation;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
 import org.monjo.document.DirtFieldsWatcher;
 import org.monjo.document.IdentifiableDocument;
 
+
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+
+import contrib.org.hibernate.cfg.NamingStrategy;
 
 /**
  * Default implementation of <code>ObjectToDocumentConverter</code>.

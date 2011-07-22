@@ -22,12 +22,13 @@
  * Boston, MA  02110-1301  USA
  *
  */
-package org.hibernate.util;
+package contrib.org.hibernate.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+
 
 public final class StringHelper {
 
