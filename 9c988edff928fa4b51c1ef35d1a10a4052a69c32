@@ -1,0 +1,22 @@
+    * Find By Example (find a object using any field, maybe an inner inner inner ... object )
+
+		PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
+		Monjo<ObjectId, PojoWithListInnerObject> monjo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		monjo.removeAll();
+		monjo.insert(createMegaZordePojo);
+		pojo.setId(null);
+		List<Category> categories = pojo.getCategories();
+		Category category = categories.get(0);
+		category.setName(null);
+		PojoWithListInnerObject result = pojongo.findByExample(pojo.toList().get(0);
+
+    * Cursor (select page of selection, sort and so on)
+
+    	List<SimplePOJO> list = monjo.find().limit(5).toList();
+
+     * Update inner Objects
+
+     	 monjo.<Category> updateInnerObject("categories", category, pojo);
+
+    * Does not store Null/Empty values (by default).
+    * GWT support (entities are just POJOs) -- (GWT ignores annotations)
