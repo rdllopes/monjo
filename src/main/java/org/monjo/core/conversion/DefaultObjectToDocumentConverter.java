@@ -247,7 +247,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		case Insert:
 			return getDbList(readMethod, fieldName, collection);
 		case Update:
-			if (collection.size() == 0) {
+			if (collection.isEmpty()) {
 				return getDbList(readMethod, fieldName, collection);
 			}
 			return getDbList(readMethod, fieldName, collection);
@@ -264,7 +264,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			}
 
 		case UpdateWithAddSet:
-			if (collection.size() == 0) {
+			if (collection.isEmpty()) {
 				skip = true;
 				return null;
 			}
