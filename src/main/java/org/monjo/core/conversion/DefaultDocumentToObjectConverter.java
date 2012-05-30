@@ -30,7 +30,6 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentToObjectConverter.class);
 
-	// private final Mirror mirror;
 	private DBObject document;
 	private NamingStrategy namingStrategy;
 
@@ -93,7 +92,7 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object getFieldValue(String field, PropertyDescriptor property) throws ClassNotFoundException {
-		Object fieldValue = null;				
+		Object fieldValue = null;
 		if ("id".equals(field)) {
 			fieldValue = document.get("_id");
 		} else {
@@ -101,15 +100,15 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 				fieldValue = document.get(field);
 				if (fieldValue instanceof BasicDBObject) {
 					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-					
+
 					Class<?> innerEntityClass = null;
 					if (basicDBObject.get("_ref") != null) {
 						innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
 					} else {
 						innerEntityClass = property.getPropertyType();
 					}
-					
-					if (Arrays.asList(innerEntityClass.getInterfaces()).contains(Map.class)) { // it's a map!
+
+					if (innerEntityClass.equals(Map.class) || Arrays.asList(innerEntityClass.getInterfaces()).contains(Map.class)) { // it's a map!
 						HashMap newMap = new HashMap();
 						for (Object key : ((BasicDBObject) fieldValue).keySet()) {
 							Object object = ((BasicDBObject) fieldValue).get(key);
@@ -134,14 +133,14 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 							Class<?> innerEntityClass = Class.forName((String) dbObject.get("_ref"));
 							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
 							newList.add(converter.from(dbObject).to());
-						} else {							
+						} else {
 							newList.add(ConvertUtils.convert(object, type));
 						}
 					}
 					fieldValue = newList;
-					
+
 				}
-				fieldValue = applyConverters(property, fieldValue);						
+				fieldValue = applyConverters(property, fieldValue);
 			}
 		}
 		return fieldValue;
