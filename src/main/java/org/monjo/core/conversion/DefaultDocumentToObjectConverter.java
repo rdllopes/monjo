@@ -4,14 +4,16 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.monjo.core.annotations.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -75,7 +77,7 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 				Object fieldValue = getFieldValue(field, property);
 				Method writeMethod = property.getWriteMethod();
 				if (writeMethod == null) {
-					throw new RuntimeException("Tentativa de acessar propriedade somente para leitura");
+					throw new RuntimeException("Tried to access read-only property");
 				}
 				writeMethod.invoke(instance, fieldValue);
 			} catch (RuntimeException e) {
@@ -89,6 +91,7 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 		return instance;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object getFieldValue(String field, PropertyDescriptor property) throws ClassNotFoundException {
 		Object fieldValue = null;				
 		if ("id".equals(field)) {
@@ -98,9 +101,25 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 				fieldValue = document.get(field);
 				if (fieldValue instanceof BasicDBObject) {
 					BasicDBObject basicDBObject = (BasicDBObject) fieldValue;
-					Class<?> innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
-					DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
-					fieldValue = converter.from(basicDBObject).to();
+					
+					Class<?> innerEntityClass = null;
+					if (basicDBObject.get("_ref") != null) {
+						innerEntityClass = Class.forName((String) basicDBObject.get("_ref"));
+					} else {
+						innerEntityClass = property.getPropertyType();
+					}
+					
+					if (Arrays.asList(innerEntityClass.getInterfaces()).contains(Map.class)) { // it's a map!
+						HashMap newMap = new HashMap();
+						for (Object key : ((BasicDBObject) fieldValue).keySet()) {
+							Object object = ((BasicDBObject) fieldValue).get(key);
+							newMap.put(key, object);
+						}
+						fieldValue = newMap;
+					} else {
+						DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
+						fieldValue = converter.from(basicDBObject).to();
+					}
 				}
 				if (fieldValue instanceof List) {
 					// Covariant problem

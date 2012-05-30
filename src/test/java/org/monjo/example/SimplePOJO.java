@@ -1,5 +1,7 @@
 package org.monjo.example;
 
+import java.util.HashMap;
+
 import org.bson.types.ObjectId;
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.annotations.Transient;
@@ -18,6 +20,8 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 	private String anotherField;
 
 	private String aTransientField;
+
+	private HashMap<String, String> aMapField;
 
 	private ObjectId id;
 
@@ -127,6 +131,14 @@ public class SimplePOJO implements IdentifiableDocument<ObjectId> {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	public HashMap<String, String> getaMapField() {
+		return aMapField;
+	}
+
+	public void setaMapField(HashMap<String, String> aMapField) {
+		this.aMapField = aMapField;
 	}
 
 }
