@@ -1,5 +1,3 @@
-defaultTasks 'clean', 'jar'
-
 apply plugin: "java"
 apply plugin: "eclipse-wtp"
 
@@ -26,3 +24,5 @@ dependencies {
 	testCompile "org.hamcrest:hamcrest-all:1.3"
 	testCompile "junit:junit:4.11"
 }
+
+defaultTasks 'clean', 'jar'
