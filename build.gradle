@@ -1,0 +1,28 @@
+defaultTasks 'clean', 'jar'
+
+apply plugin: "java"
+apply plugin: "eclipse-wtp"
+
+archivesBaseName = "monjo-0.1.1"
+sourceCompatibility = "1.6"
+targetCompatibility = "1.6"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "http://eaio.com/maven2"
+    }
+}
+
+sourceSets.main.java.srcDirs = ["src/main/java", "src/others"]
+
+dependencies {
+	compile "org.mongodb:mongo-java-driver:2.7.3"
+	compile "org.slf4j:slf4j-api:1.7.2"
+	compile "cglib:cglib:2.2.2"
+	compile "commons-beanutils:commons-beanutils:1.8.3"
+	testCompile "org.mockito:mockito-all:1.9.5"
+	testCompile "org.hamcrest:hamcrest-all:1.3"
+	testCompile "junit:junit:4.11"
+}
