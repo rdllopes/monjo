@@ -17,7 +17,7 @@ sourceSets.main.java.srcDirs = ["src/main/java", "src/others"]
 
 dependencies {
 	compile "org.mongodb:mongo-java-driver:2.7.3"
-	compile "org.slf4jlf4j-api:1.7.2"
+	compile "org.slf4j:slf4j-api:1.7.2"
 	compile "cglib:cglib:2.2.2"
 	compile "commons-beanutils:commons-beanutils:1.8.3"
 	compile "org.aspectj:aspectjtools:1.7.2"
