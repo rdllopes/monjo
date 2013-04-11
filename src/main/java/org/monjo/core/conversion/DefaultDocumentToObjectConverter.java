@@ -93,7 +93,7 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object getFieldValue(String field, PropertyDescriptor property) throws ClassNotFoundException {
 		Object fieldValue = null;
-		if ("id".equals(field)) {
+		if ("id".equals(field) && document.get("id") == null) {
 			fieldValue = document.get("_id");
 		} else {
 			if (document.containsField(field)) {
