@@ -1,5 +1,7 @@
 # Monjo!
 
+[![Build Status](https://travis-ci.org/rdllopes/monjo.png?branch=master)](https://travis-ci.org/rdllopes/monjo)
+
 Monjo is a lightweight type-safe library for mapping Java objects to/from MongoDB:
 
 * Easy to use, and very lightweight
