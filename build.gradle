@@ -2,8 +2,8 @@ apply plugin: "java"
 apply plugin: "eclipse"
 
 archivesBaseName = "monjo-0.1.1"
-sourceCompatibility = "1.5"
-targetCompatibility = "1.5"
+sourceCompatibility = "1.6"
+targetCompatibility = "1.6"
 
 repositories {
     mavenCentral()
