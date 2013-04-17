@@ -1,13 +1,14 @@
 package org.monjo.example;
 
 import org.monjo.core.annotations.Entity;
+import org.monjo.core.annotations.Id;
 import org.monjo.document.IdentifiableDocument;
 
 @Entity
-public class IntegerId implements IdentifiableDocument<Integer>{
-	
+public class IntegerId implements IdentifiableDocument<Integer> {
+
 	private Integer id;
-	
+
 	private String name;
 
 	public String getName() {
@@ -18,14 +19,14 @@ public class IntegerId implements IdentifiableDocument<Integer>{
 		this.name = name;
 	}
 
-	@Override
+	@Id
 	public Integer getId() {
 		return id;
 	}
 
-	@Override
+	@Id
 	public void setId(Integer id) {
-		this.id = id;		
+		this.id = id;
 	}
 
 }

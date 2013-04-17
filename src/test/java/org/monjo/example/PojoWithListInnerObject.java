@@ -3,8 +3,13 @@ package org.monjo.example;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.types.ObjectId;
+import org.monjo.core.annotations.Id;
+
 public class PojoWithListInnerObject extends AbstractObject {
-	private List<Category>  categories;
+
+	private ObjectId id;
+	private List<Category> categories;
 
 	public List<Category> getCategories() {
 		return categories;
@@ -19,6 +24,16 @@ public class PojoWithListInnerObject extends AbstractObject {
 			categories = new ArrayList<Category>();
 		}
 		categories.add(category);
+	}
+
+	@Id
+	public ObjectId getId() {
+		return id;
+	}
+
+	@Id
+	public void setId(ObjectId id) {
+		this.id = id;
 	}
 
 }

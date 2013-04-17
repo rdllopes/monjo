@@ -37,9 +37,6 @@ public interface ObjectToDocumentConverter<T extends Object> {
 	 * For each attribute found, if its value is not <code>null</code>, then that value is populated<br />
 	 * into a field with the exact same name in the <code>DBObject</code> instance.<br /><br />
 	 * 
-	 * An important thing to mention is that if an attribute named <code>id</code> is found in <code>object</code>,<br />
-	 * then its value is populated into the corresponding special <code>_id</code> field in MongoDB's <code>DBObject</code>.
-	 * 
 	 * @return an instance of <code>DBObject</code> populated with corresponding values from the specified <code>object</code>.
 	 * @throws IllegalStateException if <code>toDocument()</code> is called without calling <code>from(Object)</code> first.
 	 */

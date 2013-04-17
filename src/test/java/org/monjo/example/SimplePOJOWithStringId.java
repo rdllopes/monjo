@@ -1,24 +1,25 @@
 package org.monjo.example;
 
 import org.monjo.core.annotations.Entity;
+import org.monjo.core.annotations.Id;
 import org.monjo.document.IdentifiableDocument;
 
 @Entity
 public class SimplePOJOWithStringId implements IdentifiableDocument<String> {
-	
+
 	private String id;
-	
+
 	public SimplePOJOWithStringId() {
 	}
 
-	@Override
+	@Id
 	public String getId() {
 		return id;
 	}
 
-	@Override
+	@Id
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+
 }

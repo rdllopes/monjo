@@ -2,6 +2,7 @@ package org.monjo.example;
 
 import org.bson.types.ObjectId;
 import org.monjo.core.annotations.Entity;
+import org.monjo.core.annotations.Id;
 import org.monjo.core.annotations.Transient;
 import org.monjo.document.IdentifiableDocument;
 
@@ -36,12 +37,12 @@ public class Example implements IdentifiableDocument<ObjectId> {
 		this.someValue = someValue;
 	}
 
-	@Override
+	@Id
 	public ObjectId getId() {
 		return id;
 	}
 	
-	@Override
+	@Id
 	public void setId(ObjectId id) {
 		this.id = id;
 		

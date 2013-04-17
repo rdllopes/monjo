@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.monjo.core.annotations.Id;
 import org.monjo.core.annotations.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,7 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object getFieldValue(String field, PropertyDescriptor property) throws ClassNotFoundException {
 		Object fieldValue = null;
-		if ("id".equals(field) && document.get("id") == null) {
+		if (property.getReadMethod().isAnnotationPresent(Id.class)) {
 			fieldValue = document.get("_id");
 		} else {
 			if (document.containsField(field)) {

@@ -122,7 +122,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 					IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
 					// TODO retirar essa bomba relogio daqui (veja
 					// literatura sobre type erasure)
-					identifiableDocument.setId(objectId);
+					AnnotatedDocumentId.set(identifiableDocument, objectId);
 				}
 				fieldValue = objectId;
 			}
@@ -258,7 +258,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			Object uniqueElement = collection.toArray()[0];
 			if (uniqueElement instanceof IdentifiableDocument<?>) {
 				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) uniqueElement;
-				if (identifiableDocument.getId() != null) {
+				if (AnnotatedDocumentId.get(identifiableDocument) != null) {
 					return updateInnerObject(identifiableDocument, fieldName);
 				}
 			}
@@ -295,7 +295,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	private void verifyNullIds(Object[] elements) {
 		for (int i = 0; i < elements.length; i++) {
 			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) elements[i];
-			if (identifiable.getId() != null) {
+			if (AnnotatedDocumentId.get(identifiable) != null) {
 				throw new IllegalArgumentException("Any inner Object is IdentifiableDocument should not have non-null id for update actions");
 			}
 		}
@@ -321,7 +321,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		if (readMethod.isAnnotationPresent(Reference.class)) {
 			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
 			innerBasicDBObject = new BasicDBObject();
-			innerBasicDBObject.put("_id", identifiable.getId());
+			innerBasicDBObject.put("_id", AnnotatedDocumentId.get(identifiable));
 			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 		} else {
 			if (operation.equals(Operation.Search)) {

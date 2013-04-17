@@ -13,16 +13,4 @@ package org.monjo.document;
  */
 public interface IdentifiableDocument<T> {
 	
-	/**
-	 * Returns the document id.
-	 * @return the document id.
-	 */
-	public T getId();
-	
-	/**
-	 * Modifier for property id
-	 * @param id
-	 */
-	public void setId(T id);
-
 }

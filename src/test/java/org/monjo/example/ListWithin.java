@@ -5,26 +5,27 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.monjo.core.annotations.Entity;
+import org.monjo.core.annotations.Id;
 import org.monjo.document.IdentifiableDocument;
 
 @Entity
-public class ListWithin implements IdentifiableDocument<ObjectId>{
-	
+public class ListWithin implements IdentifiableDocument<ObjectId> {
+
 	public ListWithin() {
 	}
-	
+
 	private ObjectId id;
-	
+
 	private List<String> names;
-	
+
 	private List<Integer> groups;
 
-	@Override
+	@Id
 	public ObjectId getId() {
 		return id;
 	}
 
-	@Override
+	@Id
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
@@ -35,7 +36,7 @@ public class ListWithin implements IdentifiableDocument<ObjectId>{
 
 	public void setNames(List<String> names) {
 		this.names = names;
-	}	
+	}
 
 	public List<Integer> getGroups() {
 		return groups;
@@ -46,17 +47,17 @@ public class ListWithin implements IdentifiableDocument<ObjectId>{
 	}
 
 	public void addName(int i) {
-		if (names == null){
+		if (names == null) {
 			names = new ArrayList<String>();
 		}
 		names.add(Integer.toString(i));
 	}
-	
+
 	public void addGroup(int i) {
-		if (groups == null){
+		if (groups == null) {
 			groups = new ArrayList<Integer>();
 		}
 		groups.add(i);
 	}
-	
+
 }

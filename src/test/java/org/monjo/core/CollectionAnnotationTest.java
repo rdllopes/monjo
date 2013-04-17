@@ -24,17 +24,6 @@ public class CollectionAnnotationTest {
 
 	@Entity("another_collection")
 	public static class SimplePojoAnnotated implements IdentifiableDocument<ObjectId>{
-		private ObjectId objectId;
-
-		@Override
-		public ObjectId getId() {
-			return objectId;
-		}
-
-		@Override
-		public void setId(ObjectId id) {
-			this.objectId = id;
-		}
 		
 	}
 
