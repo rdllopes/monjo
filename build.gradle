@@ -2,7 +2,7 @@ apply plugin: "java"
 apply plugin: 'maven'
 apply plugin: "eclipse"
 
-archivesBaseName = "monjo-0.1.1"
+archivesBaseName = "monjo-0.1.2"
 sourceCompatibility = "1.6"
 targetCompatibility = "1.6"
 
@@ -32,7 +32,7 @@ install {
     repositories.mavenInstaller {
     	pom.groupId = 'org.monjo'
         pom.artifactId = 'monjo'
-        pom.version = '0.1.1'
+        pom.version = '0.1.2'
     }
 }
 
