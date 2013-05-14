@@ -131,7 +131,13 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 					for (Object object : list) {
 						if (object instanceof DBObject) {
 							DBObject dbObject = (DBObject) object;
-							Class<?> innerEntityClass = Class.forName((String) dbObject.get("_ref"));
+							Class<?> innerEntityClass = type;
+							String fieldClassName = (String) dbObject.get("_ref");
+							if (fieldClassName != null && !"".equals(fieldClassName)) {
+								innerEntityClass = Class.forName((String) fieldClassName);
+							} else {
+								logger.warn("Collection does not have _ref field, using getter class instead.");
+							}
 							DefaultDocumentToObjectConverter converter = new DefaultDocumentToObjectConverter(namingStrategy, innerEntityClass);
 							newList.add(converter.from(dbObject).to());
 						} else {
