@@ -23,7 +23,7 @@ public class CollectionAnnotationTest {
 	
 
 	@Entity("another_collection")
-	public static class SimplePojoAnnotated implements IdentifiableDocument<ObjectId>{
+	public static class SimplePojoAnnotated {
 		
 	}
 

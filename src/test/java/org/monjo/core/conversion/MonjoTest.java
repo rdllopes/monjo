@@ -38,15 +38,15 @@ public class MonjoTest extends MongoDBTest{
 	@Test
 	public void deveriaAtualizarElemento(){
 		SimplePOJO pojo = PojoBuilder.createSimplePojo();		
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
-		pojongo.removeAll();
-		ObjectId objectId = pojongo.save(pojo);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		monjo.removeAll();
+		ObjectId objectId = monjo.save(pojo);
 
 		pojo = new SimplePOJO();
 		pojo.setaDoubleField(45.0);
 		pojo.setId(objectId);
 		
-		pojongo.save(pojo);
+		monjo.save(pojo);
 		DBObject document = getMonjoCollection().findOne(new BasicDBObject("_id", objectId));
 
 		// yes, yes. If you have used save all data will be erased!  
@@ -65,9 +65,9 @@ public class MonjoTest extends MongoDBTest{
 	public void testEnumTypes() throws Exception {
 		SimplePOJO simplePOJO = new SimplePOJO();
 		simplePOJO.setStatus(Status.NEW);
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
-		pojongo.insert(simplePOJO);
-		SimplePOJO simplePOJO2 = pojongo.findOne(simplePOJO.getId());
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		monjo.insert(simplePOJO);
+		SimplePOJO simplePOJO2 = monjo.findOne(simplePOJO.getId());
 		assertEquals(simplePOJO.getStatus(),simplePOJO2.getStatus());
 		
 	}
@@ -76,10 +76,10 @@ public class MonjoTest extends MongoDBTest{
 	@Test
 	public void shouldFindBySimpleExample() {
 		SimplePOJO simplePOJO = PojoBuilder.createSimplePojo();
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
-		pojongo.removeAll();
-		pojongo.insert(simplePOJO);
-		SimplePOJO result = pojongo.findByExample(simplePOJO).toList().get(0);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		monjo.removeAll();
+		monjo.insert(simplePOJO);
+		SimplePOJO result = monjo.findByExample(simplePOJO).toList().get(0);
 		assertNotNull(result.getId());		
 	}
 	

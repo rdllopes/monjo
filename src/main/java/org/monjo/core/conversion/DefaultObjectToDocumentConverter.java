@@ -13,8 +13,7 @@ import org.monjo.core.Operation;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
 import org.monjo.document.DirtFieldsWatcher;
-import org.monjo.document.IdentifiableDocument;
-
+import static org.monjo.core.conversion.ConverterUtils.isEntity;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -118,11 +117,10 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			if (fieldValue == null && "id".equals(fieldName) && operation.equals(Operation.Insert)) {
 				ObjectId objectId = new ObjectId();
 				// trocar por annotation
-				if (javaObject instanceof IdentifiableDocument) {
-					IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
+				if (isEntity(javaObject)) {
 					// TODO retirar essa bomba relogio daqui (veja
 					// literatura sobre type erasure)
-					AnnotatedDocumentId.set(identifiableDocument, objectId);
+					AnnotatedDocumentId.set(javaObject, objectId);
 				}
 				fieldValue = objectId;
 			}
@@ -222,8 +220,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		} else if (fieldValue instanceof Collection) {
 			Collection<?> collection = (Collection<?>) fieldValue;
 			fieldValue = processFieldCollection(readMethod, fieldName, collection);
-		} else if (fieldValue instanceof IdentifiableDocument) {
-			fieldValue = processFieldIdentifiable(readMethod, fieldValue, fieldName);
+		} else if (isEntity(fieldValue)) {
+			fieldValue = processEntity(readMethod, fieldValue, fieldName);
 		} else if (!(fieldValue instanceof Serializable)) {
 			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
 			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
@@ -256,10 +254,9 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 				throw new IllegalArgumentException("It is not possible update multiples collection, using positional operator.");
 			}
 			Object uniqueElement = collection.toArray()[0];
-			if (uniqueElement instanceof IdentifiableDocument<?>) {
-				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) uniqueElement;
-				if (AnnotatedDocumentId.get(identifiableDocument) != null) {
-					return updateInnerObject(identifiableDocument, fieldName);
+			if (isEntity(uniqueElement)) {
+				if (AnnotatedDocumentId.get(uniqueElement) != null) {
+					return updateInnerObject(uniqueElement, fieldName);
 				}
 			}
 
@@ -270,7 +267,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			}
 			Object[] elements = collection.toArray();
 			Object firstElement = elements[0];
-			if (firstElement instanceof IdentifiableDocument<?>) {
+			if (isEntity(firstElement)) {
 				verifyNullIds(elements);
 			}
 			if (collection.size() == 1) {
@@ -294,9 +291,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 
 	private void verifyNullIds(Object[] elements) {
 		for (int i = 0; i < elements.length; i++) {
-			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) elements[i];
-			if (AnnotatedDocumentId.get(identifiable) != null) {
-				throw new IllegalArgumentException("Any inner Object is IdentifiableDocument should not have non-null id for update actions");
+			if (AnnotatedDocumentId.get( elements[i]) != null) {
+				throw new IllegalArgumentException("Any inner Entity should not have non-null id for update actions");
 			}
 		}
 	}
@@ -316,12 +312,11 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return dbList;
 	}
 
-	private Object processFieldIdentifiable(Method readMethod, Object element, String fieldName) {
+	private Object processEntity(Method readMethod, Object element, String fieldName) {
 		DBObject innerBasicDBObject;
 		if (readMethod.isAnnotationPresent(Reference.class)) {
-			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
 			innerBasicDBObject = new BasicDBObject();
-			innerBasicDBObject.put("_id", AnnotatedDocumentId.get(identifiable));
+			innerBasicDBObject.put("_id", AnnotatedDocumentId.get(element));
 			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 		} else {
 			if (operation.equals(Operation.Search)) {
@@ -342,7 +337,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return null;
 	}
 
-	private DBObject updateInnerObject(IdentifiableDocument<?> element, String fieldName) {
+	private DBObject updateInnerObject(Object element, String fieldName) {
 		skip = true;
 		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
 		converter.from(element).setPrefix(fieldName + ".$.").toDocument(setUpdate);

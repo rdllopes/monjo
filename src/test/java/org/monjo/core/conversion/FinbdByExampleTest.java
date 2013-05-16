@@ -44,9 +44,9 @@ public class FinbdByExampleTest extends MongoDBTest {
 	@Test
 	public void shouldFindByExampleSoSo() {
 		PojoWithListInnerObject createMegaZordePojo = PojoBuilder.createMegaZordePojo();
-		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
-		pojongo.removeAll();
-		pojongo.insert(createMegaZordePojo);
+		Monjo<ObjectId, PojoWithListInnerObject> monjo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		monjo.removeAll();
+		monjo.insert(createMegaZordePojo);
 
 		List<Category> categories = createMegaZordePojo.getCategories();
 
@@ -56,16 +56,16 @@ public class FinbdByExampleTest extends MongoDBTest {
 		createMegaZordePojo.addCategory(findCategory);
 
 		
-		PojoWithListInnerObject result = pojongo.findByExample(createMegaZordePojo).toList().get(0);
+		PojoWithListInnerObject result = monjo.findByExample(createMegaZordePojo).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());
 	}
 
 	@Test
 	public void shouldFindByExampleSoSoWithProxy() {
 		PojoWithListInnerObject createMegaZordePojo = PojoBuilder.createMegaZordePojo();
-		Monjo<ObjectId, PojoWithListInnerObject> pojongo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
-		pojongo.removeAll();
-		pojongo.insert(createMegaZordePojo);
+		Monjo<ObjectId, PojoWithListInnerObject> monjo = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(), PojoWithListInnerObject.class);
+		monjo.removeAll();
+		monjo.insert(createMegaZordePojo);
 		
 		List<Category> categories = createMegaZordePojo.getCategories();
 		createMegaZordePojo = new PojoWithListInnerObject();
@@ -76,7 +76,7 @@ public class FinbdByExampleTest extends MongoDBTest {
 		
 		PojoWithListInnerObject megaZordProxified = DirtWatcherProxifier.proxify(new PojoWithListInnerObject());
 		megaZordProxified.setCategories(list);
-		PojoWithListInnerObject result = pojongo.findByExample(megaZordProxified).toList().get(0);
+		PojoWithListInnerObject result = monjo.findByExample(megaZordProxified).toList().get(0);
 		assertNotNull(result.getCategories().get(0).getId());
 	}
 

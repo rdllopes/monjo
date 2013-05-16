@@ -37,9 +37,9 @@ public class ComplexSaveTest extends MongoDBTest{
 		pojo.addName(42);
 		pojo.addName(43);
 		
-		Monjo<ObjectId, ListWithin> pojongo = new Monjo<ObjectId, ListWithin>(getMongoDB(), ListWithin.class);
-		ObjectId objectId = pojongo.save(pojo);
-		ListWithin listWithin = pojongo.findOne(objectId);
+		Monjo<ObjectId, ListWithin> monjo = new Monjo<ObjectId, ListWithin>(getMongoDB(), ListWithin.class);
+		ObjectId objectId = monjo.save(pojo);
+		ListWithin listWithin = monjo.findOne(objectId);
 		List<String> strings = listWithin.getNames();
 		Assert.assertTrue(strings.contains("42"));
 		Assert.assertTrue(strings.contains("43"));
@@ -51,9 +51,9 @@ public class ComplexSaveTest extends MongoDBTest{
 		pojo.addGroup(10);
 		pojo.addGroup(20);
 		
-		Monjo<ObjectId, ListWithin> pojongo = new Monjo<ObjectId, ListWithin>(getMongoDB(), ListWithin.class);
-		ObjectId objectId = pojongo.save(pojo);
-		ListWithin listWithin = pojongo.findOne(objectId);
+		Monjo<ObjectId, ListWithin> monjo = new Monjo<ObjectId, ListWithin>(getMongoDB(), ListWithin.class);
+		ObjectId objectId = monjo.save(pojo);
+		ListWithin listWithin = monjo.findOne(objectId);
 		List<Integer> integers = listWithin.getGroups();
 		Assert.assertTrue(integers.contains(10));
 		Assert.assertTrue(integers.contains(20));
@@ -62,44 +62,44 @@ public class ComplexSaveTest extends MongoDBTest{
 	@Test
 	public void shouldNotUseRef() throws Exception {
 		PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
-		Monjo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
+		Monjo<ObjectId, PojoWithListInnerObject> monjoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
 				PojoWithListInnerObject.class);
 
-		pojongoComplex.removeAll();
-		pojongoComplex.insert(pojo);
+		monjoComplex.removeAll();
+		monjoComplex.insert(pojo);
 		assertNotNull(pojo.getCategories().get(0).getId());
 		
-		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
-		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
+		MonjoCursor<PojoWithListInnerObject> monjoCursor = monjoComplex.find();
+		PojoWithListInnerObject complex = monjoCursor.toList().get(0);
 		assertNotNull(complex.getCategories().get(0).getId());
 	}
 
 	@Test
 	public void shouldAddNewCategory() throws Exception {
 		PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
-		Monjo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
+		Monjo<ObjectId, PojoWithListInnerObject> monjoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
 				PojoWithListInnerObject.class);
-		pojongoComplex.removeAll();
+		monjoComplex.removeAll();
 		
-		pojongoComplex.insert(pojo);
+		monjoComplex.insert(pojo);
 		Category otherCategory = new Category();
 		otherCategory.setName("Other Category");
 		pojo.addCategory(otherCategory);
 		
-		pojongoComplex.update(pojo);		
-		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
-		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
+		monjoComplex.update(pojo);		
+		MonjoCursor<PojoWithListInnerObject> monjoCursor = monjoComplex.find();
+		PojoWithListInnerObject complex = monjoCursor.toList().get(0);
 		assertEquals(2, complex.getCategories().size());
 	}
 
 	@Test
 	public void shouldAddNewCategoryButIHaveOnlyAnId() throws Exception {
 		PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
-		Monjo<ObjectId, PojoWithListInnerObject> pojongoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
+		Monjo<ObjectId, PojoWithListInnerObject> monjoComplex = new Monjo<ObjectId, PojoWithListInnerObject>(getMongoDB(),
 				PojoWithListInnerObject.class);
-		pojongoComplex.removeAll();
+		monjoComplex.removeAll();
 		
-		pojongoComplex.insert(pojo);
+		monjoComplex.insert(pojo);
 		
 		PojoWithListInnerObject anotherPojo  = new PojoWithListInnerObject();
 		anotherPojo.setId(pojo.getId());
@@ -107,10 +107,10 @@ public class ComplexSaveTest extends MongoDBTest{
 		otherCategory.setName("Other Category");
 		anotherPojo.addCategory(otherCategory);
 		
-		pojongoComplex.updateWithAddSet(anotherPojo);
+		monjoComplex.updateWithAddSet(anotherPojo);
 		
-		MonjoCursor<PojoWithListInnerObject> pojongoCursor = pojongoComplex.find();
-		PojoWithListInnerObject complex = pojongoCursor.toList().get(0);
+		MonjoCursor<PojoWithListInnerObject> monjoCursor = monjoComplex.find();
+		PojoWithListInnerObject complex = monjoCursor.toList().get(0);
 		assertEquals(2, complex.getCategories().size());
 	}
 
@@ -123,14 +123,14 @@ public class ComplexSaveTest extends MongoDBTest{
 
 		AnotherPojo anotherPojo = PojoBuilder.createAnotherPojo(user);
 		
-		Monjo<ObjectId, AnotherPojo> pojongoComplex = new Monjo<ObjectId, AnotherPojo>(getMongoDB(), AnotherPojo.class);
+		Monjo<ObjectId, AnotherPojo> monjoComplex = new Monjo<ObjectId, AnotherPojo>(getMongoDB(), AnotherPojo.class);
 
-		pojongoComplex.removeAll();
+		monjoComplex.removeAll();
 
-		pojongoComplex.insert(anotherPojo);
+		monjoComplex.insert(anotherPojo);
 		
-		MonjoCursor<AnotherPojo> pojongoCursor = pojongoComplex.find();
-		AnotherPojo anotherPojo2 = pojongoCursor.toList().get(0);
+		MonjoCursor<AnotherPojo> monjoCursor = monjoComplex.find();
+		AnotherPojo anotherPojo2 = monjoCursor.toList().get(0);
 		assertEquals("NewCategory", anotherPojo2.getUser().getName());
 	}
 	
@@ -141,20 +141,20 @@ public class ComplexSaveTest extends MongoDBTest{
 		
 		Category category = new Category();
 		category.setName("NewCategory");
-		Monjo<ObjectId, Category> pojongoCategory = new Monjo<ObjectId, Category>(getMongoDB(), Category.class);
-		pojongoCategory.insert(category);
+		Monjo<ObjectId, Category> monjoCategory = new Monjo<ObjectId, Category>(getMongoDB(), Category.class);
+		monjoCategory.insert(category);
 
 		ComplexPojo complexPojo = PojoBuilder.createComplexPojo(category);
 //		complexPojo.setCategories(categories);
-		Monjo<ObjectId, ComplexPojo> pojongoComplex = new Monjo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
+		Monjo<ObjectId, ComplexPojo> monjoComplex = new Monjo<ObjectId, ComplexPojo>(getMongoDB(), ComplexPojo.class);
 
-		pojongoComplex.removeAll();
-		pojongoCategory.removeAll();
+		monjoComplex.removeAll();
+		monjoCategory.removeAll();
 
-		pojongoComplex.insert(complexPojo);
+		monjoComplex.insert(complexPojo);
 		
-		MonjoCursor<ComplexPojo> pojongoCursor = pojongoComplex.find();
-		ComplexPojo complex = pojongoCursor.toList().get(0);
+		MonjoCursor<ComplexPojo> monjoCursor = monjoComplex.find();
+		ComplexPojo complex = monjoCursor.toList().get(0);
 		assertEquals(category.getId(), complex.getCategory().getId());
 	//	assertEquals(category.getId(), complex.getCategories().get(0).getId());
 		

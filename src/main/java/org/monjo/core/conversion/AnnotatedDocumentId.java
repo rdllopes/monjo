@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FIXME isso é PRÉ-ALPHA!!!!
  * 
  * @author marcos
  * 

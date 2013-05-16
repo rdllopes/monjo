@@ -1,7 +1,6 @@
 package org.monjo.core;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -9,7 +8,6 @@ import org.monjo.core.annotations.Entity;
 import org.monjo.core.conversion.AnnotatedDocumentId;
 import org.monjo.core.conversion.MonjoConverter;
 import org.monjo.core.conversion.MonjoConverterFactory;
-import org.monjo.document.IdentifiableDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +27,7 @@ import contrib.org.hibernate.cfg.NamingStrategy;
  * @author Rodrigo di Lorenzo Lopes
  * 
  */
-public class Monjo<DocumentId, T extends IdentifiableDocument<DocumentId>> {
+public class Monjo<DocumentId, T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Monjo.class);
 	private Class<T> clasz;
@@ -123,7 +121,7 @@ public class Monjo<DocumentId, T extends IdentifiableDocument<DocumentId>> {
 	 *         c.getId()
 	 * @throws Exception
 	 */
-	public T findOne(T c) {
+	public T findOneByExample(T c) {
 		return findOne((DocumentId)AnnotatedDocumentId.get(c));
 	}
 

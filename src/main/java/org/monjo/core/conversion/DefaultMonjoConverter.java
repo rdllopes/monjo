@@ -1,11 +1,8 @@
 package org.monjo.core.conversion;
 
-import java.lang.reflect.Method;
-
-import org.bson.types.ObjectId;
 import org.monjo.core.Operation;
-import org.monjo.core.annotations.Id;
-import org.monjo.document.IdentifiableDocument;
+import static org.monjo.core.conversion.ConverterUtils.isEntity;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +54,9 @@ public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T
 	@Override
 	@SuppressWarnings("unchecked")
 	public DBObject getIdDocument(Object object) {
-		if (object instanceof IdentifiableDocument) {
-			@SuppressWarnings("rawtypes")
-			IdentifiableDocument document = (IdentifiableDocument<Object>) object;
+		if (isEntity(object)) {
 			DBObject dbObject = new BasicDBObject();
-			dbObject.put((prefix == null) ? "_id" : prefix + "._id", AnnotatedDocumentId.get(document));
+			dbObject.put((prefix == null) ? "_id" : prefix + "._id", AnnotatedDocumentId.get(object));
 			return dbObject;
 		}
 		return null;

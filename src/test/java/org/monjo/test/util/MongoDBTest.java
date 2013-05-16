@@ -20,7 +20,7 @@ public class MongoDBTest {
 	@BeforeClass
 	public static void connectToMongo() throws Exception {
 		mongo = new Mongo();		
-		mongoDB = mongo.getDB("pojongoTest");
+		mongoDB = mongo.getDB("monjoTest");
 		monjoCollection = mongoDB.getCollection("SimplePOJO");
 	}
 

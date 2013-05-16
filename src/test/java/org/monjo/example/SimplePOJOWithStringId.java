@@ -2,10 +2,9 @@ package org.monjo.example;
 
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.annotations.Id;
-import org.monjo.document.IdentifiableDocument;
 
 @Entity
-public class SimplePOJOWithStringId implements IdentifiableDocument<String> {
+public class SimplePOJOWithStringId  {
 
 	private String id;
 

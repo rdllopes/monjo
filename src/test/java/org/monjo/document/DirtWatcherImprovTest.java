@@ -29,8 +29,8 @@ public class DirtWatcherImprovTest extends MongoDBTest {
 	@Test
 	public void shouldUpdateSomeNullFields() throws Exception {
 		SimplePOJO pojo = SimplePojoTest.createSimplePojo();
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
-		ObjectId objectId = pojongo.save(pojo);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = monjo.save(pojo);
 
 		SimplePOJO newPojo = new SimplePOJO();
 		SimplePOJO pojo2 = DirtWatcherProxifier.proxify(newPojo);
@@ -38,9 +38,9 @@ public class DirtWatcherImprovTest extends MongoDBTest {
 		pojo2.setaLongField(42l);
 		pojo2.setAnIntegerField(null);
 		pojo2.setId(objectId);
-		pojongo.update(pojo2);
+		monjo.update(pojo2);
 		
-		SimplePOJO dbPojo = pojongo.findOne(objectId);
+		SimplePOJO dbPojo = monjo.findOne(objectId);
 		assertNull(dbPojo.getAnIntegerField());
 		assertEquals(new Long(42l), dbPojo.getaLongField());
 	}
