@@ -1,6 +1,7 @@
 package org.monjo.core.conversion;
 
 import static org.junit.Assert.assertEquals;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
 
 import java.util.List;
 
@@ -24,10 +25,12 @@ public class MonjoCursorTest extends MongoDBTest {
 		MonjoConverterFactory.getInstance().configure(new DefaultNamingStrategy());
 		ConvertUtils.register(new StatusConverter(), Status.class);
 	}
+		
 
 	@Test
 	public void deveriaLimitarResultados() throws Exception {
 		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		monjo.removeAll();
 		insertPojoCollection(monjo);
 		List<SimplePOJO> list = monjo.find().limit(5).toList();
 		assertEquals(5, list.size());
@@ -47,6 +50,7 @@ public class MonjoCursorTest extends MongoDBTest {
 	@Test
 	public void deveriaComecarNoQuintoResultado() throws Exception {
 		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		monjo.removeAll();
 		insertPojoCollection(monjo);
 		List<SimplePOJO> list = monjo.find().limit(5).toList();
 		List<SimplePOJO> list2 = monjo.find().skip(4).limit(1).toList();
@@ -56,6 +60,7 @@ public class MonjoCursorTest extends MongoDBTest {
 	@Test
 	public void deveriaContarDocumentosColecao() {
 		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		monjo.removeAll();
 		insertPojoCollection(monjo);
 		assertEquals(30, monjo.getCount());
 	}

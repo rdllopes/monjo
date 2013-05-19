@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
+import contrib.org.hibernate.cfg.DefaultNamingStrategy;
 import contrib.org.hibernate.cfg.NamingStrategy;
 
 /**
@@ -32,16 +33,16 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentToObjectConverter.class);
 
 	private DBObject document;
-	private NamingStrategy namingStrategy;
+	private final NamingStrategy namingStrategy;
 
-	private Class<T> objectType;
+	private final Class<T> objectType;
 
 	public DefaultDocumentToObjectConverter(Class<T> objectType) {
-		this.objectType = objectType;
+		this(null, objectType);
 	}
 
 	public DefaultDocumentToObjectConverter(NamingStrategy namingStrategy, Class<T> innerEntityClass) {
-		this.namingStrategy = namingStrategy;
+		this.namingStrategy=  (namingStrategy == null) ? new DefaultNamingStrategy() : namingStrategy;
 		this.objectType = innerEntityClass;
 	}
 
@@ -177,10 +178,5 @@ public class DefaultDocumentToObjectConverter<T extends Object> implements Docum
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public void setNamingStrategy(NamingStrategy namingStrategy) {
-		this.namingStrategy = namingStrategy;
 	}
 }

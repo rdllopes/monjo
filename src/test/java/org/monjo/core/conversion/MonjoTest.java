@@ -7,6 +7,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
+import static org.monjo.test.util.MongoDBUtil.getMonjoCollection;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
@@ -17,7 +19,6 @@ import org.monjo.example.SimplePOJO;
 import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
 import org.monjo.test.util.MongoDBTest;
-
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

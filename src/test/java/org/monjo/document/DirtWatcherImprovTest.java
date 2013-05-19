@@ -2,6 +2,7 @@ package org.monjo.document;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.bson.types.ObjectId;
@@ -16,7 +17,6 @@ import org.monjo.example.StatusConverter;
 import org.monjo.test.util.MongoDBTest;
 
 import contrib.org.hibernate.cfg.DefaultNamingStrategy;
-
 
 public class DirtWatcherImprovTest extends MongoDBTest {
 	

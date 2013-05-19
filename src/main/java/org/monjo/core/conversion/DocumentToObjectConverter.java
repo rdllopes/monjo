@@ -3,8 +3,6 @@ package org.monjo.core.conversion;
 
 import com.mongodb.DBObject;
 
-import contrib.org.hibernate.cfg.NamingStrategy;
-
 /**
  * Interface defining methods to convert MongoDB documents into plain Java objects.<br /><br />
  * 
@@ -44,7 +42,5 @@ public interface DocumentToObjectConverter<T extends Object> {
 	 * @throws IllegalArgumentException if <code>objectType</code> is <code>null</code>.
 	 */
 	T to();
-
-	void setNamingStrategy(NamingStrategy defaultNamingStrategy);
 
 }

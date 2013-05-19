@@ -1,6 +1,7 @@
 package org.monjo.core.conversion;
 
 import static org.junit.Assert.assertNotNull;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
 
 import java.util.ArrayList;
 import java.util.List;

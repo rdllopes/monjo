@@ -2,7 +2,9 @@ package org.monjo.core.conversion;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
 import org.monjo.core.Operation;
+import org.monjo.core.annotations.Indexed;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
 import org.monjo.document.DirtFieldsWatcher;
@@ -30,12 +33,12 @@ import contrib.org.hibernate.cfg.NamingStrategy;
  */
 public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConverter<T> {
 	private Object javaObject;
-	private NamingStrategy namingStrategy;
-	// bom candidato a final
+	private final NamingStrategy namingStrategy;
+	private final Class<T> objectType;
+	
 	private Operation operation = Operation.Insert;
 	private BasicDBObject setUpdate;
 	private String prefix;
-	private Class<T> objectType;
 	private HashSet<String> dirtFields;
 	private boolean dirtWatcher;
 	private boolean skip;
@@ -46,13 +49,6 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			throw new NullPointerException();
 		this.objectType = objectType;
 		this.namingStrategy = namingStrategy;
-
-	}
-
-	public DefaultObjectToDocumentConverter(Class<T> objectType) {
-		if (objectType == null)
-			throw new NullPointerException();
-		this.objectType = objectType;
 	}
 
 	@Override
@@ -77,13 +73,13 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	}
 
 	private DBObject process() {
+		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 		if (javaObject == null) {
 			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
 		}
 		if (prefix == null && isUpdateAction()) {
 			setUpdate = new BasicDBObject();
 		}
-		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 		dirtFields = new HashSet<String>();
 		if (javaObject instanceof DirtFieldsWatcher) {
 			dirtWatcher = true;
@@ -101,9 +97,19 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			if (readMethod.isAnnotationPresent(Transient.class)) {
 				continue;
 			}
+			
 			String fieldName = descriptor.getName();
 			if ("class".equals(fieldName))
 				continue;
+			Field field = null;
+			try {
+				field = objectType.getField(fieldName);
+				if (Modifier.isTransient(field.getModifiers())){
+					continue ;
+				}				
+			} catch (NoSuchFieldException e1) {
+			}
+
 			Object fieldValue;
 			try {
 				fieldValue = readMethod.invoke(javaObject);
@@ -153,7 +159,9 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			case Update:
 			case UpdateInnerObject:
 			case UpdateWithAddSet:
-				rootDocument.put("$set", setUpdate);
+				rootDocument.put("$set", setUpdate);			
+			default:
+				// nada a fazer
 			}
 		}
 		return rootDocument;
@@ -254,10 +262,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 				throw new IllegalArgumentException("It is not possible update multiples collection, using positional operator.");
 			}
 			Object uniqueElement = collection.toArray()[0];
-			if (isEntity(uniqueElement)) {
-				if (AnnotatedDocumentId.get(uniqueElement) != null) {
-					return updateInnerObject(uniqueElement, fieldName);
-				}
+			if (isEntity(uniqueElement) && AnnotatedDocumentId.get(uniqueElement) != null) {
+				return updateInnerObject(uniqueElement, fieldName);
 			}
 
 		case UpdateWithAddSet:
@@ -350,10 +356,6 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		BasicDBObject dbObject = new BasicDBObject();
 		dbObject.put("$set", document);
 		return dbObject;
-	}
-
-	public void setNamingStrategy(NamingStrategy namingStrategy) {
-		this.namingStrategy = namingStrategy;
 	}
 
 	@Override

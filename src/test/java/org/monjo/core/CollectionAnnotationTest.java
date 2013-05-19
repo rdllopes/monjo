@@ -4,10 +4,8 @@ import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.monjo.core.Monjo;
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.conversion.MonjoConverterFactory;
-import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.DB;
 

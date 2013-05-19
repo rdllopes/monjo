@@ -1,10 +1,8 @@
 package org.monjo.core.conversion;
 
-import org.monjo.core.Operation;
 import static org.monjo.core.conversion.ConverterUtils.isEntity;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.monjo.core.Operation;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -13,15 +11,13 @@ import contrib.org.hibernate.cfg.NamingStrategy;
 
 public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T> {
 
-	private static final Logger logger = LoggerFactory.getLogger(DefaultMonjoConverter.class);
-
-	public DefaultMonjoConverter(Class<T> objectType) {
-		documentToObjectConverter = new DefaultDocumentToObjectConverter<T>(objectType);
-		objectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(objectType);
+	public DefaultMonjoConverter(NamingStrategy namingStrategy, Class<T> objectType) {
+		documentToObjectConverter = new DefaultDocumentToObjectConverter<T>(namingStrategy,objectType);
+		objectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(namingStrategy, objectType);
 	}
 
-	private DefaultDocumentToObjectConverter<T> documentToObjectConverter;
-	private DefaultObjectToDocumentConverter<T> objectToDocumentConverter;
+	private final DefaultDocumentToObjectConverter<T> documentToObjectConverter;
+	private final DefaultObjectToDocumentConverter<T> objectToDocumentConverter;
 	private String prefix;
 
 	@Override
@@ -43,12 +39,6 @@ public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T
 	@Override
 	public DBObject toDocument() {
 		return objectToDocumentConverter.toDocument();
-	}
-
-	@Override
-	public void setNamingStrategy(NamingStrategy namingStrategy) {
-		documentToObjectConverter.setNamingStrategy(namingStrategy);
-		objectToDocumentConverter.setNamingStrategy(namingStrategy);
 	}
 
 	@Override

@@ -15,9 +15,9 @@ public class MonjoCursor<C extends Object> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MonjoCursor.class);
 	
-	private DBCursor cursor;
-	private MonjoConverter<C> converter;
-	private Command<C> command;
+	private final DBCursor cursor;
+	private final MonjoConverter<C> converter;
+	private final Command<C> command;
 
 	private boolean shouldUseProxy;
 

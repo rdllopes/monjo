@@ -1,10 +1,13 @@
 package org.monjo.core;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.monjo.core.annotations.Entity;
+import org.monjo.core.annotations.Indexed;
 import org.monjo.core.conversion.AnnotatedDocumentId;
 import org.monjo.core.conversion.MonjoConverter;
 import org.monjo.core.conversion.MonjoConverterFactory;
@@ -30,10 +33,9 @@ import contrib.org.hibernate.cfg.NamingStrategy;
 public class Monjo<DocumentId, T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Monjo.class);
-	private Class<T> clasz;
-	private DBCollection collection;
-
-	private Command<T> command;
+	private final Class<T> clasz;
+	private final DBCollection collection;
+	private final Command<T> command;
 
 	public Monjo(DB mongoDb, Class<T> clasz) {
 		this(mongoDb, clasz, new NullCommand<T>());
@@ -44,9 +46,17 @@ public class Monjo<DocumentId, T> {
 	}
 
 	public Monjo(DB mongoDb, Class<T> clasz, Command<T> command) {
-		MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
-		String collectionName = findOutCollectionName(clasz, factory);
-		initialize(mongoDb, clasz, collectionName, command);
+		this(mongoDb, clasz, null, command);
+	}
+
+	public Monjo(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command2) {
+		if (collectionName == null){
+			MonjoConverterFactory factory = MonjoConverterFactory.getInstance();
+			collectionName = findOutCollectionName(clasz, factory);	
+		}
+		collection = mongoDb.getCollection(collectionName);
+		this.clasz = clasz;
+		this.command = command2;
 	}
 
 	protected String findOutCollectionName(Class<T> clasz, MonjoConverterFactory factory) {
@@ -64,10 +74,6 @@ public class Monjo<DocumentId, T> {
 
 	private boolean annotatedWithCollection(Class<T> clasz) {
 		return clasz.isAnnotationPresent(Entity.class) && !"".equals(clasz.getAnnotation(Entity.class).value());
-	}
-
-	public Monjo(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command) {
-		initialize(mongoDb, clasz, collectionName, command);
 	}
 
 	public DBObject createCriteriaByExample(T example) {
@@ -159,12 +165,6 @@ public class Monjo<DocumentId, T> {
 	 */
 	public long getCount() {
 		return collection.getCount();
-	}
-
-	private void initialize(DB mongoDb, Class<T> clasz, String collectionName, Command<T> command2) {
-		collection = mongoDb.getCollection(collectionName);
-		this.clasz = clasz;
-		this.command = command2;
 	}
 
 	/**
@@ -292,5 +292,25 @@ public class Monjo<DocumentId, T> {
 		return (DocumentId) AnnotatedDocumentId.get(identifiableDocument);
 
 	}
+	
+	public void ensureIndexes() {
+		PropertyDescriptor[] descriptors = PropertyUtils
+				.getPropertyDescriptors(clasz);
 
+		for (PropertyDescriptor descriptor : descriptors) {
+			String fieldName = descriptor.getName();
+			Field field;
+			try {
+				field = clasz.getField(fieldName);
+			} catch (Exception e1) {
+				throw new RuntimeException(e1);
+			}
+			if (field.isAnnotationPresent(Indexed.class)) {
+				Indexed indexed = field.getAnnotation(Indexed.class);
+				BasicDBObject obj = new BasicDBObject();
+				obj.put(fieldName, indexed.value().toInt());
+				collection.ensureIndex(obj);
+			}
+		}
+	}
 }

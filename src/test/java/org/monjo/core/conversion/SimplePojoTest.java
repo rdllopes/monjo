@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
+import static org.monjo.test.util.MongoDBUtil.getMonjoCollection;
 
 import java.util.List;
 
@@ -18,7 +20,6 @@ import org.monjo.example.SimplePOJO;
 import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
 import org.monjo.test.util.MongoDBTest;
-
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
