@@ -102,12 +102,14 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			if ("class".equals(fieldName))
 				continue;
 			Field field = null;
+			boolean virtualMethod = false;
 			try {
 				field = objectType.getField(fieldName);
 				if (Modifier.isTransient(field.getModifiers())){
 					continue ;
 				}				
 			} catch (NoSuchFieldException e1) {
+				virtualMethod = true;
 			}
 
 			Object fieldValue;
