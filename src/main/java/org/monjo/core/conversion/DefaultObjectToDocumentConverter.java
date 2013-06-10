@@ -15,10 +15,10 @@ import org.monjo.core.annotations.Transient;
 import org.monjo.document.DirtFieldsWatcher;
 import org.monjo.document.IdentifiableDocument;
 
-
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.DBRef;
 
 import contrib.org.hibernate.cfg.NamingStrategy;
 
@@ -217,18 +217,20 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		if (fieldValue == null)
 			return null;
 		Class<? extends Object> clasz = fieldValue.getClass();
-		if (isEnumWorkAround(clasz)) {
-			fieldValue = fieldValue.toString();
-		} else if (fieldValue instanceof Collection) {
-			Collection<?> collection = (Collection<?>) fieldValue;
-			fieldValue = processFieldCollection(readMethod, fieldName, collection);
-		} else if (fieldValue instanceof IdentifiableDocument) {
-			fieldValue = processFieldIdentifiable(readMethod, fieldValue, fieldName);
-		} else if (!(fieldValue instanceof Serializable)) {
-			DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
-			DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
-			innerBasicDBObject.put("_ref", clasz.getCanonicalName());
-			fieldValue = innerBasicDBObject;
+		if (!(fieldValue instanceof DBRef)) {
+			if (isEnumWorkAround(clasz)) {
+				fieldValue = fieldValue.toString();
+			} else if (fieldValue instanceof Collection) {
+				Collection<?> collection = (Collection<?>) fieldValue;
+				fieldValue = processFieldCollection(readMethod, fieldName, collection);
+			} else if (fieldValue instanceof IdentifiableDocument) {
+				fieldValue = processFieldIdentifiable(readMethod, fieldValue, fieldName);
+			} else if (!(fieldValue instanceof Serializable)) {
+				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
+				DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
+				innerBasicDBObject.put("_ref", clasz.getCanonicalName());
+				fieldValue = innerBasicDBObject;
+			}
 		}
 		return fieldValue;
 	}
