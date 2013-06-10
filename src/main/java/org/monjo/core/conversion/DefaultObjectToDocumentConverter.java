@@ -1,8 +1,12 @@
 package org.monjo.core.conversion;
 
+import static org.monjo.core.conversion.ConverterUtils.isEntity;
+
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +17,6 @@ import org.monjo.core.Operation;
 import org.monjo.core.annotations.Reference;
 import org.monjo.core.annotations.Transient;
 import org.monjo.document.DirtFieldsWatcher;
-import org.monjo.document.IdentifiableDocument;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -31,12 +34,12 @@ import contrib.org.hibernate.cfg.NamingStrategy;
  */
 public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConverter<T> {
 	private Object javaObject;
-	private NamingStrategy namingStrategy;
-	// bom candidato a final
+	private final NamingStrategy namingStrategy;
+	private final Class<T> objectType;
+
 	private Operation operation = Operation.Insert;
 	private BasicDBObject setUpdate;
 	private String prefix;
-	private Class<T> objectType;
 	private HashSet<String> dirtFields;
 	private boolean dirtWatcher;
 	private boolean skip;
@@ -47,13 +50,6 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			throw new NullPointerException();
 		this.objectType = objectType;
 		this.namingStrategy = namingStrategy;
-
-	}
-
-	public DefaultObjectToDocumentConverter(Class<T> objectType) {
-		if (objectType == null)
-			throw new NullPointerException();
-		this.objectType = objectType;
 	}
 
 	@Override
@@ -78,13 +74,13 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 	}
 
 	private DBObject process() {
+		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 		if (javaObject == null) {
 			throw new IllegalStateException("cannot convert a null object, please call from(Object) first!");
 		}
 		if (prefix == null && isUpdateAction()) {
 			setUpdate = new BasicDBObject();
 		}
-		PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(objectType);
 		dirtFields = new HashSet<String>();
 		if (javaObject instanceof DirtFieldsWatcher) {
 			dirtWatcher = true;
@@ -102,9 +98,21 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			if (readMethod.isAnnotationPresent(Transient.class)) {
 				continue;
 			}
+
 			String fieldName = descriptor.getName();
 			if ("class".equals(fieldName))
 				continue;
+			Field field = null;
+			boolean virtualMethod = false;
+			try {
+				field = objectType.getField(fieldName);
+				if (Modifier.isTransient(field.getModifiers())) {
+					continue;
+				}
+			} catch (NoSuchFieldException e1) {
+				virtualMethod = true;
+			}
+
 			Object fieldValue;
 			try {
 				fieldValue = readMethod.invoke(javaObject);
@@ -118,11 +126,10 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			if (fieldValue == null && "id".equals(fieldName) && operation.equals(Operation.Insert)) {
 				ObjectId objectId = new ObjectId();
 				// trocar por annotation
-				if (javaObject instanceof IdentifiableDocument) {
-					IdentifiableDocument<ObjectId> identifiableDocument = (IdentifiableDocument<ObjectId>) javaObject;
+				if (isEntity(javaObject)) {
 					// TODO retirar essa bomba relogio daqui (veja
 					// literatura sobre type erasure)
-					AnnotatedDocumentId.set(identifiableDocument, objectId);
+					AnnotatedDocumentId.set(javaObject, objectId);
 				}
 				fieldValue = objectId;
 			}
@@ -156,6 +163,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			case UpdateInnerObject:
 			case UpdateWithAddSet:
 				rootDocument.put("$set", setUpdate);
+			default:
+				// nada a fazer
 			}
 		}
 		return rootDocument;
@@ -223,8 +232,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			} else if (fieldValue instanceof Collection) {
 				Collection<?> collection = (Collection<?>) fieldValue;
 				fieldValue = processFieldCollection(readMethod, fieldName, collection);
-			} else if (fieldValue instanceof IdentifiableDocument) {
-				fieldValue = processFieldIdentifiable(readMethod, fieldValue, fieldName);
+			} else if (isEntity(fieldValue)) {
+				fieldValue = processEntity(readMethod, fieldValue, fieldName);
 			} else if (!(fieldValue instanceof Serializable)) {
 				DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, fieldValue.getClass());
 				DBObject innerBasicDBObject = converter.from(fieldValue).toDocument();
@@ -258,11 +267,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 				throw new IllegalArgumentException("It is not possible update multiples collection, using positional operator.");
 			}
 			Object uniqueElement = collection.toArray()[0];
-			if (uniqueElement instanceof IdentifiableDocument<?>) {
-				IdentifiableDocument<?> identifiableDocument = (IdentifiableDocument<?>) uniqueElement;
-				if (AnnotatedDocumentId.get(identifiableDocument) != null) {
-					return updateInnerObject(identifiableDocument, fieldName);
-				}
+			if (isEntity(uniqueElement) && AnnotatedDocumentId.get(uniqueElement) != null) {
+				return updateInnerObject(uniqueElement, fieldName);
 			}
 
 		case UpdateWithAddSet:
@@ -272,7 +278,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 			}
 			Object[] elements = collection.toArray();
 			Object firstElement = elements[0];
-			if (firstElement instanceof IdentifiableDocument<?>) {
+			if (isEntity(firstElement)) {
 				verifyNullIds(elements);
 			}
 			if (collection.size() == 1) {
@@ -296,9 +302,8 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 
 	private void verifyNullIds(Object[] elements) {
 		for (int i = 0; i < elements.length; i++) {
-			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) elements[i];
-			if (AnnotatedDocumentId.get(identifiable) != null) {
-				throw new IllegalArgumentException("Any inner Object is IdentifiableDocument should not have non-null id for update actions");
+			if (AnnotatedDocumentId.get(elements[i]) != null) {
+				throw new IllegalArgumentException("Any inner Entity should not have non-null id for update actions");
 			}
 		}
 	}
@@ -318,12 +323,11 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return dbList;
 	}
 
-	private Object processFieldIdentifiable(Method readMethod, Object element, String fieldName) {
+	private Object processEntity(Method readMethod, Object element, String fieldName) {
 		DBObject innerBasicDBObject;
 		if (readMethod.isAnnotationPresent(Reference.class)) {
-			IdentifiableDocument<?> identifiable = (IdentifiableDocument<?>) element;
 			innerBasicDBObject = new BasicDBObject();
-			innerBasicDBObject.put("_id", AnnotatedDocumentId.get(identifiable));
+			innerBasicDBObject.put("_id", AnnotatedDocumentId.get(element));
 			innerBasicDBObject.put("_ref", element.getClass().getCanonicalName());
 		} else {
 			if (operation.equals(Operation.Search)) {
@@ -344,7 +348,7 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		return null;
 	}
 
-	private DBObject updateInnerObject(IdentifiableDocument<?> element, String fieldName) {
+	private DBObject updateInnerObject(Object element, String fieldName) {
 		skip = true;
 		DefaultObjectToDocumentConverter converter = new DefaultObjectToDocumentConverter(namingStrategy, element.getClass());
 		converter.from(element).setPrefix(fieldName + ".$.").toDocument(setUpdate);
@@ -357,10 +361,6 @@ public class DefaultObjectToDocumentConverter<T> implements ObjectToDocumentConv
 		BasicDBObject dbObject = new BasicDBObject();
 		dbObject.put("$set", document);
 		return dbObject;
-	}
-
-	public void setNamingStrategy(NamingStrategy namingStrategy) {
-		this.namingStrategy = namingStrategy;
 	}
 
 	@Override

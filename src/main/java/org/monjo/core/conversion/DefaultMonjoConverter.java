@@ -1,13 +1,8 @@
 package org.monjo.core.conversion;
 
-import java.lang.reflect.Method;
+import static org.monjo.core.conversion.ConverterUtils.isEntity;
 
-import org.bson.types.ObjectId;
 import org.monjo.core.Operation;
-import org.monjo.core.annotations.Id;
-import org.monjo.document.IdentifiableDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -16,15 +11,13 @@ import contrib.org.hibernate.cfg.NamingStrategy;
 
 public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T> {
 
-	private static final Logger logger = LoggerFactory.getLogger(DefaultMonjoConverter.class);
-
-	public DefaultMonjoConverter(Class<T> objectType) {
-		documentToObjectConverter = new DefaultDocumentToObjectConverter<T>(objectType);
-		objectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(objectType);
+	public DefaultMonjoConverter(NamingStrategy namingStrategy, Class<T> objectType) {
+		documentToObjectConverter = new DefaultDocumentToObjectConverter<T>(namingStrategy,objectType);
+		objectToDocumentConverter = new DefaultObjectToDocumentConverter<T>(namingStrategy, objectType);
 	}
 
-	private DefaultDocumentToObjectConverter<T> documentToObjectConverter;
-	private DefaultObjectToDocumentConverter<T> objectToDocumentConverter;
+	private final DefaultDocumentToObjectConverter<T> documentToObjectConverter;
+	private final DefaultObjectToDocumentConverter<T> objectToDocumentConverter;
 	private String prefix;
 
 	@Override
@@ -49,19 +42,11 @@ public class DefaultMonjoConverter<T extends Object> implements MonjoConverter<T
 	}
 
 	@Override
-	public void setNamingStrategy(NamingStrategy namingStrategy) {
-		documentToObjectConverter.setNamingStrategy(namingStrategy);
-		objectToDocumentConverter.setNamingStrategy(namingStrategy);
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	public DBObject getIdDocument(Object object) {
-		if (object instanceof IdentifiableDocument) {
-			@SuppressWarnings("rawtypes")
-			IdentifiableDocument document = (IdentifiableDocument<Object>) object;
+		if (isEntity(object)) {
 			DBObject dbObject = new BasicDBObject();
-			dbObject.put((prefix == null) ? "_id" : prefix + "._id", AnnotatedDocumentId.get(document));
+			dbObject.put((prefix == null) ? "_id" : prefix + "._id", AnnotatedDocumentId.get(object));
 			return dbObject;
 		}
 		return null;

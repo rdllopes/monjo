@@ -6,10 +6,9 @@ import java.util.List;
 import org.bson.types.ObjectId;
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.annotations.Id;
-import org.monjo.document.IdentifiableDocument;
 
 @Entity
-public class ListWithin implements IdentifiableDocument<ObjectId> {
+public class ListWithin {
 
 	public ListWithin() {
 	}

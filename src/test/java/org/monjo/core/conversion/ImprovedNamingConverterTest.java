@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.monjo.example.SimplePOJO;
 import org.monjo.test.util.MongoDBTest;
 
-
 import com.mongodb.DBObject;
 
 import contrib.org.hibernate.cfg.ImprovedNamingStrategy;

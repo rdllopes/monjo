@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
+import static org.monjo.test.util.MongoDBUtil.getFromMongo;
+import static org.monjo.test.util.MongoDBUtil.saveToMongo;
 
 import org.bson.types.ObjectId;
 import org.junit.Before;
@@ -11,7 +13,6 @@ import org.junit.Test;
 import org.monjo.example.SimplePOJO;
 import org.monjo.example.SimplePOJOWithStringId;
 import org.monjo.test.util.MongoDBTest;
-
 
 import com.mongodb.DBObject;
 

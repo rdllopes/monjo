@@ -37,28 +37,15 @@ public class MonjoConverterFactory {
 	}
 	
 	public <T> ObjectToDocumentConverter<T> getDefaultObjectConverter(Class<T> class1){
-		DefaultObjectToDocumentConverter<T> converter = new DefaultObjectToDocumentConverter<T>(class1);
-		if (namingStrategy != null){
-			converter.setNamingStrategy(namingStrategy);	
-		}
-		return converter;
+		return new DefaultObjectToDocumentConverter<T>(namingStrategy, class1);
 	}
 	
 	public <T> DocumentToObjectConverter<T> getDefaultDocumentConverter(Class<T> class1){
-		DefaultDocumentToObjectConverter<T> converter = new DefaultDocumentToObjectConverter<T>(class1);
-		if (namingStrategy != null){
-			converter.setNamingStrategy(namingStrategy);	
-		}
-		return converter;
+		return new DefaultDocumentToObjectConverter<T>(namingStrategy, class1);
 	}
 	
 	public <T> MonjoConverter<T> getDefaultMonjoConverter(Class<T> class1){
-		MonjoConverter<T> converter = new DefaultMonjoConverter<T>(class1);
-		if (namingStrategy != null){
-			converter.setNamingStrategy(namingStrategy);	
-		}
-		return converter;
-		
+		return new DefaultMonjoConverter<T>(namingStrategy, class1);	
 	}
 	
 	public NamingStrategy getNamingStrategy() {

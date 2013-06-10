@@ -1,6 +1,7 @@
 package org.monjo.core.conversion;
 
 import static org.junit.Assert.assertEquals;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.junit.Before;

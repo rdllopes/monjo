@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.monjo.test.util.HamcrestPatch.classEqualTo;
+import static org.monjo.test.util.MongoDBUtil.getMongoDB;
+import static org.monjo.test.util.MongoDBUtil.getMonjoCollection;
 
 import java.util.List;
 
@@ -18,7 +20,6 @@ import org.monjo.example.SimplePOJO;
 import org.monjo.example.Status;
 import org.monjo.example.StatusConverter;
 import org.monjo.test.util.MongoDBTest;
-
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -37,8 +38,8 @@ public class SimplePojoTest extends MongoDBTest {
 	@Test
 	public void deveriaGravarElemento() {
 		SimplePOJO pojo = PojoBuilder.createSimplePojo();
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
-		ObjectId objectId = pojongo.save(pojo);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = monjo.save(pojo);
 		
 		DBObject document = getMonjoCollection().findOne(new BasicDBObject("_id", objectId));
 		Class<?> anIntegerFieldClass = document.get("anIntegerField").getClass();
@@ -58,17 +59,17 @@ public class SimplePojoTest extends MongoDBTest {
 	public void deveriaEncontrarDocumentoInserido() {
 		SimplePOJO pojo = PojoBuilder.createSimplePojo();
 
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
-		ObjectId objectId = pojongo.insert(pojo);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		ObjectId objectId = monjo.insert(pojo);
 
-		SimplePOJO simplePOJO = pojongo.findOne(new SimplePOJO(objectId));
+		SimplePOJO simplePOJO = monjo.findOneByExample(new SimplePOJO(objectId));
 		compareTwoSimplePojos(pojo, simplePOJO);
 
 	}
 
 	@Test
 	public void deveriaFiltrarUsandoIn() throws Exception{
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		SimplePOJO pojo = createSimplePojo();
 		
@@ -82,9 +83,9 @@ public class SimplePojoTest extends MongoDBTest {
 		pojo3.setaLongField(43L);
 		pojo3.setaDoubleField(44.0);
 		
-		pojongo.insert(pojo);
-		pojongo.insert(pojo2);
-		pojongo.insert(pojo3);
+		monjo.insert(pojo);
+		monjo.insert(pojo2);
+		monjo.insert(pojo3);
 		
 		BasicDBList inValues = new BasicDBList();
 		inValues.add(1);
@@ -92,7 +93,7 @@ public class SimplePojoTest extends MongoDBTest {
 		
 		BasicDBObject criteria = new BasicDBObject("anIntegerField", new BasicDBObject("$in", inValues));
 
-		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
+		List<SimplePOJO> list = monjo.findBy(criteria).toList();
  		
 		assertEquals(2, list.size());
 	}
@@ -115,22 +116,22 @@ public class SimplePojoTest extends MongoDBTest {
 	
 	@Test
 	public void deveriaRemover(){
-		Monjo<ObjectId, SimplePOJO> pojongo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
+		Monjo<ObjectId, SimplePOJO> monjo = new Monjo<ObjectId, SimplePOJO>(getMongoDB(), SimplePOJO.class);
 		
 		SimplePOJO pojo = new SimplePOJO();
 		pojo.setAnIntegerField(123);
 		pojo.setaLongField(43L);
 		pojo.setaDoubleField(44.0);
 		
-		pojongo.insert(pojo);
+		monjo.insert(pojo);
 		
 		BasicDBObject criteria = new BasicDBObject("anIntegerField", 123);
 		
-		List<SimplePOJO> list = pojongo.findBy(criteria).toList();
+		List<SimplePOJO> list = monjo.findBy(criteria).toList();
 		
-		pojongo.removeByCriteria(criteria);
+		monjo.removeByCriteria(criteria);
 		
-		List<SimplePOJO> list2 = pojongo.findBy(criteria).toList();
+		List<SimplePOJO> list2 = monjo.findBy(criteria).toList();
 		
 		assertArrayEquals(new Integer[]{1,0}, new Integer[]{list.size(), list2.size()});
 	}

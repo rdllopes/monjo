@@ -4,10 +4,9 @@ import org.bson.types.ObjectId;
 import org.monjo.core.annotations.Entity;
 import org.monjo.core.annotations.Id;
 import org.monjo.core.annotations.Transient;
-import org.monjo.document.IdentifiableDocument;
 
 @Entity
-public class Example implements IdentifiableDocument<ObjectId> {
+public class Example  {
 	
 	private ObjectId id;
 	private String name;

@@ -199,14 +199,14 @@ public final class StringHelper {
 	 */
 	public static String collapseQualifier(String qualifier, boolean includeDots) {
 		StringTokenizer tokenizer = new StringTokenizer( qualifier, "." );
-		String collapsed = Character.toString( tokenizer.nextToken().charAt( 0 ) );
+		StringBuilder collapsed = new StringBuilder(Character.toString( tokenizer.nextToken().charAt( 0 ) ));
 		while ( tokenizer.hasMoreTokens() ) {
 			if ( includeDots ) {
-				collapsed += '.';
+				collapsed.append('.');
 			}
-			collapsed += tokenizer.nextToken().charAt( 0 );
+			collapsed.append(tokenizer.nextToken().charAt( 0 ));
 		}
-		return collapsed;
+		return collapsed.toString();
 	}
 
 	/**
@@ -354,7 +354,7 @@ public final class StringHelper {
 				inQuote = true;
 			}
 			else if ( c == character ) {
-				locations.add( new Integer( indx ) );
+				locations.add( Integer.valueOf( indx ) );
 			}
 		}
 		return ArrayHelper.toIntArray( locations );

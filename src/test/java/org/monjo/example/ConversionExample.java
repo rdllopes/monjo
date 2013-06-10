@@ -18,7 +18,7 @@ public class ConversionExample {
 	
 	public static void main(String[] args) throws Exception {
 		Mongo mongo = new Mongo();
-		DB exampleDB = mongo.getDB("pojongoExample");
+		DB exampleDB = mongo.getDB("monjoExample");
 		DBCollection examples = exampleDB.getCollection("Example");
 		
 		saveNewExamples(examples);
