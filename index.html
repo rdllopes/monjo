@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav id="TOC">
+<ul>
+<li><a href="#monjo">Monjo!</a><ul>
+<li><a href="#special-features">Special features</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="monjo"><a href="#TOC">Monjo!</a></h1>
+<p><a href="https://travis-ci.org/rdllopes/monjo"><embed src="https://travis-ci.org/rdllopes/monjo.png?branch=master"></a></p>
+<p>Monjo is a lightweight type-safe library for mapping Java objects to/from MongoDB:</p>
+<ul>
+<li>Easy to use, and very lightweight</li>
+<li>Type-safe Query support</li>
+<li>Annotations describe mapping behavior; there are no XML files.</li>
+<li><p>Extensions: Validation (jsr330), and SLF4J Logging</p></li>
+<li>Standard Mapping: use a set of rules for determining the physical fields and collections names given the information in the mapping document (ex: naming strategy prefers embedded underscores to mixed case names)</li>
+<li><p>Javabeans: accessors and mutators are always used to infer fields</p>
+<pre><code>@Entity(&quot;professionals&quot;)
+class Employee implements IdentificableDocument&lt;ObjectId&gt;{
+  ObjectId id; // auto-generated, if not set (see ObjectId)
+  String firstName, lastName; // value types are automatically persisted
+  Long salary = null; // only non-null values are stored 
+
+  Address address; // by default fields are embedded
+
+  @ReferenceKey&lt;Employee&gt; manager; //references can be saved without automatic loading
+
+  List&lt;Employee&gt; underlings = new ArrayList&lt;Employee&gt;(); 
+     // by default, use DBList to persist inner collections
+
+  @Indexed boolean active = false; //fields can be indexed for better performance
+  @Transient int notStored; //fields can be ignored (no load/save)
+  transient boolean stored = true; //not @Transient, will be ignored by Serialization/GWT for example.
+}</code></pre></li>
+</ul>
+<h2 id="special-features"><a href="#TOC">Special features</a></h2>
+<ul>
+<li><p>Find By Example (find a object using any field, maybe an inner inner inner … object )</p>
+<pre><code>PojoWithListInnerObject pojo = PojoBuilder.createMegaZordePojo();
+Monjo&lt;ObjectId, PojoWithListInnerObject&gt; monjo = new Monjo&lt;ObjectId, PojoWithListInnerObject&gt;(getMongoDB(), PojoWithListInnerObject.class);
+monjo.removeAll();
+monjo.insert(createMegaZordePojo);
+pojo.setId(null);
+List&lt;Category&gt; categories = pojo.getCategories();
+Category category = categories.get(0);
+category.setName(null);
+PojoWithListInnerObject result = pojongo.findByExample(pojo.toList().get(0);</code></pre></li>
+<li><p>Cursor (select page of selection, sort and so on)</p>
+<pre><code>List&lt;SimplePOJO&gt; list = monjo.find().limit(5).toList();</code></pre></li>
+<li><p>Update inner Objects</p>
+<pre><code> monjo.&lt;Category&gt; updateInnerObject(&quot;categories&quot;, category, pojo);</code></pre></li>
+<li>Does not store Null/Empty values (by default).</li>
+<li><p>GWT support (entities are just POJOs) – (GWT ignores annotations)</p></li>
+</ul>
+<p>Note: @Reference will not save objects, just a reference to them; You must save them yourself.</p>
+<p>This library is currently at a very early development stage.</p>
+</body>
+</html>
