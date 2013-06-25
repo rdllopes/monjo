@@ -3,10 +3,14 @@ apply plugin: 'maven'
 apply plugin: "eclipse"
 // apply plugin: 'findbugs'
 apply plugin: 'pmd'
+apply plugin: 'signing'
 
-archivesBaseName = "monjo-0.2"
+archivesBaseName = "monjo-0.1.1"
 sourceCompatibility = "1.6"
 targetCompatibility = "1.6"
+
+group = 'com.github.monjo'
+version = '0.1.1'
 
 repositories {
     mavenCentral()
@@ -25,6 +29,26 @@ tasks.withType(FindBugs) {
  
 sourceSets.main.java.srcDirs = ["src/main/java", "src/others"]
 
+def isDevBuild
+def isReleaseBuild
+def sonatypeRepositoryUrl
+def env
+  
+//set build variables based on build type (release, continuous integration, development)
+env = (hasProperty("env"))? property("env") : "dev"
+switch(env){
+  case "release":
+    isReleaseBuild = true
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    break;
+  case "ci":
+    version += "-SNAPSHOT"
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+    break
+  default:
+  isDevBuild = true      
+}
+
 dependencies {
 	compile "org.mongodb:mongo-java-driver:2.7.3"
 	compile "org.slf4j:slf4j-api:1.7.2"
@@ -37,12 +61,81 @@ dependencies {
 	
 }
 
-install {
-    repositories.mavenInstaller {
-    	pom.groupId = 'org.monjo'
-        pom.artifactId = 'monjo'
-        pom.version = '0.2'
+//********* artifact signing *********
+if(isReleaseBuild) {
+    signing {
+        sign configurations.archives
+    }
+} else {
+    task signArchives {
+        // do nothing
     }
 }
 
+uploadArchives {
+  repositories {
+      if (isDevBuild) {
+        mavenLocal()
+      }
+      else {      
+        mavenDeployer {
+            if(isReleaseBuild) {
+              beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+            }
+ 
+            repository(url: sonatypeRepositoryUrl) {
+                  authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            
+            pom.project {
+               name 'Monjo'
+               packaging 'jar'
+               description 'Monjo is a lightweight type-safe library for mapping Java objects to/from MongoDB'
+               url 'http://monjo.github.com/'
+ 
+               scm {
+                   url 'scm:git@github.com:rdllopes/monjo.git'
+                   connection 'scm:git@github.com:rdllopes/monjo.git'
+                   developerConnection 'scm:git@github.com:rdllopes/monjo.git'
+               }
+ 
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+ 
+               developers {
+                   developer {
+                       id 'rdllopes'
+                       name 'Rodrigo di Lorenzo Lopes'
+                   }
+                   developer {
+                       id 'equake'
+                       name 'Marcos Araujo Sobrinho'
+                   }
+               }
+           }
+        }
+      }
+  }
+}
+
 defaultTasks 'clean', 'jar'
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
