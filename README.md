@@ -62,4 +62,5 @@ Special features
 
 Note: @Reference will not save objects, just a reference to them; You must save them yourself. 
 
-This library is currently at a very early development stage.
+This library is currently at a very early development stage, but already being used in production in some really big applications.
+
